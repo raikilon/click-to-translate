@@ -1,3 +1,6 @@
 spring:
   application:
     name: Translation service
+deepl:
+  auth-key: ${DEEPL_AUTH_KEY}
+

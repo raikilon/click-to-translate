@@ -1,0 +1,2 @@
+### List translation languages
+GET {{baseUrl}}/api/translate/languages

@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: click-to-translate-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: click_to_translate
+      POSTGRES_USER: click_to_translate
+      POSTGRES_PASSWORD: click_to_translate
+    ports:
+      - "5432:5432"
+    volumes:
+      - click_to_translate_pgdata:/var/lib/postgresql
+
+volumes:
+  click_to_translate_pgdata:

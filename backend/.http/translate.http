@@ -1,0 +1,24 @@
+### Translate (generic source)
+POST {{baseUrl}}/api/translate
+Content-Type: application/json
+
+{
+  "userId": "local-user",
+  "word": "house",
+  "sentence": "This is a house.",
+  "sourceLanguage": "en",
+  "targetLanguage": "de",
+  "source": {
+    "type": "web",
+    "id": "example-page",
+    "title": "Example Page"
+  },
+  "sourceMetadata": {
+    "type": "generic",
+    "url": "https://example.com/page",
+    "domain": "example.com",
+    "selectionOffset": 42,
+    "paragraphIndex": 3
+  },
+  "occurredAt": "2024-01-01T10:00:00Z"
+}

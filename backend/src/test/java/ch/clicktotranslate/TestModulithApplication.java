@@ -10,8 +10,7 @@ class ApplicationTests {
 	void verifiesModulithStructure() {
 		var modules = ApplicationModules.of(ClickToTranslateApplication.class).verify();
 
-		new Documenter(modules)
-				.writeModulesAsPlantUml()
-				.writeIndividualModulesAsPlantUml();
+		new Documenter(modules).writeModulesAsPlantUml().writeIndividualModulesAsPlantUml();
 	}
+
 }
