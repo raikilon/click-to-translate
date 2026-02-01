@@ -6,68 +6,56 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 import ch.clicktotranslate.translation.domain.outbound.EventPublisher;
-import ch.clicktotranslate.translation.domain.outbound.TranslationGateway;
-import ch.clicktotranslate.translation.domain.usecase.TranslateWord;
-import ch.clicktotranslate.translation.framework.spring.events.outbound.SpringEventPublisherAdapter;
+import ch.clicktotranslate.translation.domain.outbound.TranslationService;
+import ch.clicktotranslate.translation.domain.usecase.TranslateWordUseCase;
+import ch.clicktotranslate.translation.framework.spring.events.outbound.SpringEventPublisher;
+import ch.clicktotranslate.translation.framework.spring.events.outbound.mapper.TranslatedWordEventMapper;
 import ch.clicktotranslate.translation.framework.spring.http.inbound.mapper.HttpTranslateRequestMapper;
 import ch.clicktotranslate.translation.framework.spring.http.inbound.mapper.HttpTranslateResponseMapper;
-import ch.clicktotranslate.translation.framework.spring.http.outbound.SpringDeepLApiClient;
-import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLTranslateRequestMapper;
-import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLTranslateResponseMapper;
-import ch.clicktotranslate.translation.infrastructure.controller.TranslateWordController;
-import ch.clicktotranslate.translation.infrastructure.gateway.DeepLTranslationGateway;
-import ch.clicktotranslate.translation.infrastructure.gateway.client.DeepLApiClient;
+import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.mapper.DeepLTranslateRequestMapper;
+import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.mapper.DeepLTranslateResponseMapper;
 
 @Configuration
 public class TranslationConfiguration {
-	@Bean
-	public TranslateWord translateWord(TranslationGateway translationGateway, EventPublisher eventPublisher) {
-		return new TranslateWord(translationGateway, eventPublisher);
-	}
 
-	@Bean
-	public TranslateWordController translateWordController(TranslateWord translateWord) {
-		return new TranslateWordController(translateWord);
-	}
+    @Bean
+    public TranslateWordUseCase translateWord(TranslationService translationService, EventPublisher eventPublisher) {
+        return new TranslateWordUseCase(translationService, eventPublisher);
+    }
 
-	@Bean
-	public HttpTranslateRequestMapper httpTranslateRequestMapper() {
-		return new HttpTranslateRequestMapper();
-	}
+    @Bean
+    public HttpTranslateRequestMapper httpTranslateRequestMapper() {
+        return new HttpTranslateRequestMapper();
+    }
 
-	@Bean
-	public HttpTranslateResponseMapper httpTranslateResponseMapper() {
-		return new HttpTranslateResponseMapper();
-	}
+    @Bean
+    public HttpTranslateResponseMapper httpTranslateResponseMapper() {
+        return new HttpTranslateResponseMapper();
+    }
 
-	@Bean
-	public DeepLTranslateRequestMapper deepLTranslateRequestMapper() {
-		return new DeepLTranslateRequestMapper();
-	}
+    @Bean
+    public DeepLTranslateRequestMapper deepLTranslateRequestMapper() {
+        return new DeepLTranslateRequestMapper();
+    }
 
-	@Bean
-	public DeepLTranslateResponseMapper deepLTranslateResponseMapper() {
-		return new DeepLTranslateResponseMapper();
-	}
+    @Bean
+    public DeepLTranslateResponseMapper deepLTranslateResponseMapper() {
+        return new DeepLTranslateResponseMapper();
+    }
 
-	@Bean
-	public TranslationGateway translationGateway(DeepLApiClient deepLApiClient) {
-		return new DeepLTranslationGateway(deepLApiClient);
-	}
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
-	@Bean
-	public DeepLApiClient deepLApiClient(RestTemplate restTemplate, DeepLTranslateRequestMapper requestMapper,
-			DeepLTranslateResponseMapper responseMapper) {
-		return new SpringDeepLApiClient(restTemplate, requestMapper, responseMapper);
-	}
+    @Bean
+    public TranslatedWordEventMapper translatedWordEventMapper() {
+        return new TranslatedWordEventMapper();
+    }
 
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
-
-	@Bean
-	public EventPublisher eventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-		return new SpringEventPublisherAdapter(applicationEventPublisher);
-	}
+    @Bean
+    public EventPublisher eventPublisher(ApplicationEventPublisher applicationEventPublisher,
+            TranslatedWordEventMapper eventMapper) {
+        return new SpringEventPublisher(applicationEventPublisher, eventMapper);
+    }
 }

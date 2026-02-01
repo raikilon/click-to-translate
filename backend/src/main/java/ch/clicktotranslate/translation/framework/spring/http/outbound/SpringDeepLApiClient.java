@@ -2,28 +2,29 @@ package ch.clicktotranslate.translation.framework.spring.http.outbound;
 
 import org.springframework.web.client.RestTemplate;
 
-import ch.clicktotranslate.translation.domain.usecase.model.TranslateWordInput;
-import ch.clicktotranslate.translation.domain.usecase.model.TranslateWordOutput;
-import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLTranslateRequestMapper;
-import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLTranslateResponseMapper;
-import ch.clicktotranslate.translation.infrastructure.gateway.client.DeepLApiClient;
+import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLHttpRequestMapper;
+import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLHttpResponseMapper;
+import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.client.DeepLApiClient;
+import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.dto.DeepLTranslateRequest;
+import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.dto.DeepLTranslateResponse;
 
 public class SpringDeepLApiClient implements DeepLApiClient {
-	private static final String DEEPL_TRANSLATE_URI = "/deepl/translate";
 
-	private final RestTemplate restTemplate;
-	private final DeepLTranslateRequestMapper requestMapper;
-	private final DeepLTranslateResponseMapper responseMapper;
+    private static final String DEEPL_TRANSLATE_URI = "/deepl/translate";
 
-	public SpringDeepLApiClient(RestTemplate restTemplate, DeepLTranslateRequestMapper requestMapper,
-			DeepLTranslateResponseMapper responseMapper) {
-		this.restTemplate = restTemplate;
-		this.requestMapper = requestMapper;
-		this.responseMapper = responseMapper;
-	}
+    private final RestTemplate restTemplate;
+    private final DeepLHttpRequestMapper requestMapper;
+    private final DeepLHttpResponseMapper responseMapper;
 
-	@Override
-	public TranslateWordOutput translate(TranslateWordInput request) {
-		return null;
-	}
+    public SpringDeepLApiClient(RestTemplate restTemplate, DeepLHttpRequestMapper requestMapper,
+            DeepLHttpResponseMapper responseMapper) {
+        this.restTemplate = restTemplate;
+        this.requestMapper = requestMapper;
+        this.responseMapper = responseMapper;
+    }
+
+    @Override
+    public DeepLTranslateResponse translate(DeepLTranslateRequest request) {
+        return null;
+    }
 }

@@ -1,7 +1,7 @@
 package ch.clicktotranslate.translation.domain.outbound;
 
-import ch.clicktotranslate.translation.domain.event.TranslatedWordDomainEvent;
+import ch.clicktotranslate.translation.domain.event.TranslatedWordEvent;
 
 public interface EventPublisher {
-	void publish(TranslatedWordDomainEvent event);
+	void publish(TranslatedWordEvent event);
 }

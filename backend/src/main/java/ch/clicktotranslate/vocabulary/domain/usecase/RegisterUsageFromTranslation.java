@@ -1,20 +1,20 @@
 package ch.clicktotranslate.vocabulary.domain.usecase;
 
-import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepositoryGateway;
+import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepository;
 import ch.clicktotranslate.vocabulary.domain.outbound.Lemmatizer;
-import ch.clicktotranslate.vocabulary.domain.outbound.UsageRepositoryGateway;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.RegisterUsageInput;
+import ch.clicktotranslate.vocabulary.domain.outbound.UsageRepository;
+import ch.clicktotranslate.vocabulary.domain.usecase.input.RegisterUsageInput;
 
 public class RegisterUsageFromTranslation {
 	private final Lemmatizer lemmatizer;
-	private final LemmaRepositoryGateway lemmaRepositoryGateway;
-	private final UsageRepositoryGateway usageRepositoryGateway;
+	private final LemmaRepository lemmaRepository;
+	private final UsageRepository usageRepository;
 
-	public RegisterUsageFromTranslation(Lemmatizer lemmatizer, LemmaRepositoryGateway lemmaRepositoryGateway,
-			UsageRepositoryGateway usageRepositoryGateway) {
+	public RegisterUsageFromTranslation(Lemmatizer lemmatizer, LemmaRepository lemmaRepository,
+			UsageRepository usageRepository) {
 		this.lemmatizer = lemmatizer;
-		this.lemmaRepositoryGateway = lemmaRepositoryGateway;
-		this.usageRepositoryGateway = usageRepositoryGateway;
+		this.lemmaRepository = lemmaRepository;
+		this.usageRepository = usageRepository;
 	}
 
 	public void execute(RegisterUsageInput input) {

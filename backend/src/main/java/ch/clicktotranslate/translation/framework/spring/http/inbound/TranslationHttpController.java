@@ -1,14 +1,14 @@
 package ch.clicktotranslate.translation.framework.spring.http.inbound;
 
+import ch.clicktotranslate.translation.framework.spring.http.inbound.dto.TranslateRequestDto;
+import ch.clicktotranslate.translation.framework.spring.http.inbound.dto.TranslateResponseDto;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.clicktotranslate.translation.domain.usecase.model.TranslateWordInput;
-import ch.clicktotranslate.translation.domain.usecase.model.TranslateWordOutput;
-import ch.clicktotranslate.translation.framework.spring.http.inbound.dto.HttpTranslateRequest;
-import ch.clicktotranslate.translation.framework.spring.http.inbound.dto.HttpTranslateResponse;
+import ch.clicktotranslate.translation.domain.entity.TranslateWord;
+import ch.clicktotranslate.translation.domain.entity.TranslatedWord;
 import ch.clicktotranslate.translation.framework.spring.http.inbound.mapper.HttpTranslateRequestMapper;
 import ch.clicktotranslate.translation.framework.spring.http.inbound.mapper.HttpTranslateResponseMapper;
 import ch.clicktotranslate.translation.infrastructure.controller.TranslateWordController;
@@ -28,9 +28,9 @@ public class TranslationHttpController {
 	}
 
 	@PostMapping
-	public HttpTranslateResponse translate(@RequestBody HttpTranslateRequest request) {
-		TranslateWordInput input = requestMapper.map(request);
-		TranslateWordOutput responseModel = translateWordController.translate(input);
+	public TranslateResponseDto translate(@RequestBody TranslateRequestDto request) {
+		TranslateWord input = requestMapper.map(request);
+		TranslatedWord responseModel = translateWordController.translate(input);
 		return responseMapper.map(responseModel);
 	}
 }

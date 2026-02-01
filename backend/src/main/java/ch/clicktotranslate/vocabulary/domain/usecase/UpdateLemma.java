@@ -1,13 +1,13 @@
 package ch.clicktotranslate.vocabulary.domain.usecase;
 
-import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepositoryGateway;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.UpdateLemmaInput;
+import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepository;
+import ch.clicktotranslate.vocabulary.domain.usecase.input.UpdateLemmaInput;
 
 public class UpdateLemma {
-	private final LemmaRepositoryGateway lemmaRepositoryGateway;
+	private final LemmaRepository lemmaRepository;
 
-	public UpdateLemma(LemmaRepositoryGateway lemmaRepositoryGateway) {
-		this.lemmaRepositoryGateway = lemmaRepositoryGateway;
+	public UpdateLemma(LemmaRepository lemmaRepository) {
+		this.lemmaRepository = lemmaRepository;
 	}
 
 	public void execute(UpdateLemmaInput input) {

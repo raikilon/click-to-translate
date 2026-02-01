@@ -1,18 +1,16 @@
 package ch.clicktotranslate.vocabulary.framework.spring.persistence.mapper;
 
-import ch.clicktotranslate.vocabulary.framework.spring.persistence.JpaUsageEntity;
-import ch.clicktotranslate.vocabulary.infrastructure.gateway.model.UsageRecord;
+import ch.clicktotranslate.vocabulary.domain.entity.Usage;
+import ch.clicktotranslate.vocabulary.framework.spring.persistence.entity.JpaUsageEntity;
 
 public class UsageJpaMapper {
-	public UsageRecord toRecord(JpaUsageEntity entity) {
-		UsageRecord record = new UsageRecord();
-		record.setId(entity.getId());
-		return record;
-	}
+  public Usage toRecord(JpaUsageEntity entity) {
+    Usage record = new Usage();
+    return record;
+  }
 
-	public JpaUsageEntity toEntity(UsageRecord record) {
-		JpaUsageEntity entity = new JpaUsageEntity();
-		entity.setId(record.getId());
-		return entity;
-	}
+  public JpaUsageEntity toEntity(Usage record) {
+    JpaUsageEntity entity = new JpaUsageEntity();
+    return entity;
+  }
 }

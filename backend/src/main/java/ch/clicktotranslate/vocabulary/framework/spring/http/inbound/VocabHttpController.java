@@ -1,58 +1,64 @@
 package ch.clicktotranslate.vocabulary.framework.spring.http.inbound;
 
-import ch.clicktotranslate.vocabulary.domain.usecase.model.ClearVocabularyInput;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.DeleteLemmaInput;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.ListVocabularyInput;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.UpdateLemmaInput;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.VocabularyItemOutput;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.dto.HttpVocabItemResponse;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.dto.HttpVocabQueryRequest;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.dto.HttpVocabUpdateRequest;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpClearVocabularyRequestMapper;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpDeleteLemmaRequestMapper;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpListVocabularyRequestMapper;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpUpdateLemmaRequestMapper;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpVocabularyItemResponseMapper;
+import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.dto.*;
+import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.*;
 import ch.clicktotranslate.vocabulary.infrastructure.controller.VocabController;
+
 import java.util.List;
 
 public class VocabHttpController {
-	private final VocabController vocabController;
-	private final HttpListVocabularyRequestMapper listRequestMapper;
-	private final HttpVocabularyItemResponseMapper itemResponseMapper;
-	private final HttpUpdateLemmaRequestMapper updateRequestMapper;
-	private final HttpDeleteLemmaRequestMapper deleteRequestMapper;
-	private final HttpClearVocabularyRequestMapper clearRequestMapper;
+  private final VocabController vocabController;
+  private final HttpListVocabularyRequestMapper listRequestMapper;
+  private final HttpUpdateLemmaRequestMapper updateRequestMapper;
+  private final HttpDeleteLemmaRequestMapper deleteRequestMapper;
+  private final HttpClearVocabularyRequestMapper clearRequestMapper;
+  private final HttpResolveWordLinkTokenRequestMapper resolveTempRefRequestMapper;
+  private final HttpResolveWordLinkTokenResponseMapper resolveTempRefResponseMapper;
+  private final HttpAddWordManuallyRequestMapper addWordManuallyRequestMapper;
+  private final HttpAddWordManuallyResponseMapper addWordManuallyResponseMapper;
 
-	public VocabHttpController(VocabController vocabController, HttpListVocabularyRequestMapper listRequestMapper,
-			HttpVocabularyItemResponseMapper itemResponseMapper, HttpUpdateLemmaRequestMapper updateRequestMapper,
-			HttpDeleteLemmaRequestMapper deleteRequestMapper, HttpClearVocabularyRequestMapper clearRequestMapper) {
-		this.vocabController = vocabController;
-		this.listRequestMapper = listRequestMapper;
-		this.itemResponseMapper = itemResponseMapper;
-		this.updateRequestMapper = updateRequestMapper;
-		this.deleteRequestMapper = deleteRequestMapper;
-		this.clearRequestMapper = clearRequestMapper;
-	}
+  public VocabHttpController(
+      VocabController vocabController,
+      HttpListVocabularyRequestMapper listRequestMapper,
+      HttpUpdateLemmaRequestMapper updateRequestMapper,
+      HttpDeleteLemmaRequestMapper deleteRequestMapper,
+      HttpClearVocabularyRequestMapper clearRequestMapper,
+      HttpResolveWordLinkTokenRequestMapper resolveTempRefRequestMapper,
+      HttpResolveWordLinkTokenResponseMapper resolveTempRefResponseMapper,
+      HttpAddWordManuallyRequestMapper addWordManuallyRequestMapper,
+      HttpAddWordManuallyResponseMapper addWordManuallyResponseMapper) {
+    this.vocabController = vocabController;
+    this.listRequestMapper = listRequestMapper;
+    this.updateRequestMapper = updateRequestMapper;
+    this.deleteRequestMapper = deleteRequestMapper;
+    this.clearRequestMapper = clearRequestMapper;
+    this.resolveTempRefRequestMapper = resolveTempRefRequestMapper;
+    this.resolveTempRefResponseMapper = resolveTempRefResponseMapper;
+    this.addWordManuallyRequestMapper = addWordManuallyRequestMapper;
+    this.addWordManuallyResponseMapper = addWordManuallyResponseMapper;
+  }
 
-	public List<HttpVocabItemResponse> list(HttpVocabQueryRequest request) {
-		ListVocabularyInput input = listRequestMapper.map(request);
-		List<VocabularyItemOutput> responseModel = vocabController.list(input);
-		return itemResponseMapper.map(responseModel);
-	}
+  public List<HttpVocabItemResponse> list(HttpVocabQueryRequest request) {
+    return null;
+  }
 
-	public void update(HttpVocabUpdateRequest request) {
-		UpdateLemmaInput input = updateRequestMapper.map(request);
-		vocabController.update(input);
-	}
+  public void update(HttpVocabUpdateRequest request) {
+    return;
+  }
 
-	public void delete(HttpVocabUpdateRequest request) {
-		DeleteLemmaInput input = deleteRequestMapper.map(request);
-		vocabController.delete(input);
-	}
+  public void delete(HttpVocabUpdateRequest request) {
+    return;
+  }
 
-	public void clear(HttpVocabUpdateRequest request) {
-		ClearVocabularyInput input = clearRequestMapper.map(request);
-		vocabController.clear(input);
-	}
+  public void clear(HttpVocabUpdateRequest request) {
+    return;
+  }
+
+  public HttpResolveWorkLinkTokenResponse resolveTempRef(HttpResolveWordLinkTokenRequest request) {
+    return null;
+  }
+
+  public HttpAddWordManuallyResponse addWordManually(HttpAddWordManuallyRequest request) {
+    return null;
+  }
 }

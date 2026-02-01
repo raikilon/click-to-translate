@@ -3,209 +3,254 @@ package ch.clicktotranslate.vocabulary.framework.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepositoryGateway;
+import ch.clicktotranslate.translation.framework.intermodule.inbound.TranslationFacade;
+import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepository;
 import ch.clicktotranslate.vocabulary.domain.outbound.Lemmatizer;
-import ch.clicktotranslate.vocabulary.domain.outbound.UsageRepositoryGateway;
+import ch.clicktotranslate.vocabulary.domain.outbound.TranslationService;
+import ch.clicktotranslate.vocabulary.domain.outbound.UsageRepository;
+import ch.clicktotranslate.vocabulary.domain.usecase.AddWordManually;
 import ch.clicktotranslate.vocabulary.domain.usecase.ClearVocabulary;
 import ch.clicktotranslate.vocabulary.domain.usecase.DeleteLemma;
 import ch.clicktotranslate.vocabulary.domain.usecase.ExportVocabulary;
 import ch.clicktotranslate.vocabulary.domain.usecase.ListVocabulary;
 import ch.clicktotranslate.vocabulary.domain.usecase.RegisterUsageFromTranslation;
+import ch.clicktotranslate.vocabulary.domain.usecase.ResolveTempRef;
 import ch.clicktotranslate.vocabulary.domain.usecase.UpdateLemma;
-import ch.clicktotranslate.vocabulary.framework.export.CsvExportWriter;
-import ch.clicktotranslate.vocabulary.framework.lemmatization.SimpleRuleBasedLemmatizer;
 import ch.clicktotranslate.vocabulary.framework.spring.events.inbound.SpringTranslatedWordEventListener;
 import ch.clicktotranslate.vocabulary.framework.spring.events.inbound.mapper.SpringTranslatedWordEventMapper;
 import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.ExportHttpController;
 import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.VocabHttpController;
+import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpAddWordManuallyRequestMapper;
+import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpAddWordManuallyResponseMapper;
 import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpClearVocabularyRequestMapper;
 import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpDeleteLemmaRequestMapper;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpExportRowResponseMapper;
 import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpExportVocabularyRequestMapper;
 import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpListVocabularyRequestMapper;
+import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpResolveWordLinkTokenRequestMapper;
+import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpResolveWordLinkTokenResponseMapper;
 import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpUpdateLemmaRequestMapper;
-import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.mapper.HttpVocabularyItemResponseMapper;
+import ch.clicktotranslate.vocabulary.framework.spring.http.outbound.SpringTranslationApiClient;
+import ch.clicktotranslate.vocabulary.framework.spring.http.outbound.mapper.TranslateResponseToTranslationResponseMapper;
+import ch.clicktotranslate.vocabulary.framework.spring.http.outbound.mapper.TranslationRequestToTranslateRequestMapper;
+import ch.clicktotranslate.vocabulary.framework.spring.persistence.JpaLemmaRepository;
+import ch.clicktotranslate.vocabulary.framework.spring.persistence.JpaUsageRepository;
 import ch.clicktotranslate.vocabulary.framework.spring.persistence.SpringDataLemmaRepository;
 import ch.clicktotranslate.vocabulary.framework.spring.persistence.SpringDataUsageRepository;
-import ch.clicktotranslate.vocabulary.framework.spring.persistence.adapter.SpringDataLemmaPersistenceAdapter;
-import ch.clicktotranslate.vocabulary.framework.spring.persistence.adapter.SpringDataUsagePersistenceAdapter;
 import ch.clicktotranslate.vocabulary.framework.spring.persistence.mapper.LemmaJpaMapper;
 import ch.clicktotranslate.vocabulary.framework.spring.persistence.mapper.UsageJpaMapper;
 import ch.clicktotranslate.vocabulary.infrastructure.controller.ExportController;
 import ch.clicktotranslate.vocabulary.infrastructure.controller.VocabController;
 import ch.clicktotranslate.vocabulary.infrastructure.event.TranslatedWordEventHandler;
-import ch.clicktotranslate.vocabulary.infrastructure.gateway.JpaLemmaRepositoryAdapter;
-import ch.clicktotranslate.vocabulary.infrastructure.gateway.JpaUsageRepositoryAdapter;
-import ch.clicktotranslate.vocabulary.infrastructure.gateway.mapper.LemmaMapper;
-import ch.clicktotranslate.vocabulary.infrastructure.gateway.mapper.UsageMapper;
-import ch.clicktotranslate.vocabulary.infrastructure.persistence.store.LemmaPersistenceStore;
-import ch.clicktotranslate.vocabulary.infrastructure.persistence.store.UsagePersistenceStore;
+import ch.clicktotranslate.vocabulary.infrastructure.gateway.ClickToTranslateTranslationService;
+import ch.clicktotranslate.vocabulary.infrastructure.gateway.ClickToTranslateTranslationServiceApiClient;
+import ch.clicktotranslate.vocabulary.infrastructure.gateway.lemmatization.SimpleRuleBasedLemmatizer;
+import ch.clicktotranslate.vocabulary.infrastructure.gateway.mapper.LemmaToTranslationRequestMapper;
+import ch.clicktotranslate.vocabulary.infrastructure.gateway.mapper.TranslationResponseToTranslatedLemmaMapper;
 
 @Configuration
 public class VocabConfiguration {
-	@Bean
-	public LemmaMapper lemmaMapper() {
-		return new LemmaMapper();
-	}
 
-	@Bean
-	public UsageMapper usageMapper() {
-		return new UsageMapper();
-	}
+    @Bean
+    public Lemmatizer lemmatizer() {
+        return new SimpleRuleBasedLemmatizer();
+    }
 
-	@Bean
-	public CsvExportWriter csvExportWriter() {
-		return new CsvExportWriter();
-	}
+    @Bean
+    public LemmaJpaMapper lemmaJpaMapper() {
+        return new LemmaJpaMapper();
+    }
 
-	@Bean
-	public Lemmatizer lemmatizer() {
-		return new SimpleRuleBasedLemmatizer();
-	}
+    @Bean
+    public UsageJpaMapper usageJpaMapper() {
+        return new UsageJpaMapper();
+    }
 
-	@Bean
-	public LemmaJpaMapper lemmaJpaMapper() {
-		return new LemmaJpaMapper();
-	}
+    @Bean
+    public LemmaRepository lemmaPersistenceStore(SpringDataLemmaRepository springDataLemmaRepository,
+            LemmaJpaMapper lemmaJpaMapper) {
+        return new JpaLemmaRepository(springDataLemmaRepository, lemmaJpaMapper);
+    }
 
-	@Bean
-	public UsageJpaMapper usageJpaMapper() {
-		return new UsageJpaMapper();
-	}
+    @Bean
+    public UsageRepository usagePersistenceStore(SpringDataUsageRepository springDataUsageRepository,
+            UsageJpaMapper usageJpaMapper) {
+        return new JpaUsageRepository(springDataUsageRepository, usageJpaMapper);
+    }
 
-	@Bean
-	public LemmaPersistenceStore lemmaPersistenceStore(SpringDataLemmaRepository springDataLemmaRepository,
-			LemmaJpaMapper lemmaJpaMapper) {
-		return new SpringDataLemmaPersistenceAdapter(springDataLemmaRepository, lemmaJpaMapper);
-	}
+    @Bean
+    public RegisterUsageFromTranslation registerUsageFromTranslation(Lemmatizer lemmatizer,
+            LemmaRepository lemmaRepository, UsageRepository usageRepository) {
+        return new RegisterUsageFromTranslation(lemmatizer, lemmaRepository, usageRepository);
+    }
 
-	@Bean
-	public UsagePersistenceStore usagePersistenceStore(SpringDataUsageRepository springDataUsageRepository,
-			UsageJpaMapper usageJpaMapper) {
-		return new SpringDataUsagePersistenceAdapter(springDataUsageRepository, usageJpaMapper);
-	}
+    @Bean
+    public ListVocabulary listVocabulary(LemmaRepository lemmaRepository,
+            UsageRepository usageRepository) {
+        return new ListVocabulary(lemmaRepository, usageRepository);
+    }
 
-	@Bean
-	public LemmaRepositoryGateway lemmaRepositoryGateway(LemmaPersistenceStore lemmaPersistenceStore,
-			LemmaMapper lemmaMapper) {
-		return new JpaLemmaRepositoryAdapter(lemmaPersistenceStore, lemmaMapper);
-	}
+    @Bean
+    public UpdateLemma updateLemma(LemmaRepository lemmaRepository) {
+        return new UpdateLemma(lemmaRepository);
+    }
 
-	@Bean
-	public UsageRepositoryGateway usageRepositoryGateway(UsagePersistenceStore usagePersistenceStore,
-			UsageMapper usageMapper) {
-		return new JpaUsageRepositoryAdapter(usagePersistenceStore, usageMapper);
-	}
+    @Bean
+    public DeleteLemma deleteLemma(LemmaRepository lemmaRepository,
+            UsageRepository usageRepository) {
+        return new DeleteLemma(lemmaRepository, usageRepository);
+    }
 
-	@Bean
-	public RegisterUsageFromTranslation registerUsageFromTranslation(Lemmatizer lemmatizer,
-			LemmaRepositoryGateway lemmaRepositoryGateway, UsageRepositoryGateway usageRepositoryGateway) {
-		return new RegisterUsageFromTranslation(lemmatizer, lemmaRepositoryGateway, usageRepositoryGateway);
-	}
+    @Bean
+    public ClearVocabulary clearVocabulary(LemmaRepository lemmaRepository,
+            UsageRepository usageRepository) {
+        return new ClearVocabulary(lemmaRepository, usageRepository);
+    }
 
-	@Bean
-	public ListVocabulary listVocabulary(LemmaRepositoryGateway lemmaRepositoryGateway,
-			UsageRepositoryGateway usageRepositoryGateway) {
-		return new ListVocabulary(lemmaRepositoryGateway, usageRepositoryGateway);
-	}
+    @Bean
+    public ExportVocabulary exportVocabulary(LemmaRepository lemmaRepository,
+            UsageRepository usageRepository) {
+        return new ExportVocabulary(lemmaRepository, usageRepository);
+    }
 
-	@Bean
-	public UpdateLemma updateLemma(LemmaRepositoryGateway lemmaRepositoryGateway) {
-		return new UpdateLemma(lemmaRepositoryGateway);
-	}
+    @Bean
+    public SpringTranslatedWordEventMapper springTranslatedWordEventMapper() {
+        return new SpringTranslatedWordEventMapper();
+    }
 
-	@Bean
-	public DeleteLemma deleteLemma(LemmaRepositoryGateway lemmaRepositoryGateway,
-			UsageRepositoryGateway usageRepositoryGateway) {
-		return new DeleteLemma(lemmaRepositoryGateway, usageRepositoryGateway);
-	}
+    @Bean
+    public TranslatedWordEventHandler translatedWordEventHandler(RegisterUsageFromTranslation registerUsageFromTranslation) {
+        return new TranslatedWordEventHandler(registerUsageFromTranslation);
+    }
 
-	@Bean
-	public ClearVocabulary clearVocabulary(LemmaRepositoryGateway lemmaRepositoryGateway,
-			UsageRepositoryGateway usageRepositoryGateway) {
-		return new ClearVocabulary(lemmaRepositoryGateway, usageRepositoryGateway);
-	}
+    @Bean
+    public HttpListVocabularyRequestMapper httpListVocabularyRequestMapper() {
+        return new HttpListVocabularyRequestMapper();
+    }
 
-	@Bean
-	public ExportVocabulary exportVocabulary(LemmaRepositoryGateway lemmaRepositoryGateway,
-			UsageRepositoryGateway usageRepositoryGateway) {
-		return new ExportVocabulary(lemmaRepositoryGateway, usageRepositoryGateway);
-	}
+    @Bean
+    public HttpUpdateLemmaRequestMapper httpUpdateLemmaRequestMapper() {
+        return new HttpUpdateLemmaRequestMapper();
+    }
 
-	@Bean
-	public SpringTranslatedWordEventMapper springTranslatedWordEventMapper() {
-		return new SpringTranslatedWordEventMapper();
-	}
+    @Bean
+    public HttpDeleteLemmaRequestMapper httpDeleteLemmaRequestMapper() {
+        return new HttpDeleteLemmaRequestMapper();
+    }
 
-	@Bean
-	public TranslatedWordEventHandler translatedWordEventHandler(RegisterUsageFromTranslation registerUsageFromTranslation) {
-		return new TranslatedWordEventHandler(registerUsageFromTranslation);
-	}
+    @Bean
+    public HttpClearVocabularyRequestMapper httpClearVocabularyRequestMapper() {
+        return new HttpClearVocabularyRequestMapper();
+    }
 
-	@Bean
-	public HttpListVocabularyRequestMapper httpListVocabularyRequestMapper() {
-		return new HttpListVocabularyRequestMapper();
-	}
+    @Bean
+    public HttpExportVocabularyRequestMapper httpExportVocabularyRequestMapper() {
+        return new HttpExportVocabularyRequestMapper();
+    }
 
-	@Bean
-	public HttpVocabularyItemResponseMapper httpVocabularyItemResponseMapper() {
-		return new HttpVocabularyItemResponseMapper();
-	}
+    @Bean
+    public HttpResolveWordLinkTokenRequestMapper httpResolveTempRefRequestMapper() {
+        return new HttpResolveWordLinkTokenRequestMapper();
+    }
 
-	@Bean
-	public HttpUpdateLemmaRequestMapper httpUpdateLemmaRequestMapper() {
-		return new HttpUpdateLemmaRequestMapper();
-	}
+    @Bean
+    public HttpResolveWordLinkTokenResponseMapper httpResolveTempRefResponseMapper() {
+        return new HttpResolveWordLinkTokenResponseMapper();
+    }
 
-	@Bean
-	public HttpDeleteLemmaRequestMapper httpDeleteLemmaRequestMapper() {
-		return new HttpDeleteLemmaRequestMapper();
-	}
+    @Bean
+    public HttpAddWordManuallyRequestMapper httpAddWordManuallyRequestMapper() {
+        return new HttpAddWordManuallyRequestMapper();
+    }
 
-	@Bean
-	public HttpClearVocabularyRequestMapper httpClearVocabularyRequestMapper() {
-		return new HttpClearVocabularyRequestMapper();
-	}
+    @Bean
+    public HttpAddWordManuallyResponseMapper httpAddWordManuallyResponseMapper() {
+        return new HttpAddWordManuallyResponseMapper();
+    }
 
-	@Bean
-	public HttpExportVocabularyRequestMapper httpExportVocabularyRequestMapper() {
-		return new HttpExportVocabularyRequestMapper();
-	}
+    // Infrastructure layer mappers (domain <-> infrastructure DTOs)
+    @Bean
+    public LemmaToTranslationRequestMapper lemmaToTranslationRequestMapper() {
+        return new LemmaToTranslationRequestMapper();
+    }
 
-	@Bean
-	public HttpExportRowResponseMapper httpExportRowResponseMapper() {
-		return new HttpExportRowResponseMapper();
-	}
+    @Bean
+    public TranslationResponseToTranslatedLemmaMapper translationResponseToTranslatedLemmaMapper() {
+        return new TranslationResponseToTranslatedLemmaMapper();
+    }
 
-	@Bean
-	public VocabController vocabController(ListVocabulary listVocabulary, UpdateLemma updateLemma,
-			DeleteLemma deleteLemma, ClearVocabulary clearVocabulary) {
-		return new VocabController(listVocabulary, updateLemma, deleteLemma, clearVocabulary);
-	}
+    // Framework layer mappers (infrastructure DTOs <-> translation module DTOs)
+    @Bean
+    public TranslationRequestToTranslateRequestMapper translationRequestToTranslateRequestMapper() {
+        return new TranslationRequestToTranslateRequestMapper();
+    }
 
-	@Bean
-	public ExportController exportController(ExportVocabulary exportVocabulary) {
-		return new ExportController(exportVocabulary);
-	}
+    @Bean
+    public TranslateResponseToTranslationResponseMapper translateResponseToTranslationResponseMapper() {
+        return new TranslateResponseToTranslationResponseMapper();
+    }
 
-	@Bean
-	public SpringTranslatedWordEventListener springTranslatedWordEventListener(
-			SpringTranslatedWordEventMapper eventMapper, TranslatedWordEventHandler eventHandler) {
-		return new SpringTranslatedWordEventListener(eventMapper, eventHandler);
-	}
+    @Bean
+    public ClickToTranslateTranslationServiceApiClient clickToTranslateTranslationServiceApiClient(
+            TranslationFacade translationFacade,
+            TranslationRequestToTranslateRequestMapper requestMapper,
+            TranslateResponseToTranslationResponseMapper responseMapper) {
+        return new SpringTranslationApiClient(translationFacade, requestMapper, responseMapper);
+    }
 
-	@Bean
-	public VocabHttpController vocabHttpController(VocabController vocabController,
-			HttpListVocabularyRequestMapper listRequestMapper, HttpVocabularyItemResponseMapper itemResponseMapper,
-			HttpUpdateLemmaRequestMapper updateRequestMapper, HttpDeleteLemmaRequestMapper deleteRequestMapper,
-			HttpClearVocabularyRequestMapper clearRequestMapper) {
-		return new VocabHttpController(vocabController, listRequestMapper, itemResponseMapper, updateRequestMapper,
-				deleteRequestMapper, clearRequestMapper);
-	}
+    @Bean
+    public TranslationService translationService(
+            ClickToTranslateTranslationServiceApiClient apiClient,
+            LemmaToTranslationRequestMapper requestMapper,
+            TranslationResponseToTranslatedLemmaMapper responseMapper) {
+        return new ClickToTranslateTranslationService(apiClient, requestMapper, responseMapper);
+    }
 
-	@Bean
-	public ExportHttpController exportHttpController(ExportController exportController,
-			HttpExportVocabularyRequestMapper requestMapper, HttpExportRowResponseMapper responseMapper) {
-		return new ExportHttpController(exportController, requestMapper, responseMapper);
-	}
+    @Bean
+    public ResolveTempRef resolveTempRef(LemmaRepository lemmaRepository) {
+        return new ResolveTempRef();
+    }
+
+    @Bean
+    public AddWordManually addWordManually(TranslationService translationService, LemmaRepository lemmaRepository) {
+        return new AddWordManually();
+    }
+
+    @Bean
+    public VocabController vocabController(ListVocabulary listVocabulary, UpdateLemma updateLemma,
+            DeleteLemma deleteLemma, ClearVocabulary clearVocabulary, ResolveTempRef resolveTempRef,
+            AddWordManually addWordManually) {
+        return new VocabController(listVocabulary, updateLemma, deleteLemma, clearVocabulary, resolveTempRef,
+                addWordManually);
+    }
+
+    @Bean
+    public ExportController exportController(ExportVocabulary exportVocabulary) {
+        return new ExportController(exportVocabulary);
+    }
+
+    @Bean
+    public SpringTranslatedWordEventListener springTranslatedWordEventListener(
+            SpringTranslatedWordEventMapper eventMapper, TranslatedWordEventHandler eventHandler) {
+        return new SpringTranslatedWordEventListener(eventMapper, eventHandler);
+    }
+
+    @Bean
+    public VocabHttpController vocabHttpController(VocabController vocabController,
+            HttpListVocabularyRequestMapper listRequestMapper,
+            HttpUpdateLemmaRequestMapper updateRequestMapper, HttpDeleteLemmaRequestMapper deleteRequestMapper,
+            HttpClearVocabularyRequestMapper clearRequestMapper,
+            HttpResolveWordLinkTokenRequestMapper resolveTempRefRequestMapper,
+            HttpResolveWordLinkTokenResponseMapper resolveTempRefResponseMapper,
+            HttpAddWordManuallyRequestMapper addWordManuallyRequestMapper,
+            HttpAddWordManuallyResponseMapper addWordManuallyResponseMapper) {
+        return new VocabHttpController(vocabController, listRequestMapper, updateRequestMapper,
+                deleteRequestMapper, clearRequestMapper, resolveTempRefRequestMapper,
+                resolveTempRefResponseMapper, addWordManuallyRequestMapper, addWordManuallyResponseMapper);
+    }
+
+    @Bean
+    public ExportHttpController exportHttpController(ExportController exportController,
+            HttpExportVocabularyRequestMapper requestMapper) {
+        return new ExportHttpController(exportController, requestMapper);
+    }
 }

@@ -1,10 +1,10 @@
 package ch.clicktotranslate.translation.framework.spring.http.inbound.mapper;
 
-import ch.clicktotranslate.translation.domain.usecase.model.TranslateWordOutput;
-import ch.clicktotranslate.translation.framework.spring.http.inbound.dto.HttpTranslateResponse;
+import ch.clicktotranslate.translation.domain.entity.TranslatedWord;
+import ch.clicktotranslate.translation.framework.spring.http.inbound.dto.TranslateResponseDto;
 
 public class HttpTranslateResponseMapper {
-	public HttpTranslateResponse map(TranslateWordOutput response) {
-		return new HttpTranslateResponse();
+	public TranslateResponseDto map(TranslatedWord response) {
+		return new TranslateResponseDto();
 	}
 }

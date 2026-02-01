@@ -1,18 +1,18 @@
 package ch.clicktotranslate.vocabulary.domain.usecase;
 
-import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepositoryGateway;
-import ch.clicktotranslate.vocabulary.domain.outbound.UsageRepositoryGateway;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.ExportRowOutput;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.ExportVocabularyInput;
+import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepository;
+import ch.clicktotranslate.vocabulary.domain.outbound.UsageRepository;
+import ch.clicktotranslate.vocabulary.domain.usecase.output.ExportRowOutput;
+import ch.clicktotranslate.vocabulary.domain.usecase.input.ExportVocabularyInput;
 import java.util.List;
 
 public class ExportVocabulary {
-	private final LemmaRepositoryGateway lemmaRepositoryGateway;
-	private final UsageRepositoryGateway usageRepositoryGateway;
+	private final LemmaRepository lemmaRepository;
+	private final UsageRepository usageRepository;
 
-	public ExportVocabulary(LemmaRepositoryGateway lemmaRepositoryGateway, UsageRepositoryGateway usageRepositoryGateway) {
-		this.lemmaRepositoryGateway = lemmaRepositoryGateway;
-		this.usageRepositoryGateway = usageRepositoryGateway;
+	public ExportVocabulary(LemmaRepository lemmaRepository, UsageRepository usageRepository) {
+		this.lemmaRepository = lemmaRepository;
+		this.usageRepository = usageRepository;
 	}
 
 	public List<ExportRowOutput> execute(ExportVocabularyInput input) {

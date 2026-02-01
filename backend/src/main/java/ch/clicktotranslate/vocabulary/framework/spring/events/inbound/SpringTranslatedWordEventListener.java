@@ -2,8 +2,8 @@ package ch.clicktotranslate.vocabulary.framework.spring.events.inbound;
 
 import org.springframework.context.event.EventListener;
 
-import ch.clicktotranslate.translation.domain.event.TranslatedWordDomainEvent;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.RegisterUsageInput;
+import ch.clicktotranslate.translation.framework.spring.events.outbound.dto.TranslatedWordEventDto;
+import ch.clicktotranslate.vocabulary.domain.usecase.input.RegisterUsageInput;
 import ch.clicktotranslate.vocabulary.framework.spring.events.inbound.mapper.SpringTranslatedWordEventMapper;
 import ch.clicktotranslate.vocabulary.infrastructure.event.TranslatedWordEventHandler;
 
@@ -18,7 +18,7 @@ public class SpringTranslatedWordEventListener {
 	}
 
 	@EventListener
-	public void onTranslatedWord(TranslatedWordDomainEvent event) {
+	public void onTranslatedWord(TranslatedWordEventDto event) {
 		RegisterUsageInput input = eventMapper.map(event);
 		eventHandler.handle(input);
 	}

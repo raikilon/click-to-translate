@@ -1,8 +1,8 @@
 package ch.clicktotranslate.vocabulary.infrastructure.controller;
 
 import ch.clicktotranslate.vocabulary.domain.usecase.ExportVocabulary;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.ExportRowOutput;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.ExportVocabularyInput;
+import ch.clicktotranslate.vocabulary.domain.usecase.output.ExportRowOutput;
+import ch.clicktotranslate.vocabulary.domain.usecase.input.ExportVocabularyInput;
 import java.util.List;
 
 public class ExportController {

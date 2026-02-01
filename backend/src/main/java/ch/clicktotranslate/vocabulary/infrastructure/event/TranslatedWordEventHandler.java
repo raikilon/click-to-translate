@@ -1,7 +1,7 @@
 package ch.clicktotranslate.vocabulary.infrastructure.event;
 
 import ch.clicktotranslate.vocabulary.domain.usecase.RegisterUsageFromTranslation;
-import ch.clicktotranslate.vocabulary.domain.usecase.model.RegisterUsageInput;
+import ch.clicktotranslate.vocabulary.domain.usecase.input.RegisterUsageInput;
 
 public class TranslatedWordEventHandler {
 	private final RegisterUsageFromTranslation registerUsageFromTranslation;
