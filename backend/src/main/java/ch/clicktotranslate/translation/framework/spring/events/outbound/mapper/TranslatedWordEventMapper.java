@@ -5,19 +5,18 @@ import ch.clicktotranslate.translation.infrastructure.event.TranslatedWordEvent;
 
 public class TranslatedWordEventMapper {
 	public TranslatedWordEventDto map(TranslatedWordEvent event) {
-		TranslatedWordEventDto mapped = new TranslatedWordEventDto();
-		mapped.setUserId(event.getUserId());
-		mapped.setWord(event.getWord());
-		mapped.setSentence(event.getSentence());
-		mapped.setSourceLanguage(event.getSourceLanguage());
-		mapped.setTargetLanguage(event.getTargetLanguage());
-		mapped.setOccurredAt(event.getOccurredAt());
-		mapped.setSource(mapSource(event.getSource()));
-		mapped.setSourceMetadata(mapSourceMetadata(event.getSourceMetadata()));
-
-		mapped.setWordTranslation(event.getWordTranslation());
-		mapped.setSentenceTranslation(event.getSentenceTranslation());
-		return mapped;
+		return new TranslatedWordEventDto(
+				event.userId(),
+				event.word(),
+				event.sentence(),
+				event.wordTranslation(),
+				event.sentenceTranslation(),
+				event.sourceLanguage(),
+				event.targetLanguage(),
+				mapSource(event.source()),
+				mapSourceMetadata(event.sourceMetadata()),
+				event.occurredAt()
+		);
 	}
 
 	private TranslatedWordEventDto.SourceDto mapSource(TranslatedWordEvent.Source source) {
@@ -25,32 +24,30 @@ public class TranslatedWordEventMapper {
 			return null;
 		}
 
-		TranslatedWordEventDto.SourceDto mapped = new TranslatedWordEventDto.SourceDto();
-		mapped.setType(source.getType());
-		mapped.setId(source.getId());
-		mapped.setTitle(source.getTitle());
-		return mapped;
+		return new TranslatedWordEventDto.SourceDto(
+				source.type(),
+				source.id(),
+				source.title()
+		);
 	}
 
 	private TranslatedWordEventDto.SourceMetadataDto mapSourceMetadata(TranslatedWordEvent.SourceMetadata sourceMetadata) {
         switch (sourceMetadata) {
             case TranslatedWordEvent.GenericSourceMetadata generic -> {
-                TranslatedWordEventDto.GenericSourceMetadataDto mapped =
-                        new TranslatedWordEventDto.GenericSourceMetadataDto();
-                mapped.setUrl(generic.getUrl());
-                mapped.setDomain(generic.getDomain());
-                mapped.setSelectionOffset(generic.getSelectionOffset());
-                mapped.setParagraphIndex(generic.getParagraphIndex());
-                return mapped;
+                return new TranslatedWordEventDto.GenericSourceMetadataDto(
+						generic.url(),
+						generic.domain(),
+						generic.selectionOffset(),
+						generic.paragraphIndex()
+				);
             }
             case TranslatedWordEvent.YoutubeSourceMetadata youtube -> {
-                TranslatedWordEventDto.YoutubeSourceMetadataDto mapped =
-                        new TranslatedWordEventDto.YoutubeSourceMetadataDto();
-                mapped.setUrl(youtube.getUrl());
-                mapped.setDomain(youtube.getDomain());
-                mapped.setVideoId(youtube.getVideoId());
-                mapped.setTimestampSeconds(youtube.getTimestampSeconds());
-                return mapped;
+                return new TranslatedWordEventDto.YoutubeSourceMetadataDto(
+						youtube.url(),
+						youtube.domain(),
+						youtube.videoId(),
+						youtube.timestampSeconds()
+				);
             }
             default -> {
 				return null;

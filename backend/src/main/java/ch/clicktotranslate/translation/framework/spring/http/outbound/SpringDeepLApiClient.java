@@ -6,7 +6,6 @@ import com.deepl.api.DeepLException;
 import com.deepl.api.TextResult;
 
 import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.client.DeepLApiClient;
-import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.dto.DeepLTranslateResponse;
 
 public class SpringDeepLApiClient implements DeepLApiClient {
 
@@ -20,21 +19,21 @@ public class SpringDeepLApiClient implements DeepLApiClient {
     }
 
     @Override
-    public DeepLTranslateResponse translate(TranslationRequest request) {
-        DeepLTranslateResponse response = new DeepLTranslateResponse();
-        String sourceLanguage = request.getSourceLanguage();
-        String targetLanguage = request.getTargetLanguage();
+    public String translate(TranslationRequest request) {
+        String sourceLanguage = request.sourceLanguage();
+        String targetLanguage = request.targetLanguage();
+        String translatedText = null;
 
         try {
-            if (request.getText() != null && !request.getText().isBlank()) {
-                TextResult textResult = client.translateText(request.getText(), sourceLanguage, targetLanguage);
-                response.setTranslatedText(textResult.getText());
+            if (request.text() != null && !request.text().isBlank()) {
+                TextResult textResult = client.translateText(request.text(), sourceLanguage, targetLanguage);
+                translatedText = textResult.getText();
             }
         } catch (DeepLException | InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("DeepL translation failed.", exception);
         }
 
-        return response;
+        return translatedText;
     }
 }

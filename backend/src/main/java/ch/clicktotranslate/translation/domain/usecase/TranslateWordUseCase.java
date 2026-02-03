@@ -13,13 +13,12 @@ public class TranslateWordUseCase {
 	}
 
 	public TranslatedWord execute(TranslateWord input) {
-		TranslatedWord translatedWord = new TranslatedWord();
-		translatedWord.setWord(input.getWord());
-		translatedWord.setSentence(input.getSentence());
-		translatedWord.setWordTranslation(translateText(input.getWord(), input));
-		translatedWord.setSentenceTranslation(translateText(input.getSentence(), input));
-
-		return translatedWord;
+		return new TranslatedWord(
+				input.word(),
+				input.sentence(),
+				translateText(input.word(), input),
+				translateText(input.sentence(), input)
+		);
 	}
 
 	private String translateText(String text, TranslateWord input) {
@@ -29,8 +28,8 @@ public class TranslateWordUseCase {
 
 		TranslationRequest request = new TranslationRequest(
 				text,
-				input.getSourceLanguage(),
-				input.getTargetLanguage()
+				input.sourceLanguage(),
+				input.targetLanguage()
 		);
 		String translatedText = translationService.translate(request);
 		if (translatedText == null || translatedText.isBlank()) {
@@ -39,4 +38,3 @@ public class TranslateWordUseCase {
 		return translatedText;
 	}
 }
-

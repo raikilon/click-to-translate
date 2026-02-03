@@ -6,13 +6,13 @@ import ch.clicktotranslate.translation.infrastructure.controller.model.Translate
 public class TranslateWordMapper {
 
     public TranslateWord map(TranslateRequest request) {
-        TranslateWord translateWord = new TranslateWord();
-        translateWord.setUserId(request.getUserId());
-        translateWord.setWord(request.getWord());
-        translateWord.setSentence(request.getSentence());
-        translateWord.setSourceLanguage(request.getSourceLanguage());
-        translateWord.setTargetLanguage(request.getTargetLanguage());
-        return translateWord;
+        return new TranslateWord(
+                request.userId(),
+                request.word(),
+                request.sentence(),
+                request.sourceLanguage(),
+                request.targetLanguage()
+        );
     }
 }
 

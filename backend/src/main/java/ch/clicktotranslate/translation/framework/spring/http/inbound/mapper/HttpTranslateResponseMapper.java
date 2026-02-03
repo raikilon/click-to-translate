@@ -5,11 +5,11 @@ import ch.clicktotranslate.translation.framework.spring.http.inbound.dto.Transla
 
 public class HttpTranslateResponseMapper {
 	public TranslateResponseDto map(TranslatedWord response) {
-		TranslateResponseDto mapped = new TranslateResponseDto();
-		mapped.setWord(response.getWord());
-		mapped.setSentence(response.getSentence());
-		mapped.setWordTranslation(response.getWordTranslation());
-		mapped.setSentenceTranslation(response.getSentenceTranslation());
-		return mapped;
+		return new TranslateResponseDto(
+				response.word(),
+				response.sentence(),
+				response.wordTranslation(),
+				response.sentenceTranslation()
+		);
 	}
 }

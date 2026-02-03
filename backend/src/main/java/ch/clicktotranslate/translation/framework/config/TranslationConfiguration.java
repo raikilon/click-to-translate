@@ -25,7 +25,6 @@ import ch.clicktotranslate.translation.infrastructure.service.strategy.Translati
 import ch.clicktotranslate.translation.infrastructure.service.strategy.TranslationStrategy;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.DeepLTranslationStrategy;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.client.DeepLApiClient;
-import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.mapper.DeepLTranslateResponseMapper;
 
 @Configuration
 public class TranslationConfiguration {
@@ -67,12 +66,6 @@ public class TranslationConfiguration {
     }
 
     @Bean
-    public DeepLTranslateResponseMapper deepLTranslateResponseMapper() {
-        return new DeepLTranslateResponseMapper();
-    }
-
-
-    @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
@@ -83,8 +76,8 @@ public class TranslationConfiguration {
     }
 
     @Bean
-    public TranslationStrategy deepLTranslationStrategy(DeepLApiClient apiClient, DeepLTranslateResponseMapper responseMapper) {
-        return new DeepLTranslationStrategy(apiClient, responseMapper);
+    public TranslationStrategy deepLTranslationStrategy(DeepLApiClient apiClient) {
+        return new DeepLTranslationStrategy(apiClient);
     }
 
     @Bean
