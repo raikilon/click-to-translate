@@ -12,7 +12,7 @@ import java.time.Instant;
 public class TranslateRequestDto {
     private String userId;
 
-    private String wordSurface;
+    private String word;
 
     private String sentence;
 

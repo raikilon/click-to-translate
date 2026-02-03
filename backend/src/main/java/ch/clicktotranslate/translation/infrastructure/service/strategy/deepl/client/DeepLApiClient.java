@@ -1,9 +1,9 @@
 package ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.client;
 
-import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.dto.DeepLTranslateRequest;
+import ch.clicktotranslate.translation.domain.entity.TranslationRequest;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.dto.DeepLTranslateResponse;
 
 public interface DeepLApiClient {
 
-    DeepLTranslateResponse translate(DeepLTranslateRequest request);
+    DeepLTranslateResponse translate(TranslationRequest request);
 }

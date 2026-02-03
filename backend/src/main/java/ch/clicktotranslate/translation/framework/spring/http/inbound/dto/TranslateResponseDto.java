@@ -6,7 +6,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class TranslateResponseDto {
-    private String wordSurface;
+    private String word;
+
+    private String sentence;
 
     private String wordTranslation;
 

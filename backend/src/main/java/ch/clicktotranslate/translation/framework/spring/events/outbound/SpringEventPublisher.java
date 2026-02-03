@@ -2,8 +2,8 @@ package ch.clicktotranslate.translation.framework.spring.events.outbound;
 
 import org.springframework.context.ApplicationEventPublisher;
 
-import ch.clicktotranslate.translation.domain.event.TranslatedWordEvent;
-import ch.clicktotranslate.translation.domain.outbound.EventPublisher;
+import ch.clicktotranslate.translation.infrastructure.event.TranslatedWordEvent;
+import ch.clicktotranslate.translation.infrastructure.event.EventPublisher;
 import ch.clicktotranslate.translation.framework.spring.events.outbound.dto.TranslatedWordEventDto;
 import ch.clicktotranslate.translation.framework.spring.events.outbound.mapper.TranslatedWordEventMapper;
 

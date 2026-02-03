@@ -1,11 +1,10 @@
 package ch.clicktotranslate.translation.infrastructure.service.strategy;
 
-import ch.clicktotranslate.translation.domain.entity.TranslateWord;
-import ch.clicktotranslate.translation.domain.entity.TranslatedWord;
+import ch.clicktotranslate.translation.domain.entity.TranslationRequest;
 
 public interface TranslationStrategy {
 
-    TranslatedWord translate(TranslateWord input);
+    String translate(TranslationRequest request);
 
     TranslationProvider getProvider();
 }

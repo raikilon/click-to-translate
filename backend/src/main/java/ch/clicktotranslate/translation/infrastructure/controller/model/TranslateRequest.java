@@ -1,4 +1,4 @@
-package ch.clicktotranslate.translation.framework.spring.events.outbound.dto;
+package ch.clicktotranslate.translation.infrastructure.controller.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,33 +7,31 @@ import java.time.Instant;
 
 @Setter
 @Getter
-public class TranslatedWordEventDto {
+public class TranslateRequest {
 	private String userId;
 	private String word;
 	private String sentence;
-	private String wordTranslation;
-	private String sentenceTranslation;
 	private String sourceLanguage;
 	private String targetLanguage;
-	private SourceDto source;
-	private SourceMetadataDto sourceMetadata;
+	private Source source;
+	private SourceMetadata sourceMetadata;
 	private Instant occurredAt;
 
     @Setter
     @Getter
-    public static class SourceDto {
+    public static class Source {
 		private String type;
 		private String id;
 		private String title;
 
     }
 
-	public interface SourceMetadataDto {
+	public interface SourceMetadata {
 	}
 
 	@Setter
     @Getter
-    public static class GenericSourceMetadataDto implements SourceMetadataDto {
+    public static class GenericSourceMetadata implements SourceMetadata {
 		private String url;
 		private String domain;
 		private Integer selectionOffset;
@@ -43,7 +41,7 @@ public class TranslatedWordEventDto {
 
 	@Setter
     @Getter
-    public static class YoutubeSourceMetadataDto implements SourceMetadataDto {
+    public static class YoutubeSourceMetadata implements SourceMetadata {
 		private String url;
 		private String domain;
 		private String videoId;

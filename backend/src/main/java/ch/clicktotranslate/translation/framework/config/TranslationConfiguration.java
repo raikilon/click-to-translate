@@ -2,43 +2,48 @@ package ch.clicktotranslate.translation.framework.config;
 
 import java.util.List;
 
+import ch.clicktotranslate.translation.infrastructure.controller.mapper.TranslateWordMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
-import ch.clicktotranslate.translation.domain.outbound.EventPublisher;
+import ch.clicktotranslate.translation.infrastructure.event.EventPublisher;
+import ch.clicktotranslate.translation.infrastructure.event.TranslatedWordEventMapper;
 import ch.clicktotranslate.translation.domain.outbound.TranslationService;
 import ch.clicktotranslate.translation.domain.usecase.TranslateWordUseCase;
 import ch.clicktotranslate.translation.framework.spring.events.outbound.SpringEventPublisher;
-import ch.clicktotranslate.translation.framework.spring.events.outbound.mapper.TranslatedWordEventMapper;
 import ch.clicktotranslate.translation.framework.spring.http.inbound.mapper.HttpTranslateRequestMapper;
 import ch.clicktotranslate.translation.framework.spring.http.inbound.mapper.HttpTranslateResponseMapper;
 import ch.clicktotranslate.translation.framework.intermodule.inbound.mapper.TranslateRequestMapper;
 import ch.clicktotranslate.translation.framework.intermodule.inbound.mapper.TranslateResponseMapper;
 import ch.clicktotranslate.translation.framework.spring.http.outbound.SpringDeepLApiClient;
-import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLHttpRequestMapper;
-import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLHttpResponseMapper;
-import ch.clicktotranslate.translation.infrastructure.controller.TranslateWordController;
+import ch.clicktotranslate.translation.infrastructure.controller.TranslationController;
 import ch.clicktotranslate.translation.infrastructure.service.ProviderRoutingTranslationService;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.TranslationProvider;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.TranslationStrategy;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.DeepLTranslationStrategy;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.client.DeepLApiClient;
-import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.mapper.DeepLTranslateRequestMapper;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.mapper.DeepLTranslateResponseMapper;
 
 @Configuration
 public class TranslationConfiguration {
 
     @Bean
-    public TranslateWordUseCase translateWord(TranslationService translationService, EventPublisher eventPublisher) {
-        return new TranslateWordUseCase(translationService, eventPublisher);
+    public TranslateWordUseCase translateWord(TranslationService translationService) {
+        return new TranslateWordUseCase(translationService);
     }
 
     @Bean
-    public TranslateWordController translateWordController(TranslateWordUseCase translateWordUseCase) {
-        return new TranslateWordController(translateWordUseCase);
+    public TranslationController translateWordController(TranslateWordUseCase translateWordUseCase,
+            EventPublisher eventPublisher, TranslatedWordEventMapper eventFactory, TranslateWordMapper translateWordMapper) {
+        return new TranslationController(translateWordUseCase, eventPublisher, eventFactory, translateWordMapper);
+    }
+
+    @Bean
+    public TranslateWordMapper translateWordMapper() {
+        return new TranslateWordMapper();
     }
 
     @Bean
@@ -62,24 +67,10 @@ public class TranslationConfiguration {
     }
 
     @Bean
-    public DeepLTranslateRequestMapper deepLTranslateRequestMapper() {
-        return new DeepLTranslateRequestMapper();
-    }
-
-    @Bean
     public DeepLTranslateResponseMapper deepLTranslateResponseMapper() {
         return new DeepLTranslateResponseMapper();
     }
 
-    @Bean
-    public DeepLHttpRequestMapper deepLHttpRequestMapper() {
-        return new DeepLHttpRequestMapper();
-    }
-
-    @Bean
-    public DeepLHttpResponseMapper deepLHttpResponseMapper() {
-        return new DeepLHttpResponseMapper();
-    }
 
     @Bean
     public RestTemplate restTemplate() {
@@ -87,15 +78,13 @@ public class TranslationConfiguration {
     }
 
     @Bean
-    public DeepLApiClient deepLApiClient(RestTemplate restTemplate, DeepLHttpRequestMapper requestMapper,
-            DeepLHttpResponseMapper responseMapper) {
-        return new SpringDeepLApiClient(restTemplate, requestMapper, responseMapper);
+    public DeepLApiClient deepLApiClient(@Value("${deepl.auth-key:}") String authKey) {
+        return new SpringDeepLApiClient(authKey);
     }
 
     @Bean
-    public TranslationStrategy deepLTranslationStrategy(DeepLApiClient apiClient,
-            DeepLTranslateRequestMapper requestMapper, DeepLTranslateResponseMapper responseMapper) {
-        return new DeepLTranslationStrategy(apiClient, requestMapper, responseMapper);
+    public TranslationStrategy deepLTranslationStrategy(DeepLApiClient apiClient, DeepLTranslateResponseMapper responseMapper) {
+        return new DeepLTranslationStrategy(apiClient, responseMapper);
     }
 
     @Bean
@@ -110,13 +99,18 @@ public class TranslationConfiguration {
     }
 
     @Bean
-    public TranslatedWordEventMapper translatedWordEventMapper() {
+    public ch.clicktotranslate.translation.framework.spring.events.outbound.mapper.TranslatedWordEventMapper translatedWordEventMapper() {
+        return new ch.clicktotranslate.translation.framework.spring.events.outbound.mapper.TranslatedWordEventMapper();
+    }
+
+    @Bean
+    public TranslatedWordEventMapper translatedWordEventFactory() {
         return new TranslatedWordEventMapper();
     }
 
     @Bean
     public EventPublisher eventPublisher(ApplicationEventPublisher applicationEventPublisher,
-            TranslatedWordEventMapper eventMapper) {
+            ch.clicktotranslate.translation.framework.spring.events.outbound.mapper.TranslatedWordEventMapper eventMapper) {
         return new SpringEventPublisher(applicationEventPublisher, eventMapper);
     }
 }
