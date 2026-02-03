@@ -2,13 +2,13 @@ package ch.clicktotranslate.vocabulary.infrastructure.gateway;
 
 import ch.clicktotranslate.vocabulary.domain.entity.Lemma;
 import ch.clicktotranslate.vocabulary.domain.entity.TranslatedLemma;
-import ch.clicktotranslate.vocabulary.domain.outbound.TranslationService;
+import ch.clicktotranslate.vocabulary.domain.outbound.TranslationGateway;
 import ch.clicktotranslate.vocabulary.infrastructure.gateway.dto.TranslationRequest;
 import ch.clicktotranslate.vocabulary.infrastructure.gateway.dto.TranslationResponse;
 import ch.clicktotranslate.vocabulary.infrastructure.gateway.mapper.LemmaToTranslationRequestMapper;
 import ch.clicktotranslate.vocabulary.infrastructure.gateway.mapper.TranslationResponseToTranslatedLemmaMapper;
 
-public class ClickToTranslateTranslationService implements TranslationService {
+public class ClickToTranslateTranslationService implements TranslationGateway {
   private final ClickToTranslateTranslationServiceApiClient apiClient;
   private final LemmaToTranslationRequestMapper requestMapper;
   private final TranslationResponseToTranslatedLemmaMapper responseMapper;

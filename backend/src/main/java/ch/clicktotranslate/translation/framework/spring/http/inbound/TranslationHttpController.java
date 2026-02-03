@@ -14,7 +14,7 @@ import ch.clicktotranslate.translation.framework.spring.http.inbound.mapper.Http
 import ch.clicktotranslate.translation.infrastructure.controller.TranslateWordController;
 
 @RestController
-@RequestMapping("/translation")
+@RequestMapping("/api/translate")
 public class TranslationHttpController {
 	private final TranslateWordController translateWordController;
 	private final HttpTranslateRequestMapper requestMapper;

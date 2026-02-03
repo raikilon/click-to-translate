@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import ch.clicktotranslate.translation.framework.intermodule.inbound.TranslationFacade;
 import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepository;
 import ch.clicktotranslate.vocabulary.domain.outbound.Lemmatizer;
-import ch.clicktotranslate.vocabulary.domain.outbound.TranslationService;
+import ch.clicktotranslate.vocabulary.domain.outbound.TranslationGateway;
 import ch.clicktotranslate.vocabulary.domain.outbound.UsageRepository;
 import ch.clicktotranslate.vocabulary.domain.usecase.AddWordManually;
 import ch.clicktotranslate.vocabulary.domain.usecase.ClearVocabulary;
@@ -198,7 +198,7 @@ public class VocabConfiguration {
     }
 
     @Bean
-    public TranslationService translationService(
+    public TranslationGateway translationGateway(
             ClickToTranslateTranslationServiceApiClient apiClient,
             LemmaToTranslationRequestMapper requestMapper,
             TranslationResponseToTranslatedLemmaMapper responseMapper) {
@@ -211,7 +211,7 @@ public class VocabConfiguration {
     }
 
     @Bean
-    public AddWordManually addWordManually(TranslationService translationService, LemmaRepository lemmaRepository) {
+    public AddWordManually addWordManually(TranslationGateway translationGateway, LemmaRepository lemmaRepository) {
         return new AddWordManually();
     }
 

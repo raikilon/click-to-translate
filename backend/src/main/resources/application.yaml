@@ -1,3 +1,6 @@
 spring:
   application:
     name: Translation service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration

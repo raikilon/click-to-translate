@@ -1,5 +1,7 @@
 package ch.clicktotranslate.translation.framework.config;
 
+import java.util.List;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +14,17 @@ import ch.clicktotranslate.translation.framework.spring.events.outbound.SpringEv
 import ch.clicktotranslate.translation.framework.spring.events.outbound.mapper.TranslatedWordEventMapper;
 import ch.clicktotranslate.translation.framework.spring.http.inbound.mapper.HttpTranslateRequestMapper;
 import ch.clicktotranslate.translation.framework.spring.http.inbound.mapper.HttpTranslateResponseMapper;
+import ch.clicktotranslate.translation.framework.intermodule.inbound.mapper.TranslateRequestMapper;
+import ch.clicktotranslate.translation.framework.intermodule.inbound.mapper.TranslateResponseMapper;
+import ch.clicktotranslate.translation.framework.spring.http.outbound.SpringDeepLApiClient;
+import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLHttpRequestMapper;
+import ch.clicktotranslate.translation.framework.spring.http.outbound.mapper.DeepLHttpResponseMapper;
+import ch.clicktotranslate.translation.infrastructure.controller.TranslateWordController;
+import ch.clicktotranslate.translation.infrastructure.service.ProviderRoutingTranslationService;
+import ch.clicktotranslate.translation.infrastructure.service.strategy.TranslationProvider;
+import ch.clicktotranslate.translation.infrastructure.service.strategy.TranslationStrategy;
+import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.DeepLTranslationStrategy;
+import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.client.DeepLApiClient;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.mapper.DeepLTranslateRequestMapper;
 import ch.clicktotranslate.translation.infrastructure.service.strategy.deepl.mapper.DeepLTranslateResponseMapper;
 
@@ -21,6 +34,11 @@ public class TranslationConfiguration {
     @Bean
     public TranslateWordUseCase translateWord(TranslationService translationService, EventPublisher eventPublisher) {
         return new TranslateWordUseCase(translationService, eventPublisher);
+    }
+
+    @Bean
+    public TranslateWordController translateWordController(TranslateWordUseCase translateWordUseCase) {
+        return new TranslateWordController(translateWordUseCase);
     }
 
     @Bean
@@ -34,6 +52,16 @@ public class TranslationConfiguration {
     }
 
     @Bean
+    public TranslateRequestMapper translateRequestMapper() {
+        return new TranslateRequestMapper();
+    }
+
+    @Bean
+    public TranslateResponseMapper translateResponseMapper() {
+        return new TranslateResponseMapper();
+    }
+
+    @Bean
     public DeepLTranslateRequestMapper deepLTranslateRequestMapper() {
         return new DeepLTranslateRequestMapper();
     }
@@ -44,8 +72,41 @@ public class TranslationConfiguration {
     }
 
     @Bean
+    public DeepLHttpRequestMapper deepLHttpRequestMapper() {
+        return new DeepLHttpRequestMapper();
+    }
+
+    @Bean
+    public DeepLHttpResponseMapper deepLHttpResponseMapper() {
+        return new DeepLHttpResponseMapper();
+    }
+
+    @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    @Bean
+    public DeepLApiClient deepLApiClient(RestTemplate restTemplate, DeepLHttpRequestMapper requestMapper,
+            DeepLHttpResponseMapper responseMapper) {
+        return new SpringDeepLApiClient(restTemplate, requestMapper, responseMapper);
+    }
+
+    @Bean
+    public TranslationStrategy deepLTranslationStrategy(DeepLApiClient apiClient,
+            DeepLTranslateRequestMapper requestMapper, DeepLTranslateResponseMapper responseMapper) {
+        return new DeepLTranslationStrategy(apiClient, requestMapper, responseMapper);
+    }
+
+    @Bean
+    public TranslationProvider defaultTranslationProvider() {
+        return TranslationProvider.DEEPL;
+    }
+
+    @Bean
+    public TranslationService translationDomainService(List<TranslationStrategy> strategyList,
+            TranslationProvider defaultProvider) {
+        return new ProviderRoutingTranslationService(strategyList, defaultProvider);
     }
 
     @Bean
