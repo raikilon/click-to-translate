@@ -8,15 +8,18 @@ import ch.clicktotranslate.vocabulary.infrastructure.controller.ExportController
 import java.util.List;
 
 public class ExportHttpController {
-  private final ExportController exportController;
-  private final HttpExportVocabularyRequestMapper requestMapper;
 
-  public ExportHttpController(ExportController exportController, HttpExportVocabularyRequestMapper requestMapper) {
-    this.exportController = exportController;
-    this.requestMapper = requestMapper;
-  }
+	private final ExportController exportController;
 
-  public List<HttpExportRowResponse> export(HttpExportRequest request) {
-    return null;
-  }
+	private final HttpExportVocabularyRequestMapper requestMapper;
+
+	public ExportHttpController(ExportController exportController, HttpExportVocabularyRequestMapper requestMapper) {
+		this.exportController = exportController;
+		this.requestMapper = requestMapper;
+	}
+
+	public List<HttpExportRowResponse> export(HttpExportRequest request) {
+		return null;
+	}
+
 }

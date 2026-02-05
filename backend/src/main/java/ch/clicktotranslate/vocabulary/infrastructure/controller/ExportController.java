@@ -6,6 +6,7 @@ import ch.clicktotranslate.vocabulary.domain.usecase.input.ExportVocabularyInput
 import java.util.List;
 
 public class ExportController {
+
 	private final ExportVocabulary exportVocabulary;
 
 	public ExportController(ExportVocabulary exportVocabulary) {
@@ -15,4 +16,5 @@ public class ExportController {
 	public List<ExportRowOutput> export(ExportVocabularyInput input) {
 		return exportVocabulary.execute(input);
 	}
+
 }

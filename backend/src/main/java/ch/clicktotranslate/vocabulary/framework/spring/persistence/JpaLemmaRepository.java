@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 public class JpaLemmaRepository implements LemmaRepository {
+
 	private final SpringDataLemmaRepository springDataLemmaRepository;
+
 	private final LemmaJpaMapper lemmaJpaMapper;
 
-	public JpaLemmaRepository(SpringDataLemmaRepository springDataLemmaRepository,
-                              LemmaJpaMapper lemmaJpaMapper) {
+	public JpaLemmaRepository(SpringDataLemmaRepository springDataLemmaRepository, LemmaJpaMapper lemmaJpaMapper) {
 		this.springDataLemmaRepository = springDataLemmaRepository;
 		this.lemmaJpaMapper = lemmaJpaMapper;
 	}
@@ -38,4 +39,5 @@ public class JpaLemmaRepository implements LemmaRepository {
 	@Override
 	public void deleteAll() {
 	}
+
 }

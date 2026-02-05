@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class JpaLemmaRepositoryAdapter implements LemmaRepositoryGateway {
+
 	private final LemmaPersistenceStore lemmaPersistenceStore;
+
 	private final LemmaMapper lemmaMapper;
 
 	public JpaLemmaRepositoryAdapter(LemmaPersistenceStore lemmaPersistenceStore, LemmaMapper lemmaMapper) {
@@ -43,4 +45,5 @@ public class JpaLemmaRepositoryAdapter implements LemmaRepositoryGateway {
 	public void deleteAll() {
 		lemmaPersistenceStore.deleteAll();
 	}
+
 }

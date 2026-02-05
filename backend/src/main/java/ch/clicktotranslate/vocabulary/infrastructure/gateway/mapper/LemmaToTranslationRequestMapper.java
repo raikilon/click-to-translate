@@ -5,7 +5,8 @@ import ch.clicktotranslate.vocabulary.infrastructure.gateway.dto.TranslationRequ
 
 public class LemmaToTranslationRequestMapper {
 
-    public TranslationRequest map(Lemma lemma) {
-        return new TranslationRequest();
-    }
+	public TranslationRequest map(Lemma lemma) {
+		return new TranslationRequest();
+	}
+
 }

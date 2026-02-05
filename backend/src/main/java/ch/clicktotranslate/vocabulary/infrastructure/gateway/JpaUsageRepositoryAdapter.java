@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class JpaUsageRepositoryAdapter implements UsageRepositoryGateway {
+
 	private final UsagePersistenceStore usagePersistenceStore;
+
 	private final UsageMapper usageMapper;
 
 	public JpaUsageRepositoryAdapter(UsagePersistenceStore usagePersistenceStore, UsageMapper usageMapper) {
@@ -43,4 +45,5 @@ public class JpaUsageRepositoryAdapter implements UsageRepositoryGateway {
 	public void deleteAll() {
 		usagePersistenceStore.deleteAll();
 	}
+
 }

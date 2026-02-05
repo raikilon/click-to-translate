@@ -5,9 +5,11 @@ import ch.clicktotranslate.vocabulary.domain.event.WordDeletedEvent;
 import ch.clicktotranslate.vocabulary.domain.event.WordSeenEvent;
 
 public interface EventPublisher {
-  void publish(WordCreatedEvent event);
 
-  void publish(WordDeletedEvent event);
+	void publish(WordCreatedEvent event);
 
-  void publish(WordSeenEvent event);
+	void publish(WordDeletedEvent event);
+
+	void publish(WordSeenEvent event);
+
 }

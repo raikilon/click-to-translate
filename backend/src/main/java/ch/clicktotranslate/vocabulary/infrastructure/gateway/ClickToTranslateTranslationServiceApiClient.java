@@ -5,5 +5,6 @@ import ch.clicktotranslate.vocabulary.infrastructure.gateway.dto.TranslationResp
 
 public interface ClickToTranslateTranslationServiceApiClient {
 
-    TranslationResponse translate(TranslationRequest request);
+	TranslationResponse translate(TranslationRequest request);
+
 }

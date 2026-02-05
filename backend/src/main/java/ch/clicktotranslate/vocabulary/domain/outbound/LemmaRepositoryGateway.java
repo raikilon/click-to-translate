@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LemmaRepositoryGateway {
+
 	Optional<Lemma> findById(Long id);
 
 	List<Lemma> findAll();
@@ -14,4 +15,5 @@ public interface LemmaRepositoryGateway {
 	void deleteById(Long id);
 
 	void deleteAll();
+
 }

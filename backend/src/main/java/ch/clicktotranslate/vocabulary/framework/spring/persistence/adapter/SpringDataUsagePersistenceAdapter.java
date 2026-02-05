@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class SpringDataUsagePersistenceAdapter implements UsagePersistenceStore {
+
 	private final SpringDataUsageRepository springDataUsageRepository;
+
 	private final UsageJpaMapper usageJpaMapper;
 
 	public SpringDataUsagePersistenceAdapter(SpringDataUsageRepository springDataUsageRepository,
@@ -39,4 +41,5 @@ public class SpringDataUsagePersistenceAdapter implements UsagePersistenceStore 
 	@Override
 	public void deleteAll() {
 	}
+
 }

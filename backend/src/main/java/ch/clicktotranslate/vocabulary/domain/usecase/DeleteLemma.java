@@ -5,7 +5,9 @@ import ch.clicktotranslate.vocabulary.domain.outbound.UsageRepository;
 import ch.clicktotranslate.vocabulary.domain.usecase.input.DeleteLemmaInput;
 
 public class DeleteLemma {
+
 	private final LemmaRepository lemmaRepository;
+
 	private final UsageRepository usageRepository;
 
 	public DeleteLemma(LemmaRepository lemmaRepository, UsageRepository usageRepository) {
@@ -15,4 +17,5 @@ public class DeleteLemma {
 
 	public void execute(DeleteLemmaInput input) {
 	}
+
 }

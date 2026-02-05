@@ -5,7 +5,8 @@ import ch.clicktotranslate.vocabulary.infrastructure.gateway.dto.TranslationResp
 
 public class TranslationResponseToTranslatedLemmaMapper {
 
-    public TranslatedLemma map(TranslationResponse response) {
-        return new TranslatedLemma();
-    }
+	public TranslatedLemma map(TranslationResponse response) {
+		return new TranslatedLemma();
+	}
+
 }

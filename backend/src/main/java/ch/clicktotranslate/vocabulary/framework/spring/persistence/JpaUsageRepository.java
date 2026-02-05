@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 public class JpaUsageRepository implements UsageRepository {
+
 	private final SpringDataUsageRepository springDataUsageRepository;
+
 	private final UsageJpaMapper usageJpaMapper;
 
-	public JpaUsageRepository(SpringDataUsageRepository springDataUsageRepository,
-                              UsageJpaMapper usageJpaMapper) {
+	public JpaUsageRepository(SpringDataUsageRepository springDataUsageRepository, UsageJpaMapper usageJpaMapper) {
 		this.springDataUsageRepository = springDataUsageRepository;
 		this.usageJpaMapper = usageJpaMapper;
 	}
@@ -38,4 +39,5 @@ public class JpaUsageRepository implements UsageRepository {
 	@Override
 	public void deleteAll() {
 	}
+
 }

@@ -4,6 +4,7 @@ import ch.clicktotranslate.vocabulary.domain.usecase.RegisterUsageFromTranslatio
 import ch.clicktotranslate.vocabulary.domain.usecase.input.RegisterUsageInput;
 
 public class TranslatedWordEventHandler {
+
 	private final RegisterUsageFromTranslation registerUsageFromTranslation;
 
 	public TranslatedWordEventHandler(RegisterUsageFromTranslation registerUsageFromTranslation) {
@@ -13,4 +14,5 @@ public class TranslatedWordEventHandler {
 	public void handle(RegisterUsageInput input) {
 		registerUsageFromTranslation.execute(input);
 	}
+
 }

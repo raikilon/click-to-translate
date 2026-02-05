@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 
 @Entity
 public class JpaLemmaEntity {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -18,4 +19,5 @@ public class JpaLemmaEntity {
 	public void setId(Long id) {
 		this.id = id;
 	}
+
 }

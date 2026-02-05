@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class SpringDataLemmaPersistenceAdapter implements LemmaPersistenceStore {
+
 	private final SpringDataLemmaRepository springDataLemmaRepository;
+
 	private final LemmaJpaMapper lemmaJpaMapper;
 
 	public SpringDataLemmaPersistenceAdapter(SpringDataLemmaRepository springDataLemmaRepository,
@@ -39,4 +41,5 @@ public class SpringDataLemmaPersistenceAdapter implements LemmaPersistenceStore 
 	@Override
 	public void deleteAll() {
 	}
+
 }

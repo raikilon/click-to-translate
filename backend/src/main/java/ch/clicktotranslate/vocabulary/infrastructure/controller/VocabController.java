@@ -18,11 +18,17 @@ import ch.clicktotranslate.vocabulary.domain.usecase.output.AddWordManuallyOutpu
 import java.util.List;
 
 public class VocabController {
+
 	private final ListVocabulary listVocabulary;
+
 	private final UpdateLemma updateLemma;
+
 	private final DeleteLemma deleteLemma;
+
 	private final ClearVocabulary clearVocabulary;
+
 	private final ResolveTempRef resolveTempRef;
+
 	private final AddWordManually addWordManually;
 
 	public VocabController(ListVocabulary listVocabulary, UpdateLemma updateLemma, DeleteLemma deleteLemma,
@@ -58,4 +64,5 @@ public class VocabController {
 	public AddWordManuallyOutput addWordManually(AddWordManuallyInput input) {
 		return addWordManually.execute(input);
 	}
+
 }

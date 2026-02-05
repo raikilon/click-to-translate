@@ -4,7 +4,9 @@ import ch.clicktotranslate.vocabulary.domain.usecase.input.DeleteLemmaInput;
 import ch.clicktotranslate.vocabulary.framework.spring.http.inbound.dto.HttpVocabUpdateRequest;
 
 public class HttpDeleteLemmaRequestMapper {
+
 	public DeleteLemmaInput map(HttpVocabUpdateRequest request) {
 		return new DeleteLemmaInput();
 	}
+
 }

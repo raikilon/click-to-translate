@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LemmaPersistenceStore {
+
 	Optional<LemmaRecord> findById(Long id);
 
 	List<LemmaRecord> findAll();
@@ -14,4 +15,5 @@ public interface LemmaPersistenceStore {
 	void deleteById(Long id);
 
 	void deleteAll();
+
 }

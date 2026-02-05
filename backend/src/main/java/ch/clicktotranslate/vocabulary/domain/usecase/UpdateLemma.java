@@ -4,6 +4,7 @@ import ch.clicktotranslate.vocabulary.domain.outbound.LemmaRepository;
 import ch.clicktotranslate.vocabulary.domain.usecase.input.UpdateLemmaInput;
 
 public class UpdateLemma {
+
 	private final LemmaRepository lemmaRepository;
 
 	public UpdateLemma(LemmaRepository lemmaRepository) {
@@ -12,4 +13,5 @@ public class UpdateLemma {
 
 	public void execute(UpdateLemmaInput input) {
 	}
+
 }

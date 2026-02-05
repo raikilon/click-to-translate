@@ -7,13 +7,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface WordLinkTokenRepository {
-  Optional<WordLinkToken> findById(Long id);
 
-  List<WordLinkToken> findAll();
+	Optional<WordLinkToken> findById(Long id);
 
-  WordLinkToken save(WordLinkToken wordLinkToken);
+	List<WordLinkToken> findAll();
 
-  void deleteById(Long id);
+	WordLinkToken save(WordLinkToken wordLinkToken);
 
-  void deleteAll();
+	void deleteById(Long id);
+
+	void deleteAll();
+
 }

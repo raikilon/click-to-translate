@@ -9,23 +9,25 @@ import ch.clicktotranslate.vocabulary.infrastructure.gateway.mapper.LemmaToTrans
 import ch.clicktotranslate.vocabulary.infrastructure.gateway.mapper.TranslationResponseToTranslatedLemmaMapper;
 
 public class ClickToTranslateTranslationService implements TranslationGateway {
-  private final ClickToTranslateTranslationServiceApiClient apiClient;
-  private final LemmaToTranslationRequestMapper requestMapper;
-  private final TranslationResponseToTranslatedLemmaMapper responseMapper;
 
-  public ClickToTranslateTranslationService(
-      ClickToTranslateTranslationServiceApiClient apiClient,
-      LemmaToTranslationRequestMapper requestMapper,
-      TranslationResponseToTranslatedLemmaMapper responseMapper) {
-    this.apiClient = apiClient;
-    this.requestMapper = requestMapper;
-    this.responseMapper = responseMapper;
-  }
+	private final ClickToTranslateTranslationServiceApiClient apiClient;
 
-  @Override
-  public TranslatedLemma translate(Lemma lemma) {
-    TranslationRequest request = requestMapper.map(lemma);
-    TranslationResponse response = apiClient.translate(request);
-    return responseMapper.map(response);
-  }
+	private final LemmaToTranslationRequestMapper requestMapper;
+
+	private final TranslationResponseToTranslatedLemmaMapper responseMapper;
+
+	public ClickToTranslateTranslationService(ClickToTranslateTranslationServiceApiClient apiClient,
+			LemmaToTranslationRequestMapper requestMapper, TranslationResponseToTranslatedLemmaMapper responseMapper) {
+		this.apiClient = apiClient;
+		this.requestMapper = requestMapper;
+		this.responseMapper = responseMapper;
+	}
+
+	@Override
+	public TranslatedLemma translate(Lemma lemma) {
+		TranslationRequest request = requestMapper.map(lemma);
+		TranslationResponse response = apiClient.translate(request);
+		return responseMapper.map(response);
+	}
+
 }

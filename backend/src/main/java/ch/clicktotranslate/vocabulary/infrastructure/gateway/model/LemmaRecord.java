@@ -1,6 +1,7 @@
 package ch.clicktotranslate.vocabulary.infrastructure.gateway.model;
 
 public class LemmaRecord {
+
 	private Long id;
 
 	public Long getId() {
@@ -10,4 +11,5 @@ public class LemmaRecord {
 	public void setId(Long id) {
 		this.id = id;
 	}
+
 }

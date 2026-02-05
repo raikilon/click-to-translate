@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UsagePersistenceStore {
+
 	Optional<UsageRecord> findById(Long id);
 
 	List<UsageRecord> findAll();
@@ -14,4 +15,5 @@ public interface UsagePersistenceStore {
 	void deleteById(Long id);
 
 	void deleteAll();
+
 }

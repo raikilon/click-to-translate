@@ -7,7 +7,9 @@ import ch.clicktotranslate.vocabulary.domain.usecase.output.VocabularyItemOutput
 import java.util.List;
 
 public class ListVocabulary {
+
 	private final LemmaRepository lemmaRepository;
+
 	private final UsageRepository usageRepository;
 
 	public ListVocabulary(LemmaRepository lemmaRepository, UsageRepository usageRepository) {
@@ -18,4 +20,5 @@ public class ListVocabulary {
 	public List<VocabularyItemOutput> execute(ListVocabularyInput input) {
 		return null;
 	}
+
 }

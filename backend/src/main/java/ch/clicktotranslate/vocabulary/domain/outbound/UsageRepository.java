@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UsageRepository {
+
 	Optional<Usage> findById(Long id);
 
 	List<Usage> findAll();
@@ -14,4 +15,5 @@ public interface UsageRepository {
 	void deleteById(Long id);
 
 	void deleteAll();
+
 }
