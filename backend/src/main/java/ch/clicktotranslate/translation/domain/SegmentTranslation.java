@@ -41,7 +41,7 @@ public class SegmentTranslation {
 		return "";
 	}
 
-	private String translateText(String text, String sourceLanguage, String targetLanguage) {
+	private String translateText(String text, Language sourceLanguage, Language targetLanguage) {
 		if (text == null || text.isBlank()) {
 			return null;
 		}

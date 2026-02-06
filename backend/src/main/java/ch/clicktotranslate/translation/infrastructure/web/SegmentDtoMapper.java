@@ -1,18 +1,19 @@
 package ch.clicktotranslate.translation.infrastructure.web;
 
 import ch.clicktotranslate.translation.application.web.SegmentBundle;
+import ch.clicktotranslate.translation.domain.TranslatedSegment;
 
 public class SegmentDtoMapper {
 
-	public TranslatedSegmentDto toDto(ch.clicktotranslate.translation.domain.TranslatedSegment response) {
+	public TranslatedSegmentDto toDto(TranslatedSegment response) {
 		return new TranslatedSegmentDto(response.word(), response.sentence(), response.translatedWord(),
 				response.translatedSentence());
 	}
 
 	public SegmentBundle toDomain(SegmentBundleDto request) {
-		return new SegmentBundle(request.userId(), request.word(), request.sentence(), request.sourceLanguage(),
-				request.targetLanguage(), mapSource(request.source()), mapSourceMetadata(request.sourceMetadata()),
-				request.occurredAt());
+		return new SegmentBundle(request.userId(), request.word(), request.sentence(),
+				request.sourceLanguage().toDomain(), request.targetLanguage().toDomain(), mapSource(request.source()),
+				mapSourceMetadata(request.sourceMetadata()), request.occurredAt());
 	}
 
 	private SegmentBundle.Source mapSource(SegmentBundleDto.SourceDto source) {

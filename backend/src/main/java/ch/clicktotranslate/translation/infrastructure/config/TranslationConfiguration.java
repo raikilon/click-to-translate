@@ -56,7 +56,7 @@ public class TranslationConfiguration {
 	}
 
 	@Bean
-	public DeepLTextTranslation deepLApiClient(@Value("${deepl.auth-key:}") String authKey) {
+	public DeepLTextTranslation deepLApiClient(@Value("${deepl.auth-key}") String authKey) {
 		return new DeepLTextTranslationClient(authKey);
 	}
 

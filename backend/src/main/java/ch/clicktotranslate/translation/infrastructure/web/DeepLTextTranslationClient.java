@@ -22,8 +22,8 @@ public class DeepLTextTranslationClient implements DeepLTextTranslation {
 
 	@Override
 	public String translate(TextToTranslate request) {
-		String sourceLanguage = request.sourceLanguage();
-		String targetLanguage = request.targetLanguage();
+		String sourceLanguage = request.sourceLanguage().code();
+		String targetLanguage = request.targetLanguage().code();
 		String translatedText = null;
 
 		try {

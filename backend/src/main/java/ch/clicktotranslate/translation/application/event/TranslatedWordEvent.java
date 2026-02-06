@@ -2,11 +2,13 @@ package ch.clicktotranslate.translation.application.event;
 
 import org.jmolecules.event.annotation.DomainEvent;
 
+import ch.clicktotranslate.translation.domain.Language;
+
 import java.time.Instant;
 
 @DomainEvent
 public record TranslatedWordEvent(String userId, String word, String sentence, String wordTranslation,
-		String sentenceTranslation, String sourceLanguage, String targetLanguage, Source source,
+		String sentenceTranslation, Language sourceLanguage, Language targetLanguage, Source source,
 		SourceMetadata sourceMetadata, Instant occurredAt) {
 	public record Source(String type, String id, String title) {
 	}
