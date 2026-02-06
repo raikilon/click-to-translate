@@ -7,14 +7,18 @@ import ch.clicktotranslate.translation.application.translation.TextTranslationPr
 public class DeepLTextTranslationProvider implements TextTranslationProvider {
 
 	private final DeepLTextTranslation deepLTextTranslation;
+	private final DeepLLanguageMapper languageMapper;
 
-	public DeepLTextTranslationProvider(DeepLTextTranslation deepLTextTranslation) {
+	public DeepLTextTranslationProvider(DeepLTextTranslation deepLTextTranslation, DeepLLanguageMapper languageMapper) {
 		this.deepLTextTranslation = deepLTextTranslation;
+		this.languageMapper = languageMapper;
 	}
 
 	@Override
 	public String translate(TextToTranslate request) {
-		return deepLTextTranslation.translate(request);
+		return deepLTextTranslation.translate(request.text(),
+				languageMapper.toDeepLCode(request.sourceLanguage()),
+				languageMapper.toDeepLCode(request.targetLanguage()));
 	}
 
 	@Override

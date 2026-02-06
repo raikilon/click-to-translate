@@ -1,5 +1,3 @@
-@baseUrl = http://localhost:8080
-
 ### Translate (generic source)
 POST {{baseUrl}}/api/translate
 Content-Type: application/json

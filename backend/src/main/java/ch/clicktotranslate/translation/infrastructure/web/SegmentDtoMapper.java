@@ -5,6 +5,12 @@ import ch.clicktotranslate.translation.domain.TranslatedSegment;
 
 public class SegmentDtoMapper {
 
+	private final LanguageDtoMapper languageDtoMapper;
+
+	public SegmentDtoMapper(LanguageDtoMapper languageDtoMapper) {
+		this.languageDtoMapper = languageDtoMapper;
+	}
+
 	public TranslatedSegmentDto toDto(TranslatedSegment response) {
 		return new TranslatedSegmentDto(response.word(), response.sentence(), response.translatedWord(),
 				response.translatedSentence());
@@ -12,7 +18,8 @@ public class SegmentDtoMapper {
 
 	public SegmentBundle toDomain(SegmentBundleDto request) {
 		return new SegmentBundle(request.userId(), request.word(), request.sentence(),
-				request.sourceLanguage().toDomain(), request.targetLanguage().toDomain(), mapSource(request.source()),
+				languageDtoMapper.toDomain(request.sourceLanguage()),
+				languageDtoMapper.toDomain(request.targetLanguage()), mapSource(request.source()),
 				mapSourceMetadata(request.sourceMetadata()), request.occurredAt());
 	}
 

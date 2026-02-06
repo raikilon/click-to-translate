@@ -6,7 +6,7 @@ public class TranslatedSegmentEventMapper {
 
 	public TranslatedSegmentEventDto map(TranslatedWordEvent event) {
 		return new TranslatedSegmentEventDto(event.userId(), event.word(), event.sentence(), event.wordTranslation(),
-				event.sentenceTranslation(), event.sourceLanguage().code(), event.targetLanguage().code(),
+				event.sentenceTranslation(), event.sourceLanguage().name(), event.targetLanguage().name(),
 				mapSource(event.source()), mapSourceMetadata(event.sourceMetadata()), event.occurredAt());
 	}
 

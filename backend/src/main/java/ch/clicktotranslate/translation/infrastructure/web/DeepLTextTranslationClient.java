@@ -1,13 +1,10 @@
 package ch.clicktotranslate.translation.infrastructure.web;
 
-import ch.clicktotranslate.translation.domain.TextToTranslate;
 import com.deepl.api.DeepLClient;
 import com.deepl.api.DeepLException;
 import com.deepl.api.TextResult;
 
 import ch.clicktotranslate.translation.application.translation.provider.deepl.DeepLTextTranslation;
-import org.jmolecules.architecture.onion.simplified.DomainRing;
-import org.jmolecules.architecture.onion.simplified.InfrastructureRing;
 
 public class DeepLTextTranslationClient implements DeepLTextTranslation {
 
@@ -21,14 +18,12 @@ public class DeepLTextTranslationClient implements DeepLTextTranslation {
 	}
 
 	@Override
-	public String translate(TextToTranslate request) {
-		String sourceLanguage = request.sourceLanguage().code();
-		String targetLanguage = request.targetLanguage().code();
+	public String translate(String text, String sourceLanguage, String targetLanguage) {
 		String translatedText = null;
 
 		try {
-			if (request.text() != null && !request.text().isBlank()) {
-				TextResult textResult = client.translateText(request.text(), sourceLanguage, targetLanguage);
+			if (text != null && !text.isBlank()) {
+				TextResult textResult = client.translateText(text, sourceLanguage, targetLanguage);
 				translatedText = textResult.getText();
 			}
 		}
