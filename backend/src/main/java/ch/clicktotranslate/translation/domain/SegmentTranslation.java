@@ -2,6 +2,8 @@ package ch.clicktotranslate.translation.domain;
 
 import org.jmolecules.ddd.annotation.Service;
 
+import java.util.concurrent.StructuredTaskScope;
+
 @Service
 public class SegmentTranslation {
 
@@ -12,9 +14,31 @@ public class SegmentTranslation {
 	}
 
 	public TranslatedSegment translate(Segment segment) {
-		return new TranslatedSegment(segment.word(), segment.sentence(),
-				translateText(segment.word(), segment.sourceLanguage(), segment.targetLanguage()),
-				translateText(segment.sentence(), segment.sourceLanguage(), segment.targetLanguage()));
+		try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.awaitAll())) {
+			var translateWordTask = scope
+				.fork(() -> translateText(segment.word(), segment.sourceLanguage(), segment.targetLanguage()));
+			var translateSentenceTask = scope
+				.fork(() -> translateText(segment.sentence(), segment.sourceLanguage(), segment.targetLanguage()));
+
+			scope.join();
+
+			String translatedWord = this.resultOrEmpty(translateWordTask);
+			String translatedSentence = this.resultOrEmpty(translateSentenceTask);
+
+			return new TranslatedSegment(segment.word(), segment.sentence(), translatedWord, translatedSentence);
+
+		}
+		catch (InterruptedException e) {
+			return new TranslatedSegment(segment.word(), segment.sentence(), "", "");
+		}
+	}
+
+	private String resultOrEmpty(StructuredTaskScope.Subtask<String> task) {
+		if (task.state() == StructuredTaskScope.Subtask.State.SUCCESS) {
+			return task.get();
+		}
+
+		return "";
 	}
 
 	private String translateText(String text, String sourceLanguage, String targetLanguage) {
