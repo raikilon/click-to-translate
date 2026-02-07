@@ -7,7 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 
 public record SegmentBundleDto(String userId, String word, String sentence, LanguageDto sourceLanguage,
-							   @NotNull LanguageDto targetLanguage,  @NotNull SourceDto source, SourceMetadataDto sourceMetadata, Instant occurredAt) {
+		@NotNull LanguageDto targetLanguage, @NotNull SourceDto source, SourceMetadataDto sourceMetadata,
+		Instant occurredAt) {
 	public record SourceDto(String type, String id, String title) {
 	}
 

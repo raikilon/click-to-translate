@@ -18,4 +18,5 @@ public enum LanguageDto {
 	public static LanguageDto fromJson(String value) {
 		return LanguageDto.valueOf(value.toUpperCase(Locale.ENGLISH));
 	}
+
 }

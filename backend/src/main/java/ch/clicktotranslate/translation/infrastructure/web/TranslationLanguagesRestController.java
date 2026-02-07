@@ -14,6 +14,7 @@ import ch.clicktotranslate.translation.application.web.TranslationLanguageContro
 public class TranslationLanguagesRestController {
 
 	private final TranslationLanguageController translationLanguageController;
+
 	private final LanguageDtoMapper languageDtoMapper;
 
 	public TranslationLanguagesRestController(TranslationLanguageController translationLanguageController,
@@ -24,7 +25,8 @@ public class TranslationLanguagesRestController {
 
 	@GetMapping
 	public List<LanguageDto> listLanguages() {
-		return translationLanguageController.listLanguages().stream()
+		return translationLanguageController.listLanguages()
+			.stream()
 			.map(languageDtoMapper::toDto)
 			.collect(Collectors.toList());
 	}

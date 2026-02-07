@@ -4,3 +4,8 @@ spring:
     username: click_to_translate
     password: click_to_translate
     driver-class-name: org.postgresql.Driver
+logging:
+  level:
+    org.springframework.modulith: DEBUG
+deepl:
+  auth-key: TEST_KEY
