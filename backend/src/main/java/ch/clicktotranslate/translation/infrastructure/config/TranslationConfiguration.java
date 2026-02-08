@@ -2,7 +2,7 @@ package ch.clicktotranslate.translation.infrastructure.config;
 
 import java.util.List;
 
-import ch.clicktotranslate.translation.infrastructure.event.TranslatedSegmentEventMapper;
+import ch.clicktotranslate.translation.infrastructure.event.TranslatedSegmentBundleEventMapper;
 import ch.clicktotranslate.translation.application.web.SegmentBundleMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -96,8 +96,8 @@ public class TranslationConfiguration {
 	}
 
 	@Bean
-	public TranslatedSegmentEventMapper translatedWordEventMapper() {
-		return new TranslatedSegmentEventMapper();
+	public TranslatedSegmentBundleEventMapper translatedWordEventMapper() {
+		return new TranslatedSegmentBundleEventMapper();
 	}
 
 	@Bean
@@ -107,7 +107,7 @@ public class TranslationConfiguration {
 
 	@Bean
 	public EventPublisher eventPublisher(ApplicationEventPublisher applicationEventPublisher,
-			TranslatedSegmentEventMapper eventMapper) {
+			TranslatedSegmentBundleEventMapper eventMapper) {
 		return new SpringEventPublisher(applicationEventPublisher, eventMapper);
 	}
 

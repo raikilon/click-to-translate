@@ -10,10 +10,10 @@ public class SpringEventPublisher implements EventPublisher {
 
 	private final ApplicationEventPublisher applicationEventPublisher;
 
-	private final TranslatedSegmentEventMapper eventMapper;
+	private final TranslatedSegmentBundleEventMapper eventMapper;
 
 	public SpringEventPublisher(ApplicationEventPublisher applicationEventPublisher,
-			TranslatedSegmentEventMapper eventMapper) {
+			TranslatedSegmentBundleEventMapper eventMapper) {
 		this.applicationEventPublisher = applicationEventPublisher;
 		this.eventMapper = eventMapper;
 	}
@@ -21,8 +21,8 @@ public class SpringEventPublisher implements EventPublisher {
 	@Override
 	@DomainEventPublisher
 	public void publish(TranslatedWordEvent event) {
-		TranslatedSegmentEventDto springEvent = eventMapper.map(event);
-		applicationEventPublisher.publishEvent(springEvent);
+		TranslatedSegmentBundleEventDto eventDto = eventMapper.map(event);
+		applicationEventPublisher.publishEvent(eventDto);
 	}
 
 }

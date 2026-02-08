@@ -1,7 +1,7 @@
 package ch.clicktotranslate.translation;
 
 import ch.clicktotranslate.translation.application.translation.provider.deepl.DeepLTextTranslation;
-import ch.clicktotranslate.translation.infrastructure.event.TranslatedSegmentEventDto;
+import ch.clicktotranslate.translation.infrastructure.event.TranslatedSegmentBundleEventDto;
 import ch.clicktotranslate.translation.infrastructure.web.LanguageDto;
 import ch.clicktotranslate.translation.infrastructure.web.SegmentBundleDto;
 import ch.clicktotranslate.translation.infrastructure.web.SegmentBundleTranslationRestController;
@@ -35,7 +35,7 @@ class SegmentBundleTranslationModuleTest {
 		context.givenDeepLTranslations();
 
 		scenario.stimulate(() -> underTest.translate(context.segmentBundle))
-			.andWaitForEventOfType(TranslatedSegmentEventDto.class)
+			.andWaitForEventOfType(TranslatedSegmentBundleEventDto.class)
 			.matching(context::eventMatches)
 			.toArriveAndVerify((event, response) -> {
 				assertThat(response).isEqualTo(context.expectedResponse);
@@ -97,10 +97,10 @@ class SegmentBundleTranslationModuleTest {
 		private final TranslatedSegmentDto expectedResponse = new TranslatedSegmentDto(word, sentence, translatedWord,
 				translatedSentence);
 
-		private final TranslatedSegmentEventDto expectedEvent = new TranslatedSegmentEventDto(userId, word, sentence,
-				translatedWord, translatedSentence, sourceLanguageCode, targetLanguageCode,
-				new TranslatedSegmentEventDto.SourceDto(sourceType, sourceId, sourceTitle),
-				new TranslatedSegmentEventDto.GenericSourceMetadataDto(sourceUrl, sourceDomain, selectionOffset,
+		private final TranslatedSegmentBundleEventDto expectedEvent = new TranslatedSegmentBundleEventDto(userId, word,
+				sentence, translatedWord, translatedSentence, sourceLanguageCode, targetLanguageCode,
+				new TranslatedSegmentBundleEventDto.SourceDto(sourceType, sourceId, sourceTitle),
+				new TranslatedSegmentBundleEventDto.GenericSourceMetadataDto(sourceUrl, sourceDomain, selectionOffset,
 						paragraphIndex),
 				occurredAt);
 
@@ -112,7 +112,7 @@ class SegmentBundleTranslationModuleTest {
 				.willReturn(translatedSentence);
 		}
 
-		private boolean eventMatches(TranslatedSegmentEventDto event) {
+		private boolean eventMatches(TranslatedSegmentBundleEventDto event) {
 			return expectedEvent.equals(event);
 		}
 
