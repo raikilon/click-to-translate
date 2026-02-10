@@ -5,11 +5,11 @@ import org.jmolecules.ddd.annotation.Service;
 import java.util.concurrent.StructuredTaskScope;
 
 @Service
-public class SegmentTranslation {
+public class SegmentTranslator {
 
 	private final TextTranslator textTranslator;
 
-	public SegmentTranslation(TextTranslator textTranslator) {
+	public SegmentTranslator(TextTranslator textTranslator) {
 		this.textTranslator = textTranslator;
 	}
 

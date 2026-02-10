@@ -13,7 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-class SegmentTranslationTest {
+class SegmentTranslatorTest {
 
 	@Test
 	void givenBothTranslationsSucceed_whenTranslate_thenReturnsTranslatedSegment() {
@@ -67,7 +67,7 @@ class SegmentTranslationTest {
 
 		private final TextTranslationBridgeController textTranslation = mock(TextTranslationBridgeController.class);
 
-		private final SegmentTranslation underTest = new SegmentTranslation(new TextTranslatorBridge(textTranslation));
+		private final SegmentTranslator underTest = new SegmentTranslator(new TextTranslatorBridge(textTranslation));
 
 		private final String sourceLanguage = "DE";
 

@@ -1,6 +1,6 @@
 package ch.clicktotranslate.tokenizer.application;
 
-public interface EventPublisher {
+public interface TokenizedSegmentBundleEventPublisher {
 
 	void publish(TokenizedSegmentBundleEvent event);
 

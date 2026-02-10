@@ -1,7 +1,7 @@
 package ch.clicktotranslate.segment.application;
 
 import ch.clicktotranslate.segment.domain.Segment;
-import ch.clicktotranslate.segment.domain.SegmentTranslation;
+import ch.clicktotranslate.segment.domain.SegmentTranslator;
 import ch.clicktotranslate.segment.domain.TranslatedSegment;
 import org.junit.jupiter.api.Test;
 
@@ -30,13 +30,13 @@ class SegmentBundleTranslationControllerTest {
 		context.verifySegmentTranslated();
 		context.verifyEventMapped(segmentBundle);
 		context.verifyEventPublished();
-		verifyNoMoreInteractions(context.segmentBundleMapper, context.segmentTranslation,
+		verifyNoMoreInteractions(context.segmentBundleMapper, context.segmentTranslator,
 				context.translatedWordEventMapper, context.eventPublisher);
 	}
 
 	private final class TestContext {
 
-		private final SegmentTranslation segmentTranslation = mock(SegmentTranslation.class);
+		private final SegmentTranslator segmentTranslator = mock(SegmentTranslator.class);
 
 		private final EventPublisher eventPublisher = mock(EventPublisher.class);
 
@@ -45,7 +45,7 @@ class SegmentBundleTranslationControllerTest {
 		private final SegmentBundleMapper segmentBundleMapper = mock(SegmentBundleMapper.class);
 
 		private final SegmentBundleTranslationController underTest = new SegmentBundleTranslationController(
-				segmentTranslation, eventPublisher, translatedWordEventMapper, segmentBundleMapper);
+                segmentTranslator, eventPublisher, translatedWordEventMapper, segmentBundleMapper);
 
 		private final String sourceLanguage = "DE";
 
@@ -103,7 +103,7 @@ class SegmentBundleTranslationControllerTest {
 		}
 
 		private void givenSegmentTranslation() {
-			given(segmentTranslation.translate(segment)).willReturn(translatedSegment);
+			given(segmentTranslator.translate(segment)).willReturn(translatedSegment);
 		}
 
 		private void givenEventMapping(SegmentBundle segmentBundle) {
@@ -115,7 +115,7 @@ class SegmentBundleTranslationControllerTest {
 		}
 
 		private void verifySegmentTranslated() {
-			verify(segmentTranslation).translate(segment);
+			verify(segmentTranslator).translate(segment);
 		}
 
 		private void verifyEventMapped(SegmentBundle segmentBundle) {

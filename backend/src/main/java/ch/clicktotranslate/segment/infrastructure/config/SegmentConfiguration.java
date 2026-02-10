@@ -9,7 +9,7 @@ import ch.clicktotranslate.segment.application.SegmentBundleTranslationControlle
 import ch.clicktotranslate.segment.application.EventPublisher;
 import ch.clicktotranslate.segment.application.TranslatedWordEventMapper;
 import ch.clicktotranslate.segment.infrastructure.TextTranslatorBridge;
-import ch.clicktotranslate.segment.domain.SegmentTranslation;
+import ch.clicktotranslate.segment.domain.SegmentTranslator;
 import ch.clicktotranslate.segment.domain.TextTranslator;
 import ch.clicktotranslate.segment.infrastructure.event.SpringEventPublisher;
 import ch.clicktotranslate.segment.infrastructure.event.TranslatedSegmentBundleEventMapper;
@@ -25,15 +25,15 @@ public class SegmentConfiguration {
 	}
 
 	@Bean
-	public SegmentTranslation translateWord(TextTranslator textTranslator) {
-		return new SegmentTranslation(textTranslator);
+	public SegmentTranslator translateWord(TextTranslator textTranslator) {
+		return new SegmentTranslator(textTranslator);
 	}
 
 	@Bean
-	public SegmentBundleTranslationController translateWordController(SegmentTranslation segmentTranslation,
-			EventPublisher eventPublisher, TranslatedWordEventMapper eventFactory,
-			SegmentBundleMapper segmentBundleMapper) {
-		return new SegmentBundleTranslationController(segmentTranslation, eventPublisher, eventFactory,
+	public SegmentBundleTranslationController translateWordController(SegmentTranslator segmentTranslator,
+																	  EventPublisher eventPublisher, TranslatedWordEventMapper eventFactory,
+																	  SegmentBundleMapper segmentBundleMapper) {
+		return new SegmentBundleTranslationController(segmentTranslator, eventPublisher, eventFactory,
 				segmentBundleMapper);
 	}
 

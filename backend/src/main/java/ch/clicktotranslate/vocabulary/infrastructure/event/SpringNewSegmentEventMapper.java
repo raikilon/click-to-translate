@@ -7,8 +7,9 @@ import ch.clicktotranslate.vocabulary.domain.entity.NewSegmentEvent;
 public class SpringNewSegmentEventMapper {
 
 	public NewSegmentEvent map(TokenizedSegmentBundleEventDto event) {
-		return new NewSegmentEvent(event.userId(), event.word(), event.sentence(), event.wordTranslation(),
-				event.sentenceTranslation(), toLanguage(event.sourceLanguage()), toLanguage(event.targetLanguage()));
+		return new NewSegmentEvent(event.userId(), event.tokenizedWord(), event.word(), event.sentence(),
+				event.tokenizedWordTranslation(), event.wordTranslation(), event.sentenceTranslation(),
+				toLanguage(event.sourceLanguage()), toLanguage(event.targetLanguage()));
 	}
 
 	private Language toLanguage(String value) {

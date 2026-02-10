@@ -3,16 +3,16 @@ package ch.clicktotranslate.tokenizer.infrastructure;
 import org.jmolecules.event.annotation.DomainEventPublisher;
 import org.springframework.context.ApplicationEventPublisher;
 
-import ch.clicktotranslate.tokenizer.application.EventPublisher;
+import ch.clicktotranslate.tokenizer.application.TokenizedSegmentBundleEventPublisher;
 import ch.clicktotranslate.tokenizer.application.TokenizedSegmentBundleEvent;
 
-public class SpringEventPublisher implements EventPublisher {
+public class SpringTokenizedSegmentBundleEventPublisher implements TokenizedSegmentBundleEventPublisher {
 
 	private final ApplicationEventPublisher applicationEventPublisher;
 
 	private final TokenizedSegmentBundleEventMapper eventMapper;
 
-	public SpringEventPublisher(ApplicationEventPublisher applicationEventPublisher,
+	public SpringTokenizedSegmentBundleEventPublisher(ApplicationEventPublisher applicationEventPublisher,
 			TokenizedSegmentBundleEventMapper eventMapper) {
 		this.applicationEventPublisher = applicationEventPublisher;
 		this.eventMapper = eventMapper;

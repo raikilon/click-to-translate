@@ -1,12 +1,12 @@
 package ch.clicktotranslate.segment.application;
 
 import ch.clicktotranslate.segment.domain.Segment;
-import ch.clicktotranslate.segment.domain.SegmentTranslation;
+import ch.clicktotranslate.segment.domain.SegmentTranslator;
 import ch.clicktotranslate.segment.domain.TranslatedSegment;
 
 public class SegmentBundleTranslationController {
 
-	private final SegmentTranslation segmentTranslation;
+	private final SegmentTranslator segmentTranslator;
 
 	private final EventPublisher eventPublisher;
 
@@ -14,9 +14,9 @@ public class SegmentBundleTranslationController {
 
 	private final SegmentBundleMapper segmentBundleMapper;
 
-	public SegmentBundleTranslationController(SegmentTranslation segmentTranslation, EventPublisher eventPublisher,
-			TranslatedWordEventMapper translatedWordEventMapper, SegmentBundleMapper segmentBundleMapper) {
-		this.segmentTranslation = segmentTranslation;
+	public SegmentBundleTranslationController(SegmentTranslator segmentTranslator, EventPublisher eventPublisher,
+											  TranslatedWordEventMapper translatedWordEventMapper, SegmentBundleMapper segmentBundleMapper) {
+		this.segmentTranslator = segmentTranslator;
 		this.eventPublisher = eventPublisher;
 		this.translatedWordEventMapper = translatedWordEventMapper;
 		this.segmentBundleMapper = segmentBundleMapper;
@@ -25,7 +25,7 @@ public class SegmentBundleTranslationController {
 	public TranslatedSegment translate(SegmentBundle segmentBundle) {
 		Segment segment = this.segmentBundleMapper.map(segmentBundle);
 
-		TranslatedSegment translatedSegment = segmentTranslation.translate(segment);
+		TranslatedSegment translatedSegment = segmentTranslator.translate(segment);
 
 		TranslatedWordEvent event = translatedWordEventMapper.map(segmentBundle, translatedSegment);
 
