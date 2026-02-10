@@ -7,33 +7,32 @@ import org.springframework.context.annotation.Configuration;
 import ch.clicktotranslate.segment.application.SegmentBundleMapper;
 import ch.clicktotranslate.segment.application.SegmentBundleTranslationController;
 import ch.clicktotranslate.segment.application.EventPublisher;
-import ch.clicktotranslate.segment.application.TranslatedWordEventMapper;
-import ch.clicktotranslate.segment.infrastructure.TextTranslatorBridge;
-import ch.clicktotranslate.segment.domain.SegmentTranslation;
-import ch.clicktotranslate.segment.domain.TextTranslator;
-import ch.clicktotranslate.segment.infrastructure.event.SpringEventPublisher;
-import ch.clicktotranslate.segment.infrastructure.event.TranslatedSegmentBundleEventMapper;
-import ch.clicktotranslate.segment.infrastructure.web.SegmentDtoMapper;
-import ch.clicktotranslate.translation.infrastructure.TextTranslationBridgeController;
+import ch.clicktotranslate.segment.application.SegmentBundleCreatedEventMapper;
+import ch.clicktotranslate.segment.infrastructure.TextTranslatorClient;
+import ch.clicktotranslate.segment.application.SegmentTranslatorService;
+import ch.clicktotranslate.segment.application.TextTranslator;
+import ch.clicktotranslate.segment.infrastructure.SpringEventPublisher;
+import ch.clicktotranslate.segment.infrastructure.SegmentDtoMapper;
+import ch.clicktotranslate.translation.infrastructure.TextTranslationFacade;
 
 @Configuration
 public class SegmentConfiguration {
 
 	@Bean
-	public TextTranslator segmentTranslator(TextTranslationBridgeController textTranslationBridgeController) {
-		return new TextTranslatorBridge(textTranslationBridgeController);
+	public TextTranslator segmentTranslator(TextTranslationFacade textTranslationFacade) {
+		return new TextTranslatorClient(textTranslationFacade);
 	}
 
 	@Bean
-	public SegmentTranslation translateWord(TextTranslator textTranslator) {
-		return new SegmentTranslation(textTranslator);
+	public SegmentTranslatorService translateWord(TextTranslator textTranslator) {
+		return new SegmentTranslatorService(textTranslator);
 	}
 
 	@Bean
-	public SegmentBundleTranslationController translateWordController(SegmentTranslation segmentTranslation,
-			EventPublisher eventPublisher, TranslatedWordEventMapper eventFactory,
+	public SegmentBundleTranslationController translateWordController(SegmentTranslatorService segmentTranslatorService,
+			EventPublisher eventPublisher, SegmentBundleCreatedEventMapper eventFactory,
 			SegmentBundleMapper segmentBundleMapper) {
-		return new SegmentBundleTranslationController(segmentTranslation, eventPublisher, eventFactory,
+		return new SegmentBundleTranslationController(segmentTranslatorService, eventPublisher, eventFactory,
 				segmentBundleMapper);
 	}
 
@@ -48,19 +47,13 @@ public class SegmentConfiguration {
 	}
 
 	@Bean
-	public TranslatedSegmentBundleEventMapper translatedWordEventMapper() {
-		return new TranslatedSegmentBundleEventMapper();
+	public SegmentBundleCreatedEventMapper translatedWordEventFactory() {
+		return new SegmentBundleCreatedEventMapper();
 	}
 
 	@Bean
-	public TranslatedWordEventMapper translatedWordEventFactory() {
-		return new TranslatedWordEventMapper();
-	}
-
-	@Bean
-	public EventPublisher eventPublisher(ApplicationEventPublisher applicationEventPublisher,
-			TranslatedSegmentBundleEventMapper eventMapper) {
-		return new SpringEventPublisher(applicationEventPublisher, eventMapper);
+	public EventPublisher eventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		return new SpringEventPublisher(applicationEventPublisher);
 	}
 
 }

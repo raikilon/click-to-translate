@@ -1,12 +1,12 @@
 package ch.clicktotranslate.segment;
 
-import ch.clicktotranslate.segment.infrastructure.event.TranslatedSegmentBundleEventDto;
-import ch.clicktotranslate.segment.infrastructure.web.LanguageDto;
-import ch.clicktotranslate.segment.infrastructure.web.SegmentBundleDto;
-import ch.clicktotranslate.segment.infrastructure.web.SegmentBundleTranslationRestController;
-import ch.clicktotranslate.segment.infrastructure.web.TranslatedSegmentDto;
+import ch.clicktotranslate.segment.domain.SegmentBundleCreatedEvent;
+import ch.clicktotranslate.segment.infrastructure.LanguageDto;
+import ch.clicktotranslate.segment.infrastructure.SegmentBundleDto;
+import ch.clicktotranslate.segment.infrastructure.SegmentBundleTranslationRestController;
+import ch.clicktotranslate.segment.infrastructure.TranslatedSegmentDto;
 import ch.clicktotranslate.translation.infrastructure.TextToTranslateDto;
-import ch.clicktotranslate.translation.infrastructure.TextTranslationBridgeController;
+import ch.clicktotranslate.translation.infrastructure.TextTranslationFacade;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.modulith.test.ApplicationModuleTest;
@@ -26,7 +26,7 @@ class SegmentBundleTranslationModuleTest {
 	private SegmentBundleTranslationRestController underTest;
 
 	@MockitoBean
-	private TextTranslationBridgeController textTranslationBridgeController;
+	private TextTranslationFacade textTranslationFacade;
 
 	@Test
 	void givenSegmentBundle_whenTranslate_thenReturnsTranslationPublishesEventAndCallsTranslationModuleTwice(
@@ -35,7 +35,7 @@ class SegmentBundleTranslationModuleTest {
 		context.givenTextTranslations();
 
 		scenario.stimulate(() -> underTest.translate(context.segmentBundle))
-			.andWaitForEventOfType(TranslatedSegmentBundleEventDto.class)
+			.andWaitForEventOfType(SegmentBundleCreatedEvent.class)
 			.matching(context::eventMatches)
 			.toArriveAndVerify((event, response) -> {
 				assertThat(response).isEqualTo(context.expectedResponse);
@@ -98,24 +98,24 @@ class SegmentBundleTranslationModuleTest {
 		private final TranslatedSegmentDto expectedResponse = new TranslatedSegmentDto(word, sentence, translatedWord,
 				translatedSentence);
 
-		private final TranslatedSegmentBundleEventDto expectedEvent = new TranslatedSegmentBundleEventDto(userId, word,
-				sentence, translatedWord, translatedSentence, sourceLanguage.name(), targetLanguage.name(),
-				new TranslatedSegmentBundleEventDto.SourceDto(sourceType, sourceId, sourceTitle),
-				new TranslatedSegmentBundleEventDto.GenericSourceMetadataDto(sourceUrl, sourceDomain, selectionOffset,
+		private final SegmentBundleCreatedEvent expectedEvent = new SegmentBundleCreatedEvent(userId, word, sentence,
+				translatedWord, translatedSentence, sourceLanguage.name(), targetLanguage.name(),
+				new SegmentBundleCreatedEvent.Source(sourceType, sourceId, sourceTitle),
+				new SegmentBundleCreatedEvent.GenericSourceMetadata(sourceUrl, sourceDomain, selectionOffset,
 						paragraphIndex),
 				occurredAt);
 
 		private void givenTextTranslations() {
-			given(textTranslationBridgeController.translate(wordTranslationRequest)).willReturn(translatedWord);
-			given(textTranslationBridgeController.translate(sentenceTranslationRequest)).willReturn(translatedSentence);
+			given(textTranslationFacade.translate(wordTranslationRequest)).willReturn(translatedWord);
+			given(textTranslationFacade.translate(sentenceTranslationRequest)).willReturn(translatedSentence);
 		}
 
 		private void verifyTranslationCalls() {
-			verify(textTranslationBridgeController, times(1)).translate(wordTranslationRequest);
-			verify(textTranslationBridgeController, times(1)).translate(sentenceTranslationRequest);
+			verify(textTranslationFacade, times(1)).translate(wordTranslationRequest);
+			verify(textTranslationFacade, times(1)).translate(sentenceTranslationRequest);
 		}
 
-		private boolean eventMatches(TranslatedSegmentBundleEventDto event) {
+		private boolean eventMatches(SegmentBundleCreatedEvent event) {
 			return event.equals(expectedEvent);
 		}
 

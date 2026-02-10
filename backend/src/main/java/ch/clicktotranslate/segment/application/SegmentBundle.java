@@ -1,10 +1,7 @@
 package ch.clicktotranslate.segment.application;
 
-import org.jmolecules.ddd.annotation.ValueObject;
-
 import java.time.Instant;
 
-@ValueObject
 public record SegmentBundle(String userId, String word, String sentence, String sourceLanguage, String targetLanguage,
 		Source source, SourceMetadata sourceMetadata, Instant occurredAt) {
 	public record Source(String type, String id, String title) {

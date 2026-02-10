@@ -1,5 +1,6 @@
 package ch.clicktotranslate.translation.infrastructure;
 
+import com.deepl.api.DeepLClient;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -14,8 +15,6 @@ import ch.clicktotranslate.translation.application.DeepLTextTranslation;
 import ch.clicktotranslate.translation.application.DeepLTextTranslationProvider;
 import ch.clicktotranslate.translation.application.TextTranslationController;
 import ch.clicktotranslate.translation.application.TranslationLanguageController;
-import ch.clicktotranslate.translation.infrastructure.DeepLTextTranslationClient;
-import ch.clicktotranslate.translation.infrastructure.LanguageDtoMapper;
 
 @Configuration
 public class TranslationConfiguration {
@@ -41,9 +40,9 @@ public class TranslationConfiguration {
 	}
 
 	@Bean
-	public TextTranslationBridgeController textTranslationBridgeController(
-			TextTranslationController textTranslationController, TextToTranslateDtoMapper textToTranslateDtoMapper) {
-		return new TextTranslationBridgeController(textTranslationController, textToTranslateDtoMapper);
+	public TextTranslationFacade textTranslationBridgeController(TextTranslationController textTranslationController,
+			TextToTranslateDtoMapper textToTranslateDtoMapper) {
+		return new TextTranslationFacade(textTranslationController, textToTranslateDtoMapper);
 	}
 
 	@Bean
@@ -57,8 +56,16 @@ public class TranslationConfiguration {
 	}
 
 	@Bean
-	public DeepLTextTranslation deepLApiClient(@Value("${deepl.auth-key}") String authKey) {
-		return new DeepLTextTranslationClient(authKey);
+	public DeepLClient deepLClient(@Value("${deepl.auth-key}") String authKey) {
+		if (authKey == null || authKey.isBlank()) {
+			throw new IllegalArgumentException("DeepL auth key is required.");
+		}
+		return new DeepLClient(authKey);
+	}
+
+	@Bean
+	public DeepLTextTranslation deepLApiClient(DeepLClient deepLClient) {
+		return new DeepLTextTranslationClient(deepLClient);
 	}
 
 	@Bean

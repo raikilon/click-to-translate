@@ -1,5 +1,4 @@
 @DomainRing
-@NamedInterface("domain")
 package ch.clicktotranslate.translation.domain;
 
 import org.jmolecules.architecture.onion.simplified.DomainRing;

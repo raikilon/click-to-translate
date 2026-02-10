@@ -1,5 +1,6 @@
-package ch.clicktotranslate.segment.infrastructure.web;
+package ch.clicktotranslate.segment.infrastructure;
 
+import ch.clicktotranslate.segment.domain.Segment;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.clicktotranslate.segment.application.SegmentBundleTranslationController;
 import ch.clicktotranslate.segment.application.SegmentBundle;
-import ch.clicktotranslate.segment.domain.TranslatedSegment;
 
 @RestController
 @RequestMapping("/api/translate")
@@ -26,7 +26,7 @@ public class SegmentBundleTranslationRestController {
 	@PostMapping
 	public TranslatedSegmentDto translate(@RequestBody SegmentBundleDto SegmentBundleDto) {
 		SegmentBundle segmentBundle = segmentDtoMapper.toDomain(SegmentBundleDto);
-		TranslatedSegment translatedSegment = segmentBundleTranslationController.translate(segmentBundle);
+		Segment translatedSegment = segmentBundleTranslationController.translate(segmentBundle);
 		return segmentDtoMapper.toDto(translatedSegment);
 	}
 

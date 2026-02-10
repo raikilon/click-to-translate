@@ -10,11 +10,11 @@ public class DeepLTextTranslationClient implements DeepLTextTranslation {
 
 	private final DeepLClient client;
 
-	public DeepLTextTranslationClient(String authKey) {
-		if (authKey == null || authKey.isBlank()) {
-			throw new IllegalArgumentException("DeepL auth key is required.");
+	public DeepLTextTranslationClient(DeepLClient client) {
+		if (client == null) {
+			throw new IllegalArgumentException("DeepL client is required.");
 		}
-		this.client = new DeepLClient(authKey);
+		this.client = client;
 	}
 
 	@Override

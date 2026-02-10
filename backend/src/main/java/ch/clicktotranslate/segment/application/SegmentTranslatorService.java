@@ -1,19 +1,20 @@
-package ch.clicktotranslate.segment.domain;
+package ch.clicktotranslate.segment.application;
 
+import ch.clicktotranslate.segment.domain.Segment;
 import org.jmolecules.ddd.annotation.Service;
 
 import java.util.concurrent.StructuredTaskScope;
 
 @Service
-public class SegmentTranslation {
+public class SegmentTranslatorService {
 
 	private final TextTranslator textTranslator;
 
-	public SegmentTranslation(TextTranslator textTranslator) {
+	public SegmentTranslatorService(TextTranslator textTranslator) {
 		this.textTranslator = textTranslator;
 	}
 
-	public TranslatedSegment translate(Segment segment) {
+	public Segment translate(Segment segment) {
 		try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.awaitAll())) {
 			var translateWordTask = scope
 				.fork(() -> translateText(segment.word(), segment.sourceLanguage(), segment.targetLanguage()));
@@ -25,12 +26,15 @@ public class SegmentTranslation {
 			String translatedWord = this.resultOrEmpty(translateWordTask);
 			String translatedSentence = this.resultOrEmpty(translateSentenceTask);
 
-			return new TranslatedSegment(segment.word(), segment.sentence(), translatedWord, translatedSentence);
+			segment.setTranslations(translatedWord, translatedSentence);
+			return segment;
 
 		}
 		catch (InterruptedException e) {
-			return new TranslatedSegment(segment.word(), segment.sentence(), "", "");
+			segment.setTranslations("", "");
 		}
+
+		return segment;
 	}
 
 	private String resultOrEmpty(StructuredTaskScope.Subtask<String> task) {

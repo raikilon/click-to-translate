@@ -4,10 +4,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import ch.clicktotranslate.tokenizer.application.TokenizeTranslatedSegmentBundle;
-import ch.clicktotranslate.tokenizer.application.EventPublisher;
-import ch.clicktotranslate.tokenizer.domain.SimpleWordTokenizer;
-import ch.clicktotranslate.tokenizer.domain.Tokenizer;
+import ch.clicktotranslate.tokenizer.application.TokenizeTranslatedSegmentBundleController;
+import ch.clicktotranslate.tokenizer.application.SegmentBundleTokenizedEventPublisher;
+import ch.clicktotranslate.tokenizer.application.SimpleWordTokenizer;
+import ch.clicktotranslate.tokenizer.application.TextTranslator;
+import ch.clicktotranslate.tokenizer.application.WordTokenizer;
+import ch.clicktotranslate.tokenizer.application.Tokenizer;
+import ch.clicktotranslate.translation.infrastructure.TextTranslationFacade;
 
 @Configuration
 public class TokenizerConfiguration {
@@ -18,32 +21,37 @@ public class TokenizerConfiguration {
 	}
 
 	@Bean
-	public TokenizedSegmentBundleEventMapper tokenizedSegmentBundleEventMapper() {
-		return new TokenizedSegmentBundleEventMapper();
+	public TextTranslator tokenizerTextTranslator(TextTranslationFacade textTranslationFacade) {
+		return new TextTranslatorClient(textTranslationFacade);
 	}
 
 	@Bean
-	public TranslatedSegmentBundleEventInputMapper translatedSegmentBundleEventInputMapper() {
-		return new TranslatedSegmentBundleEventInputMapper();
+	public SegmentBundleTranslatedEventMapper translatedSegmentBundleEventInputMapper() {
+		return new SegmentBundleTranslatedEventMapper();
 	}
 
 	@Bean
-	public EventPublisher tokenizerEventPublisher(ApplicationEventPublisher applicationEventPublisher,
-			TokenizedSegmentBundleEventMapper eventMapper) {
-		return new SpringEventPublisher(applicationEventPublisher, eventMapper);
+	public SegmentBundleTokenizedEventPublisher tokenizerEventPublisher(
+			ApplicationEventPublisher applicationEventPublisher) {
+		return new SpringSegmentBundleTokenizedEventPublisher(applicationEventPublisher);
 	}
 
 	@Bean
-	public TokenizeTranslatedSegmentBundle tokenizeTranslatedSegmentBundle(Tokenizer tokenizer,
-			EventPublisher eventPublisher) {
-		return new TokenizeTranslatedSegmentBundle(tokenizer, eventPublisher);
+	public WordTokenizer tokenizedSegmentBundleTranslation(Tokenizer tokenizer, TextTranslator textTranslator,
+			SegmentBundleTokenizedEventPublisher segmentBundleTokenizedEventPublisher) {
+		return new WordTokenizer(tokenizer, textTranslator, segmentBundleTokenizedEventPublisher);
 	}
 
 	@Bean
-	public SpringTranslatedSegmentBundleEventListener translatedSegmentBundleEventListener(
-			TokenizeTranslatedSegmentBundle tokenizeTranslatedSegmentBundle,
-			TranslatedSegmentBundleEventInputMapper inputMapper) {
-		return new SpringTranslatedSegmentBundleEventListener(tokenizeTranslatedSegmentBundle, inputMapper);
+	public TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundle(WordTokenizer wordTokenizer) {
+		return new TokenizeTranslatedSegmentBundleController(wordTokenizer);
+	}
+
+	@Bean
+	public SpringSegmentBundleCreatedEventListener translatedSegmentBundleEventListener(
+			TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundleController,
+			SegmentBundleTranslatedEventMapper eventMapper) {
+		return new SpringSegmentBundleCreatedEventListener(tokenizeTranslatedSegmentBundleController, eventMapper);
 	}
 
 }
