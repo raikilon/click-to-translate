@@ -17,4 +17,5 @@ public class SimpleRuleBasedLemmatizer implements Lemmatizer {
 		}
 		return normalized;
 	}
+
 }

@@ -1,0 +1,22 @@
+package ch.clicktotranslate.translation.infrastructure;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import java.util.Locale;
+
+public enum LanguageDto {
+
+	DE, EN, ES, FR, IT, NB, DA, ET, FI, PT, SL, SV;
+
+	@JsonValue
+	public String toString() {
+		return name().toLowerCase(Locale.ENGLISH);
+	}
+
+	@JsonCreator
+	public static LanguageDto fromString(String value) {
+		return LanguageDto.valueOf(value.toUpperCase(Locale.ENGLISH));
+	}
+
+}
