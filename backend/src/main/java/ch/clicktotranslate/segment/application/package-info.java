@@ -1,4 +1,4 @@
 @ApplicationRing
-package ch.clicktotranslate.translation.application.web;
+package ch.clicktotranslate.segment.application;
 
 import org.jmolecules.architecture.onion.simplified.ApplicationRing;
