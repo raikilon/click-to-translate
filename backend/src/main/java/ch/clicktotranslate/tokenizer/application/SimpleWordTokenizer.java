@@ -1,4 +1,4 @@
-package ch.clicktotranslate.tokenizer.domain;
+package ch.clicktotranslate.tokenizer.application;
 
 import org.jmolecules.ddd.annotation.Service;
 

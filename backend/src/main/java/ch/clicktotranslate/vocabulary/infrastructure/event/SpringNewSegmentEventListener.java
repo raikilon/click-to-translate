@@ -1,6 +1,6 @@
 package ch.clicktotranslate.vocabulary.infrastructure.event;
 
-import ch.clicktotranslate.tokenizer.infrastructure.TokenizedSegmentBundleEventDto;
+import ch.clicktotranslate.tokenizer.domain.SegmentBundleTokenizedEvent;
 import ch.clicktotranslate.vocabulary.domain.entity.NewSegmentEvent;
 import ch.clicktotranslate.vocabulary.domain.RegisterUsageFromTranslation;
 import org.jmolecules.event.annotation.DomainEventHandler;
@@ -20,7 +20,7 @@ public class SpringNewSegmentEventListener {
 
 	@EventListener
 	@DomainEventHandler
-	public void onTranslatedWord(TokenizedSegmentBundleEventDto eventDto) {
+	public void onTranslatedWord(SegmentBundleTokenizedEvent eventDto) {
 		NewSegmentEvent event = eventMapper.map(eventDto);
 		registerUsageFromTranslation.execute(event);
 	}

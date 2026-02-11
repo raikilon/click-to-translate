@@ -1,4 +1,4 @@
-package ch.clicktotranslate.segment.infrastructure.web;
+package ch.clicktotranslate.segment.infrastructure;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

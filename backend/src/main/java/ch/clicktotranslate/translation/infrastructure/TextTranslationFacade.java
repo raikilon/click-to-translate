@@ -5,14 +5,14 @@ import ch.clicktotranslate.translation.domain.TextToTranslate;
 import org.springframework.modulith.NamedInterface;
 
 @NamedInterface
-public class TextTranslationBridgeController {
+public class TextTranslationFacade {
 
 	private final TextTranslationController textTranslationController;
 
 	private final TextToTranslateDtoMapper textToTranslateDtoMapper;
 
-	public TextTranslationBridgeController(TextTranslationController textTranslationController,
-			TextToTranslateDtoMapper textToTranslateDtoMapper) {
+	public TextTranslationFacade(TextTranslationController textTranslationController,
+								 TextToTranslateDtoMapper textToTranslateDtoMapper) {
 		this.textTranslationController = textTranslationController;
 		this.textToTranslateDtoMapper = textToTranslateDtoMapper;
 	}

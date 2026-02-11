@@ -5,12 +5,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import ch.clicktotranslate.tokenizer.application.TokenizeTranslatedSegmentBundleController;
-import ch.clicktotranslate.tokenizer.application.TokenizedSegmentBundleEventPublisher;
-import ch.clicktotranslate.tokenizer.domain.SimpleWordTokenizer;
-import ch.clicktotranslate.tokenizer.domain.TextTranslator;
-import ch.clicktotranslate.tokenizer.domain.WordTokenizer;
-import ch.clicktotranslate.tokenizer.domain.Tokenizer;
-import ch.clicktotranslate.translation.infrastructure.TextTranslationBridgeController;
+import ch.clicktotranslate.tokenizer.application.SegmentBundleTokenizedEventPublisher;
+import ch.clicktotranslate.tokenizer.application.SimpleWordTokenizer;
+import ch.clicktotranslate.tokenizer.application.TextTranslator;
+import ch.clicktotranslate.tokenizer.application.WordTokenizer;
+import ch.clicktotranslate.tokenizer.application.Tokenizer;
+import ch.clicktotranslate.translation.infrastructure.TextTranslationFacade;
 
 @Configuration
 public class TokenizerConfiguration {
@@ -21,45 +21,37 @@ public class TokenizerConfiguration {
 	}
 
 	@Bean
-	public TokenizedSegmentBundleEventMapper tokenizedSegmentBundleEventMapper() {
-		return new TokenizedSegmentBundleEventMapper();
+	public TextTranslator tokenizerTextTranslator(TextTranslationFacade textTranslationFacade) {
+		return new TextTranslatorClient(textTranslationFacade);
 	}
 
 	@Bean
-	public TextTranslator tokenizerTextTranslator(TextTranslationBridgeController textTranslationBridgeController) {
-		return new TextTranslatorBridge(textTranslationBridgeController);
+	public SegmentBundleTranslatedEventMapper translatedSegmentBundleEventInputMapper() {
+		return new SegmentBundleTranslatedEventMapper();
 	}
 
 	@Bean
-	public TranslatedSegmentBundleEventInputMapper translatedSegmentBundleEventInputMapper() {
-		return new TranslatedSegmentBundleEventInputMapper();
+	public SegmentBundleTokenizedEventPublisher tokenizerEventPublisher(
+			ApplicationEventPublisher applicationEventPublisher) {
+		return new SpringSegmentBundleTokenizedEventPublisher(applicationEventPublisher);
 	}
 
 	@Bean
-	public TokenizedSegmentBundleEventPublisher tokenizerEventPublisher(
-			ApplicationEventPublisher applicationEventPublisher, TokenizedSegmentBundleEventMapper eventMapper) {
-		return new SpringTokenizedSegmentBundleEventPublisher(applicationEventPublisher, eventMapper);
+	public WordTokenizer tokenizedSegmentBundleTranslation(Tokenizer tokenizer, TextTranslator textTranslator, SegmentBundleTokenizedEventPublisher segmentBundleTokenizedEventPublisher) {
+		return new WordTokenizer(tokenizer, textTranslator, segmentBundleTokenizedEventPublisher);
 	}
 
 	@Bean
-	public WordTokenizer tokenizedSegmentBundleTranslation(Tokenizer tokenizer,
-														   TextTranslator textTranslator) {
-		return new WordTokenizer(tokenizer, textTranslator);
+	public TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundle(WordTokenizer wordTokenizer
+			) {
+		return new TokenizeTranslatedSegmentBundleController(wordTokenizer);
 	}
 
 	@Bean
-	public TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundle(
-			WordTokenizer wordTokenizer,
-			TokenizedSegmentBundleEventPublisher tokenizedSegmentBundleEventPublisher) {
-		return new TokenizeTranslatedSegmentBundleController(wordTokenizer,
-				tokenizedSegmentBundleEventPublisher);
-	}
-
-	@Bean
-	public SpringTranslatedSegmentBundleEventListener translatedSegmentBundleEventListener(
+	public SpringSegmentBundleCreatedEventListener translatedSegmentBundleEventListener(
 			TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundleController,
-			TranslatedSegmentBundleEventInputMapper inputMapper) {
-		return new SpringTranslatedSegmentBundleEventListener(tokenizeTranslatedSegmentBundleController, inputMapper);
+			SegmentBundleTranslatedEventMapper eventMapper) {
+		return new SpringSegmentBundleCreatedEventListener(tokenizeTranslatedSegmentBundleController, eventMapper);
 	}
 
 }

@@ -1,33 +1,35 @@
 package ch.clicktotranslate.segment.application;
 
 import ch.clicktotranslate.segment.domain.Segment;
-import ch.clicktotranslate.segment.domain.SegmentTranslator;
-import ch.clicktotranslate.segment.domain.TranslatedSegment;
+import ch.clicktotranslate.segment.domain.SegmentBundleCreatedEvent;
+import org.jmolecules.ddd.annotation.Service;
 
+@Service
 public class SegmentBundleTranslationController {
 
-	private final SegmentTranslator segmentTranslator;
+	private final SegmentTranslatorService segmentTranslatorService;
 
 	private final EventPublisher eventPublisher;
 
-	private final TranslatedWordEventMapper translatedWordEventMapper;
+	private final SegmentBundleCreatedEventMapper segmentBundleCreatedEventMapper;
 
 	private final SegmentBundleMapper segmentBundleMapper;
 
-	public SegmentBundleTranslationController(SegmentTranslator segmentTranslator, EventPublisher eventPublisher,
-											  TranslatedWordEventMapper translatedWordEventMapper, SegmentBundleMapper segmentBundleMapper) {
-		this.segmentTranslator = segmentTranslator;
+	public SegmentBundleTranslationController(SegmentTranslatorService segmentTranslatorService,
+			EventPublisher eventPublisher, SegmentBundleCreatedEventMapper segmentBundleCreatedEventMapper,
+			SegmentBundleMapper segmentBundleMapper) {
+		this.segmentTranslatorService = segmentTranslatorService;
 		this.eventPublisher = eventPublisher;
-		this.translatedWordEventMapper = translatedWordEventMapper;
+		this.segmentBundleCreatedEventMapper = segmentBundleCreatedEventMapper;
 		this.segmentBundleMapper = segmentBundleMapper;
 	}
 
-	public TranslatedSegment translate(SegmentBundle segmentBundle) {
+	public Segment translate(SegmentBundle segmentBundle) {
 		Segment segment = this.segmentBundleMapper.map(segmentBundle);
 
-		TranslatedSegment translatedSegment = segmentTranslator.translate(segment);
+		Segment translatedSegment = segmentTranslatorService.translate(segment);
 
-		TranslatedWordEvent event = translatedWordEventMapper.map(segmentBundle, translatedSegment);
+		SegmentBundleCreatedEvent event = segmentBundleCreatedEventMapper.map(segmentBundle, translatedSegment);
 
 		eventPublisher.publish(event);
 

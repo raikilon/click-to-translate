@@ -1,11 +1,11 @@
-package ch.clicktotranslate.segment.infrastructure.web;
+package ch.clicktotranslate.segment.infrastructure;
 
 import ch.clicktotranslate.segment.application.SegmentBundle;
-import ch.clicktotranslate.segment.domain.TranslatedSegment;
+import ch.clicktotranslate.segment.domain.Segment;
 
 public class SegmentDtoMapper {
 
-	public TranslatedSegmentDto toDto(TranslatedSegment response) {
+	public TranslatedSegmentDto toDto(Segment response) {
 		return new TranslatedSegmentDto(response.word(), response.sentence(), response.translatedWord(),
 				response.translatedSentence());
 	}

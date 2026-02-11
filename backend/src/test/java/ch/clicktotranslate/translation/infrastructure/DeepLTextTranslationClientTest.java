@@ -5,8 +5,6 @@ import com.deepl.api.DeepLException;
 import com.deepl.api.TextResult;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -48,11 +46,9 @@ class DeepLTextTranslationClientTest {
 
 	private final class TestContext {
 
-		private final String authKey = "test-auth-key";
-
 		private final DeepLClient client = mock(DeepLClient.class);
 
-		private final DeepLTextTranslationClient underTest = new DeepLTextTranslationClient(authKey);
+		private final DeepLTextTranslationClient underTest = new DeepLTextTranslationClient(client);
 
 		private final String text = "Hallo";
 
@@ -63,10 +59,6 @@ class DeepLTextTranslationClientTest {
 		private final String translatedText = "Hello";
 
 		private TextResult textResult;
-
-		private TestContext() {
-			setClient(client);
-		}
 
 		private void givenTranslationSucceeds() throws DeepLException, InterruptedException {
 			textResult = mock(TextResult.class);
@@ -85,17 +77,6 @@ class DeepLTextTranslationClientTest {
 
 		private void verifyTranslationResultRead() {
 			verify(textResult).getText();
-		}
-
-		private void setClient(DeepLClient mockClient) {
-			try {
-				Field field = DeepLTextTranslationClient.class.getDeclaredField("client");
-				field.setAccessible(true);
-				field.set(underTest, mockClient);
-			}
-			catch (NoSuchFieldException | IllegalAccessException exception) {
-				throw new IllegalStateException(exception);
-			}
 		}
 
 	}

@@ -1,4 +1,4 @@
-package ch.clicktotranslate.segment.domain;
+package ch.clicktotranslate.tokenizer.application;
 
 public interface TextTranslator {
 
