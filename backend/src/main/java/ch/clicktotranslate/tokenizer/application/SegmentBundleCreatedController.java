@@ -1,10 +1,10 @@
 package ch.clicktotranslate.tokenizer.application;
 
-public class TokenizeTranslatedSegmentBundleController {
+public class SegmentBundleCreatedController {
 
 	private final WordTokenizer wordTokenizer;
 
-	public TokenizeTranslatedSegmentBundleController(WordTokenizer wordTokenizer) {
+	public SegmentBundleCreatedController(WordTokenizer wordTokenizer) {
 		this.wordTokenizer = wordTokenizer;
 	}
 

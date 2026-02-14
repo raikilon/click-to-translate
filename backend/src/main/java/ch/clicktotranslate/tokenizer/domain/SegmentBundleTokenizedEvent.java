@@ -36,7 +36,7 @@ public class SegmentBundleTokenizedEvent {
 
 		if (isMissing(userId) || isMissing(tokenizedWord) || isMissing(tokenizedWordTranslation)
 				|| isMissing(sourceLanguage) || isMissing(targetLanguage)) {
-			throw new IllegalArgumentException("Invalid segment bundle tokenized event parameters.");
+			throw new IllegalArgumentException("Invalid segment bundle tokenizedWord event parameters.");
 		}
 
 		this.userId = userId;

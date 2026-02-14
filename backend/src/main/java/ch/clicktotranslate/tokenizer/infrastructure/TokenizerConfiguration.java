@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import ch.clicktotranslate.tokenizer.application.TokenizeTranslatedSegmentBundleController;
+import ch.clicktotranslate.tokenizer.application.SegmentBundleCreatedController;
 import ch.clicktotranslate.tokenizer.application.SegmentBundleTokenizedEventPublisher;
 import ch.clicktotranslate.tokenizer.application.SimpleWordTokenizer;
 import ch.clicktotranslate.tokenizer.application.TextTranslator;
@@ -43,15 +43,15 @@ public class TokenizerConfiguration {
 	}
 
 	@Bean
-	public TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundle(WordTokenizer wordTokenizer) {
-		return new TokenizeTranslatedSegmentBundleController(wordTokenizer);
+	public SegmentBundleCreatedController tokenizeTranslatedSegmentBundle(WordTokenizer wordTokenizer) {
+		return new SegmentBundleCreatedController(wordTokenizer);
 	}
 
 	@Bean
 	public SpringSegmentBundleCreatedEventListener translatedSegmentBundleEventListener(
-			TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundleController,
+			SegmentBundleCreatedController segmentBundleCreatedController,
 			SegmentBundleTranslatedEventMapper eventMapper) {
-		return new SpringSegmentBundleCreatedEventListener(tokenizeTranslatedSegmentBundleController, eventMapper);
+		return new SpringSegmentBundleCreatedEventListener(segmentBundleCreatedController, eventMapper);
 	}
 
 }

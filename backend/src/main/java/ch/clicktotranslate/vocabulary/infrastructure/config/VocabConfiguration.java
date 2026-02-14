@@ -10,11 +10,11 @@ import ch.clicktotranslate.vocabulary.domain.LemmaRepository;
 import ch.clicktotranslate.vocabulary.domain.Lemmatizer;
 import ch.clicktotranslate.vocabulary.domain.ListLemmaUsages;
 import ch.clicktotranslate.vocabulary.domain.ListVocabulary;
-import ch.clicktotranslate.vocabulary.domain.RegisterUsageFromTranslation;
+import ch.clicktotranslate.vocabulary.application.RegisterSegmentBundle;
 import ch.clicktotranslate.vocabulary.domain.UpdateLemma;
 import ch.clicktotranslate.vocabulary.domain.UpdateUsage;
-import ch.clicktotranslate.vocabulary.infrastructure.event.SpringNewSegmentEventListener;
-import ch.clicktotranslate.vocabulary.infrastructure.event.SpringNewSegmentEventMapper;
+import ch.clicktotranslate.vocabulary.infrastructure.event.SpringSegmentBundleTokenizedEventListener;
+import ch.clicktotranslate.vocabulary.infrastructure.event.SegmentBundleTokenizedEventMapper;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaLemmaRepository;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataLemmaRepository;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.LemmaJpaMapper;
@@ -51,9 +51,9 @@ public class VocabConfiguration {
 	}
 
 	@Bean
-	public RegisterUsageFromTranslation registerUsageFromTranslation(Lemmatizer lemmatizer,
-			LemmaRepository lemmaRepository) {
-		return new RegisterUsageFromTranslation(lemmatizer, lemmaRepository);
+	public RegisterSegmentBundle registerUsageFromTranslation(Lemmatizer lemmatizer,
+															  LemmaRepository lemmaRepository) {
+		return new RegisterSegmentBundle(lemmatizer, lemmaRepository);
 	}
 
 	@Bean
@@ -92,14 +92,14 @@ public class VocabConfiguration {
 	}
 
 	@Bean
-	public SpringNewSegmentEventMapper springTranslatedWordEventMapper() {
-		return new SpringNewSegmentEventMapper();
+	public SegmentBundleTokenizedEventMapper springTranslatedWordEventMapper() {
+		return new SegmentBundleTokenizedEventMapper();
 	}
 
 	@Bean
-	public SpringNewSegmentEventListener springTranslatedWordEventListener(SpringNewSegmentEventMapper eventMapper,
-			RegisterUsageFromTranslation registerUsageFromTranslation) {
-		return new SpringNewSegmentEventListener(eventMapper, registerUsageFromTranslation);
+	public SpringSegmentBundleTokenizedEventListener springTranslatedWordEventListener(SegmentBundleTokenizedEventMapper eventMapper,
+																					   RegisterSegmentBundle registerSegmentBundle) {
+		return new SpringSegmentBundleTokenizedEventListener(eventMapper, registerSegmentBundle);
 	}
 
 	@Bean
