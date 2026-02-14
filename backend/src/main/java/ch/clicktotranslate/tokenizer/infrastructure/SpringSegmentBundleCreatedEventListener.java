@@ -4,19 +4,18 @@ import ch.clicktotranslate.segment.domain.SegmentBundleCreatedEvent;
 import org.jmolecules.event.annotation.DomainEventHandler;
 import org.springframework.context.event.EventListener;
 
-import ch.clicktotranslate.tokenizer.application.TokenizeTranslatedSegmentBundleController;
+import ch.clicktotranslate.tokenizer.application.SegmentBundleCreatedController;
 import ch.clicktotranslate.tokenizer.application.TranslatedSegmentBundle;
 
 public class SpringSegmentBundleCreatedEventListener {
 
-	private final TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundleController;
+	private final SegmentBundleCreatedController segmentBundleCreatedController;
 
 	private final SegmentBundleTranslatedEventMapper eventMapper;
 
-	public SpringSegmentBundleCreatedEventListener(
-			TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundleController,
+	public SpringSegmentBundleCreatedEventListener(SegmentBundleCreatedController segmentBundleCreatedController,
 			SegmentBundleTranslatedEventMapper eventMapper) {
-		this.tokenizeTranslatedSegmentBundleController = tokenizeTranslatedSegmentBundleController;
+		this.segmentBundleCreatedController = segmentBundleCreatedController;
 		this.eventMapper = eventMapper;
 	}
 
@@ -24,7 +23,7 @@ public class SpringSegmentBundleCreatedEventListener {
 	@DomainEventHandler
 	public void onTranslatedSegmentBundle(SegmentBundleCreatedEvent event) {
 		TranslatedSegmentBundle segmentBundle = eventMapper.map(event);
-		tokenizeTranslatedSegmentBundleController.tokenize(segmentBundle);
+		segmentBundleCreatedController.tokenize(segmentBundle);
 	}
 
 }

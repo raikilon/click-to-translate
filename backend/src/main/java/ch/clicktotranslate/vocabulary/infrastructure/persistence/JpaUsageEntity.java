@@ -1,12 +1,18 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.Instant;
 
+@Table(indexes = { @Index(columnList = "entry_id"), @Index(columnList = "sentence"),
+		@Index(columnList = "translation") })
 @Entity
 public class JpaUsageEntity {
 
@@ -15,16 +21,35 @@ public class JpaUsageEntity {
 	private Long id;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "lemma_id")
-	private JpaLemmaEntity lemma;
+	@JoinColumn
+	private JpaEntryEntity entry;
 
-	private String word;
+	@Column(nullable = false)
+	private String sentence;
 
-	private String wordTranslation;
+	@Column(nullable = false)
+	private Integer sentenceStart;
 
-	private String usage;
+	@Column(nullable = false)
+	private Integer sentenceEnd;
 
-	private String usageTranslation;
+	@Column(nullable = false)
+	private String translation;
+
+	@Column(nullable = false)
+	private Integer translationStart;
+
+	@Column(nullable = false)
+	private Integer translationEnd;
+
+	@Column(nullable = false)
+	private String targetLanguage;
+
+	@Column(nullable = false)
+	private Instant lastEdit;
+
+	@Column(nullable = false)
+	private Instant createdAt;
 
 	public Long getId() {
 		return id;
@@ -34,44 +59,86 @@ public class JpaUsageEntity {
 		this.id = id;
 	}
 
-	public JpaLemmaEntity getLemma() {
-		return lemma;
+	public JpaEntryEntity getEntry() {
+		return entry;
 	}
 
-	public void setLemma(JpaLemmaEntity lemma) {
-		this.lemma = lemma;
+	public void setEntry(JpaEntryEntity entry) {
+		this.entry = entry;
 	}
 
-	public String getWord() {
-		return word;
+	public String getSentence() {
+		return sentence;
 	}
 
-	public void setWord(String word) {
-		this.word = word;
+	public void setSentence(String sentence) {
+		this.sentence = sentence;
 	}
 
-	public String getWordTranslation() {
-		return wordTranslation;
+	public String getTargetLanguage() {
+		return targetLanguage;
 	}
 
-	public void setWordTranslation(String wordTranslation) {
-		this.wordTranslation = wordTranslation;
+	public void setTargetLanguage(String targetLanguage) {
+		this.targetLanguage = targetLanguage;
 	}
 
-	public String getUsage() {
-		return usage;
+	public Integer getSentenceStart() {
+		return sentenceStart;
 	}
 
-	public void setUsage(String usage) {
-		this.usage = usage;
+	public void setSentenceStart(Integer sentenceStart) {
+		this.sentenceStart = sentenceStart;
 	}
 
-	public String getUsageTranslation() {
-		return usageTranslation;
+	public Integer getSentenceEnd() {
+		return sentenceEnd;
 	}
 
-	public void setUsageTranslation(String usageTranslation) {
-		this.usageTranslation = usageTranslation;
+	public void setSentenceEnd(Integer sentenceEnd) {
+		this.sentenceEnd = sentenceEnd;
+	}
+
+	public String getTranslation() {
+		return translation;
+	}
+
+	public void setTranslation(String translation) {
+		this.translation = translation;
+	}
+
+	public Integer getTranslationStart() {
+		return translationStart;
+	}
+
+	public void setTranslationStart(Integer translationStart) {
+		this.translationStart = translationStart;
+	}
+
+	public Integer getTranslationEnd() {
+		return translationEnd;
+	}
+
+	public void setTranslationEnd(Integer translationEnd) {
+		this.translationEnd = translationEnd;
+	}
+
+	public Instant getLastEdit() {
+		return lastEdit;
+	}
+
+	public void setLastEdit(Instant lastEdit) {
+		this.lastEdit = lastEdit;
+	}
+
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
 	}
 
 }
+
+

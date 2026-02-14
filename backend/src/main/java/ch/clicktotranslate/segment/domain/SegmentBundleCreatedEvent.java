@@ -116,7 +116,7 @@ public class SegmentBundleCreatedEvent {
 	public String toString() {
 		return "SegmentBundleCreatedEvent[" + "userId=" + userId + ", " + "word=" + word + ", " + "sentence=" + sentence
 				+ ", " + "wordTranslation=" + wordTranslation + ", " + "sentenceTranslation=" + sentenceTranslation
-				+ ", " + "sourceLanguage=" + sourceLanguage + ", " + "targetLanguage=" + targetLanguage + ", "
+				+ ", " + "sourceLanguage=" + sourceLanguage + ", " + "language=" + targetLanguage + ", "
 				+ "source=" + source + ", " + "sourceMetadata=" + sourceMetadata + ", " + "occurredAt=" + occurredAt
 				+ ']';
 	}

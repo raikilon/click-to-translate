@@ -78,7 +78,7 @@ public final class Segment {
 	@Override
 	public String toString() {
 		return "Segment[" + "word=" + word + ", " + "sentence=" + sentence + ", " + "sourceLanguage=" + sourceLanguage
-				+ ", " + "targetLanguage=" + targetLanguage + ']';
+				+ ", " + "language=" + targetLanguage + ']';
 	}
 
 	public String translatedSentence() {

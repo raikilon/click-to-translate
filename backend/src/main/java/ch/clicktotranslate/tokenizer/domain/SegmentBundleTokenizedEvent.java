@@ -36,7 +36,7 @@ public class SegmentBundleTokenizedEvent {
 
 		if (isMissing(userId) || isMissing(tokenizedWord) || isMissing(tokenizedWordTranslation)
 				|| isMissing(sourceLanguage) || isMissing(targetLanguage)) {
-			throw new IllegalArgumentException("Invalid segment bundle tokenized event parameters.");
+			throw new IllegalArgumentException("Invalid segment bundle tokenizedWord event parameters.");
 		}
 
 		this.userId = userId;
@@ -119,7 +119,7 @@ public class SegmentBundleTokenizedEvent {
 		return "SegmentBundleTokenizedEvent[" + "userId=" + userId + ", " + "tokenizedWord=" + tokenizedWord + ", "
 				+ "tokenizedWordTranslation=" + tokenizedWordTranslation + ", " + "sentence=" + sentence + ", "
 				+ "sentenceTranslation=" + sentenceTranslation + ", " + "word=" + word + ", " + "wordTranslation="
-				+ wordTranslation + ", " + "sourceLanguage=" + sourceLanguage + ", " + "targetLanguage="
+				+ wordTranslation + ", " + "sourceLanguage=" + sourceLanguage + ", " + "language="
 				+ targetLanguage + ", " + "occurredAt=" + occurredAt + ']';
 	}
 
