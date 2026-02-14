@@ -10,111 +10,121 @@ import org.springframework.modulith.NamedInterface;
 @DomainEvent
 public class SegmentBundleTokenizedEvent {
 
-    private final String userId;
-    private final String tokenizedWord;
-    private final String tokenizedWordTranslation;
-    private final String sentence;
-    private final String sentenceTranslation;
-    private final String word;
-    private final String wordTranslation;
-    private final String sourceLanguage;
-    private final String targetLanguage;
-    private final Instant occurredAt;
+	private final String userId;
 
-    public SegmentBundleTokenizedEvent(String userId, String tokenizedWord, String tokenizedWordTranslation,
-                                       String sentence, String sentenceTranslation, String word, String wordTranslation,
-                                       String sourceLanguage, String targetLanguage, Instant occurredAt) {
+	private final String tokenizedWord;
 
-        if (isMissing(userId) || isMissing(tokenizedWord) || isMissing(tokenizedWordTranslation)
-                || isMissing(sourceLanguage) || isMissing(targetLanguage)) {
-            throw new IllegalArgumentException("Invalid segment bundle tokenized event parameters.");
-        }
+	private final String tokenizedWordTranslation;
 
-        this.userId = userId;
-        this.tokenizedWord = tokenizedWord;
-        this.tokenizedWordTranslation = tokenizedWordTranslation;
-        this.sentence = sentence;
-        this.sentenceTranslation = sentenceTranslation;
-        this.word = word;
-        this.wordTranslation = wordTranslation;
-        this.sourceLanguage = sourceLanguage;
-        this.targetLanguage = targetLanguage;
-        this.occurredAt = occurredAt;
-    }
+	private final String sentence;
 
-    public String userId() {
-        return userId;
-    }
+	private final String sentenceTranslation;
 
-    public String tokenizedWord() {
-        return tokenizedWord;
-    }
+	private final String word;
 
-    public String tokenizedWordTranslation() {
-        return tokenizedWordTranslation;
-    }
+	private final String wordTranslation;
 
-    public String sentence() {
-        return sentence;
-    }
+	private final String sourceLanguage;
 
-    public String sentenceTranslation() {
-        return sentenceTranslation;
-    }
+	private final String targetLanguage;
 
-    public String word() {
-        return word;
-    }
+	private final Instant occurredAt;
 
-    public String wordTranslation() {
-        return wordTranslation;
-    }
+	public SegmentBundleTokenizedEvent(String userId, String tokenizedWord, String tokenizedWordTranslation,
+			String sentence, String sentenceTranslation, String word, String wordTranslation, String sourceLanguage,
+			String targetLanguage, Instant occurredAt) {
 
-    public String sourceLanguage() {
-        return sourceLanguage;
-    }
+		if (isMissing(userId) || isMissing(tokenizedWord) || isMissing(tokenizedWordTranslation)
+				|| isMissing(sourceLanguage) || isMissing(targetLanguage)) {
+			throw new IllegalArgumentException("Invalid segment bundle tokenized event parameters.");
+		}
 
-    public String targetLanguage() {
-        return targetLanguage;
-    }
+		this.userId = userId;
+		this.tokenizedWord = tokenizedWord;
+		this.tokenizedWordTranslation = tokenizedWordTranslation;
+		this.sentence = sentence;
+		this.sentenceTranslation = sentenceTranslation;
+		this.word = word;
+		this.wordTranslation = wordTranslation;
+		this.sourceLanguage = sourceLanguage;
+		this.targetLanguage = targetLanguage;
+		this.occurredAt = occurredAt;
+	}
 
-    public Instant occurredAt() {
-        return occurredAt;
-    }
+	public String userId() {
+		return userId;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this)
-            return true;
-        if (obj == null || obj.getClass() != this.getClass())
-            return false;
-        var that = (SegmentBundleTokenizedEvent) obj;
-        return Objects.equals(this.userId, that.userId) && Objects.equals(this.tokenizedWord, that.tokenizedWord)
-                && Objects.equals(this.tokenizedWordTranslation, that.tokenizedWordTranslation)
-                && Objects.equals(this.sentence, that.sentence)
-                && Objects.equals(this.sentenceTranslation, that.sentenceTranslation)
-                && Objects.equals(this.word, that.word) && Objects.equals(this.wordTranslation, that.wordTranslation)
-                && Objects.equals(this.sourceLanguage, that.sourceLanguage)
-                && Objects.equals(this.targetLanguage, that.targetLanguage)
-                && Objects.equals(this.occurredAt, that.occurredAt);
-    }
+	public String tokenizedWord() {
+		return tokenizedWord;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(userId, tokenizedWord, tokenizedWordTranslation, sentence, sentenceTranslation, word,
-                wordTranslation, sourceLanguage, targetLanguage, occurredAt);
-    }
+	public String tokenizedWordTranslation() {
+		return tokenizedWordTranslation;
+	}
 
-    @Override
-    public String toString() {
-        return "SegmentBundleTokenizedEvent[" + "userId=" + userId + ", " + "tokenizedWord=" + tokenizedWord + ", "
-                + "tokenizedWordTranslation=" + tokenizedWordTranslation + ", " + "sentence=" + sentence + ", "
-                + "sentenceTranslation=" + sentenceTranslation + ", " + "word=" + word + ", " + "wordTranslation="
-                + wordTranslation + ", " + "sourceLanguage=" + sourceLanguage + ", " + "targetLanguage="
-                + targetLanguage + ", " + "occurredAt=" + occurredAt + ']';
-    }
+	public String sentence() {
+		return sentence;
+	}
 
-    private static boolean isMissing(String s) {
-        return s == null || s.isBlank();
-    }
+	public String sentenceTranslation() {
+		return sentenceTranslation;
+	}
+
+	public String word() {
+		return word;
+	}
+
+	public String wordTranslation() {
+		return wordTranslation;
+	}
+
+	public String sourceLanguage() {
+		return sourceLanguage;
+	}
+
+	public String targetLanguage() {
+		return targetLanguage;
+	}
+
+	public Instant occurredAt() {
+		return occurredAt;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this)
+			return true;
+		if (obj == null || obj.getClass() != this.getClass())
+			return false;
+		var that = (SegmentBundleTokenizedEvent) obj;
+		return Objects.equals(this.userId, that.userId) && Objects.equals(this.tokenizedWord, that.tokenizedWord)
+				&& Objects.equals(this.tokenizedWordTranslation, that.tokenizedWordTranslation)
+				&& Objects.equals(this.sentence, that.sentence)
+				&& Objects.equals(this.sentenceTranslation, that.sentenceTranslation)
+				&& Objects.equals(this.word, that.word) && Objects.equals(this.wordTranslation, that.wordTranslation)
+				&& Objects.equals(this.sourceLanguage, that.sourceLanguage)
+				&& Objects.equals(this.targetLanguage, that.targetLanguage)
+				&& Objects.equals(this.occurredAt, that.occurredAt);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(userId, tokenizedWord, tokenizedWordTranslation, sentence, sentenceTranslation, word,
+				wordTranslation, sourceLanguage, targetLanguage, occurredAt);
+	}
+
+	@Override
+	public String toString() {
+		return "SegmentBundleTokenizedEvent[" + "userId=" + userId + ", " + "tokenizedWord=" + tokenizedWord + ", "
+				+ "tokenizedWordTranslation=" + tokenizedWordTranslation + ", " + "sentence=" + sentence + ", "
+				+ "sentenceTranslation=" + sentenceTranslation + ", " + "word=" + word + ", " + "wordTranslation="
+				+ wordTranslation + ", " + "sourceLanguage=" + sourceLanguage + ", " + "targetLanguage="
+				+ targetLanguage + ", " + "occurredAt=" + occurredAt + ']';
+	}
+
+	private static boolean isMissing(String s) {
+		return s == null || s.isBlank();
+	}
+
 }

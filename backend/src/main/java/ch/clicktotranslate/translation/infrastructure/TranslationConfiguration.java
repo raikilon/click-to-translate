@@ -40,8 +40,8 @@ public class TranslationConfiguration {
 	}
 
 	@Bean
-	public TextTranslationFacade textTranslationBridgeController(
-			TextTranslationController textTranslationController, TextToTranslateDtoMapper textToTranslateDtoMapper) {
+	public TextTranslationFacade textTranslationBridgeController(TextTranslationController textTranslationController,
+			TextToTranslateDtoMapper textToTranslateDtoMapper) {
 		return new TextTranslationFacade(textTranslationController, textToTranslateDtoMapper);
 	}
 

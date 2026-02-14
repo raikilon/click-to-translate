@@ -6,129 +6,138 @@ import org.springframework.modulith.NamedInterface;
 import java.time.Instant;
 import java.util.Objects;
 
-
 @NamedInterface
 @DomainEvent
 public class SegmentBundleCreatedEvent {
-    private final String userId;
-    private final String word;
-    private final String sentence;
-    private final String wordTranslation;
-    private final String sentenceTranslation;
-    private final String sourceLanguage;
-    private final String targetLanguage;
-    private final Source source;
-    private final SourceMetadata sourceMetadata;
-    private final Instant occurredAt;
 
-    public SegmentBundleCreatedEvent(String userId, String word, String sentence, String wordTranslation,
-                                     String sentenceTranslation, String sourceLanguage, String targetLanguage,
-                                     Source source, SourceMetadata sourceMetadata, Instant occurredAt) {
+	private final String userId;
 
-        if (isMissing(userId) || isMissing(word) || isMissing(sourceLanguage) || isMissing(targetLanguage)) {
-            throw new IllegalArgumentException("Invalid segment bundle created event parameters.");
-        }
-        this.userId = userId;
-        this.word = word;
-        this.sentence = sentence;
-        this.wordTranslation = wordTranslation;
-        this.sentenceTranslation = sentenceTranslation;
-        this.sourceLanguage = sourceLanguage;
-        this.targetLanguage = targetLanguage;
-        this.source = source;
-        this.sourceMetadata = sourceMetadata;
-        this.occurredAt = occurredAt;
-    }
+	private final String word;
 
-    public String userId() {
-        return userId;
-    }
+	private final String sentence;
 
-    public String word() {
-        return word;
-    }
+	private final String wordTranslation;
 
-    public String sentence() {
-        return sentence;
-    }
+	private final String sentenceTranslation;
 
-    public String wordTranslation() {
-        return wordTranslation;
-    }
+	private final String sourceLanguage;
 
-    public String sentenceTranslation() {
-        return sentenceTranslation;
-    }
+	private final String targetLanguage;
 
-    public String sourceLanguage() {
-        return sourceLanguage;
-    }
+	private final Source source;
 
-    public String targetLanguage() {
-        return targetLanguage;
-    }
+	private final SourceMetadata sourceMetadata;
 
-    public Source source() {
-        return source;
-    }
+	private final Instant occurredAt;
 
-    public SourceMetadata sourceMetadata() {
-        return sourceMetadata;
-    }
+	public SegmentBundleCreatedEvent(String userId, String word, String sentence, String wordTranslation,
+			String sentenceTranslation, String sourceLanguage, String targetLanguage, Source source,
+			SourceMetadata sourceMetadata, Instant occurredAt) {
 
-    public Instant occurredAt() {
-        return occurredAt;
-    }
+		if (isMissing(userId) || isMissing(word) || isMissing(sourceLanguage) || isMissing(targetLanguage)) {
+			throw new IllegalArgumentException("Invalid segment bundle created event parameters.");
+		}
+		this.userId = userId;
+		this.word = word;
+		this.sentence = sentence;
+		this.wordTranslation = wordTranslation;
+		this.sentenceTranslation = sentenceTranslation;
+		this.sourceLanguage = sourceLanguage;
+		this.targetLanguage = targetLanguage;
+		this.source = source;
+		this.sourceMetadata = sourceMetadata;
+		this.occurredAt = occurredAt;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this)
-            return true;
-        if (obj == null || obj.getClass() != this.getClass())
-            return false;
-        var that = (SegmentBundleCreatedEvent) obj;
-        return Objects.equals(this.userId, that.userId) && Objects.equals(this.word, that.word)
-                && Objects.equals(this.sentence, that.sentence)
-                && Objects.equals(this.wordTranslation, that.wordTranslation)
-                && Objects.equals(this.sentenceTranslation, that.sentenceTranslation)
-                && Objects.equals(this.sourceLanguage, that.sourceLanguage)
-                && Objects.equals(this.targetLanguage, that.targetLanguage)
-                && Objects.equals(this.source, that.source)
-                && Objects.equals(this.sourceMetadata, that.sourceMetadata)
-                && Objects.equals(this.occurredAt, that.occurredAt);
-    }
+	public String userId() {
+		return userId;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(userId, word, sentence, wordTranslation, sentenceTranslation, sourceLanguage, targetLanguage, source, sourceMetadata, occurredAt);
-    }
+	public String word() {
+		return word;
+	}
 
-    @Override
-    public String toString() {
-        return "SegmentBundleCreatedEvent[" + "userId=" + userId + ", " + "word=" + word + ", " + "sentence="
-                + sentence + ", " + "wordTranslation=" + wordTranslation + ", " + "sentenceTranslation="
-                + sentenceTranslation + ", " + "sourceLanguage=" + sourceLanguage + ", " + "targetLanguage="
-                + targetLanguage + ", " + "source=" + source + ", " + "sourceMetadata=" + sourceMetadata + ", "
-                + "occurredAt=" + occurredAt + ']';
-    }
+	public String sentence() {
+		return sentence;
+	}
 
-    private static boolean isMissing(String s) {
-        return s == null || s.isBlank();
-    }
+	public String wordTranslation() {
+		return wordTranslation;
+	}
 
+	public String sentenceTranslation() {
+		return sentenceTranslation;
+	}
 
-    public record Source(String type, String id, String title) {
-    }
+	public String sourceLanguage() {
+		return sourceLanguage;
+	}
 
-    public interface SourceMetadata {
+	public String targetLanguage() {
+		return targetLanguage;
+	}
 
-    }
+	public Source source() {
+		return source;
+	}
 
-    public record GenericSourceMetadata(String url, String domain, Integer selectionOffset,
-                                        Integer paragraphIndex) implements SourceMetadata {
-    }
+	public SourceMetadata sourceMetadata() {
+		return sourceMetadata;
+	}
 
-    public record YoutubeSourceMetadata(String url, String domain, String videoId,
-                                        Integer timestampSeconds) implements SourceMetadata {
-    }
+	public Instant occurredAt() {
+		return occurredAt;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this)
+			return true;
+		if (obj == null || obj.getClass() != this.getClass())
+			return false;
+		var that = (SegmentBundleCreatedEvent) obj;
+		return Objects.equals(this.userId, that.userId) && Objects.equals(this.word, that.word)
+				&& Objects.equals(this.sentence, that.sentence)
+				&& Objects.equals(this.wordTranslation, that.wordTranslation)
+				&& Objects.equals(this.sentenceTranslation, that.sentenceTranslation)
+				&& Objects.equals(this.sourceLanguage, that.sourceLanguage)
+				&& Objects.equals(this.targetLanguage, that.targetLanguage) && Objects.equals(this.source, that.source)
+				&& Objects.equals(this.sourceMetadata, that.sourceMetadata)
+				&& Objects.equals(this.occurredAt, that.occurredAt);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(userId, word, sentence, wordTranslation, sentenceTranslation, sourceLanguage,
+				targetLanguage, source, sourceMetadata, occurredAt);
+	}
+
+	@Override
+	public String toString() {
+		return "SegmentBundleCreatedEvent[" + "userId=" + userId + ", " + "word=" + word + ", " + "sentence=" + sentence
+				+ ", " + "wordTranslation=" + wordTranslation + ", " + "sentenceTranslation=" + sentenceTranslation
+				+ ", " + "sourceLanguage=" + sourceLanguage + ", " + "targetLanguage=" + targetLanguage + ", "
+				+ "source=" + source + ", " + "sourceMetadata=" + sourceMetadata + ", " + "occurredAt=" + occurredAt
+				+ ']';
+	}
+
+	private static boolean isMissing(String s) {
+		return s == null || s.isBlank();
+	}
+
+	public record Source(String type, String id, String title) {
+	}
+
+	public interface SourceMetadata {
+
+	}
+
+	public record GenericSourceMetadata(String url, String domain, Integer selectionOffset,
+			Integer paragraphIndex) implements SourceMetadata {
+	}
+
+	public record YoutubeSourceMetadata(String url, String domain, String videoId,
+			Integer timestampSeconds) implements SourceMetadata {
+	}
+
 }

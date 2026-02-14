@@ -4,6 +4,6 @@ import ch.clicktotranslate.segment.domain.SegmentBundleCreatedEvent;
 
 public interface EventPublisher {
 
-    void publish(SegmentBundleCreatedEvent event);
+	void publish(SegmentBundleCreatedEvent event);
 
 }

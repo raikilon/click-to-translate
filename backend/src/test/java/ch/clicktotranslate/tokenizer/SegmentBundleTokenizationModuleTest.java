@@ -58,8 +58,8 @@ class SegmentBundleTokenizationModuleTest {
 
 		private final String tokenizedWordTranslation = "House";
 
-		private final SegmentBundleCreatedEvent segmentBundleCreatedEvent = new SegmentBundleCreatedEvent(userId, word, sentence,
-				wordTranslation, sentenceTranslation, sourceLanguage, targetLanguage,
+		private final SegmentBundleCreatedEvent segmentBundleCreatedEvent = new SegmentBundleCreatedEvent(userId, word,
+				sentence, wordTranslation, sentenceTranslation, sourceLanguage, targetLanguage,
 				new SegmentBundleCreatedEvent.Source("page", "42", "Readme"),
 				new SegmentBundleCreatedEvent.GenericSourceMetadata("https://example.com", "example.com", 3, 1),
 				occurredAt);
@@ -83,5 +83,7 @@ class SegmentBundleTokenizationModuleTest {
 		private boolean eventMatches(SegmentBundleTokenizedEvent event) {
 			return event.equals(expectedEvent);
 		}
+
 	}
+
 }

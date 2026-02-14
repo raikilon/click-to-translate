@@ -37,13 +37,13 @@ public class TokenizerConfiguration {
 	}
 
 	@Bean
-	public WordTokenizer tokenizedSegmentBundleTranslation(Tokenizer tokenizer, TextTranslator textTranslator, SegmentBundleTokenizedEventPublisher segmentBundleTokenizedEventPublisher) {
+	public WordTokenizer tokenizedSegmentBundleTranslation(Tokenizer tokenizer, TextTranslator textTranslator,
+			SegmentBundleTokenizedEventPublisher segmentBundleTokenizedEventPublisher) {
 		return new WordTokenizer(tokenizer, textTranslator, segmentBundleTokenizedEventPublisher);
 	}
 
 	@Bean
-	public TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundle(WordTokenizer wordTokenizer
-			) {
+	public TokenizeTranslatedSegmentBundleController tokenizeTranslatedSegmentBundle(WordTokenizer wordTokenizer) {
 		return new TokenizeTranslatedSegmentBundleController(wordTokenizer);
 	}
 

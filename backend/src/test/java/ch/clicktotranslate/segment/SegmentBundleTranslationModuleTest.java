@@ -98,8 +98,8 @@ class SegmentBundleTranslationModuleTest {
 		private final TranslatedSegmentDto expectedResponse = new TranslatedSegmentDto(word, sentence, translatedWord,
 				translatedSentence);
 
-		private final SegmentBundleCreatedEvent expectedEvent = new SegmentBundleCreatedEvent(userId, word,
-				sentence, translatedWord, translatedSentence, sourceLanguage.name(), targetLanguage.name(),
+		private final SegmentBundleCreatedEvent expectedEvent = new SegmentBundleCreatedEvent(userId, word, sentence,
+				translatedWord, translatedSentence, sourceLanguage.name(), targetLanguage.name(),
 				new SegmentBundleCreatedEvent.Source(sourceType, sourceId, sourceTitle),
 				new SegmentBundleCreatedEvent.GenericSourceMetadata(sourceUrl, sourceDomain, selectionOffset,
 						paragraphIndex),

@@ -27,8 +27,8 @@ public class SegmentBundleCreatedEventMapper {
 						generic.selectionOffset(), generic.paragraphIndex());
 			}
 			case SegmentBundle.YoutubeSourceMetadata youtube -> {
-				return new SegmentBundleCreatedEvent.YoutubeSourceMetadata(youtube.url(), youtube.domain(), youtube.videoId(),
-						youtube.timestampSeconds());
+				return new SegmentBundleCreatedEvent.YoutubeSourceMetadata(youtube.url(), youtube.domain(),
+						youtube.videoId(), youtube.timestampSeconds());
 			}
 			default -> {
 				return null;

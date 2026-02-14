@@ -78,5 +78,7 @@ class TranslationModuleTest {
 		private void verifySingleTranslationCall() throws DeepLException, InterruptedException {
 			verify(deepLClient, times(1)).translateText(text, deepLSourceLanguage, deepLTargetLanguage);
 		}
+
 	}
+
 }

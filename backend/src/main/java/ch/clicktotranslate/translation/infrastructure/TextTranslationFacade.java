@@ -12,7 +12,7 @@ public class TextTranslationFacade {
 	private final TextToTranslateDtoMapper textToTranslateDtoMapper;
 
 	public TextTranslationFacade(TextTranslationController textTranslationController,
-								 TextToTranslateDtoMapper textToTranslateDtoMapper) {
+			TextToTranslateDtoMapper textToTranslateDtoMapper) {
 		this.textTranslationController = textTranslationController;
 		this.textToTranslateDtoMapper = textToTranslateDtoMapper;
 	}
