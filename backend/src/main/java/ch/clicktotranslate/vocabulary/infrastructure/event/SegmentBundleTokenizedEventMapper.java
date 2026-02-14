@@ -1,7 +1,7 @@
 package ch.clicktotranslate.vocabulary.infrastructure.event;
 
 import ch.clicktotranslate.tokenizer.domain.SegmentBundleTokenizedEvent;
-import ch.clicktotranslate.vocabulary.domain.entity.SegmentBundle;
+import ch.clicktotranslate.vocabulary.domain.SegmentBundle;
 
 public class SegmentBundleTokenizedEventMapper {
 

@@ -1,7 +1,7 @@
 package ch.clicktotranslate.vocabulary.infrastructure.event;
 
 import ch.clicktotranslate.tokenizer.domain.SegmentBundleTokenizedEvent;
-import ch.clicktotranslate.vocabulary.domain.entity.SegmentBundle;
+import ch.clicktotranslate.vocabulary.domain.SegmentBundle;
 import ch.clicktotranslate.vocabulary.application.RegisterSegmentBundle;
 import org.jmolecules.event.annotation.DomainEventHandler;
 import org.springframework.context.event.EventListener;
