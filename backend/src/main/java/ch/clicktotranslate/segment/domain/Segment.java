@@ -2,8 +2,6 @@ package ch.clicktotranslate.segment.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
 
-import java.util.Objects;
-
 @ValueObject
 public final class Segment {
 
@@ -56,29 +54,6 @@ public final class Segment {
 
 	public String targetLanguage() {
 		return targetLanguage;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this)
-			return true;
-		if (obj == null || obj.getClass() != this.getClass())
-			return false;
-		var that = (Segment) obj;
-		return Objects.equals(this.word, that.word) && Objects.equals(this.sentence, that.sentence)
-				&& Objects.equals(this.sourceLanguage, that.sourceLanguage)
-				&& Objects.equals(this.targetLanguage, that.targetLanguage);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(word, sentence, sourceLanguage, targetLanguage);
-	}
-
-	@Override
-	public String toString() {
-		return "Segment[" + "word=" + word + ", " + "sentence=" + sentence + ", " + "language=" + sourceLanguage + ", "
-				+ "language=" + targetLanguage + ']';
 	}
 
 	public String translatedSentence() {

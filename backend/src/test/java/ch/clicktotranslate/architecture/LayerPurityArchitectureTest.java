@@ -20,7 +20,7 @@ class LayerPurityArchitectureTest {
 		.and()
 		.doNotHaveFullyQualifiedName("ch.clicktotranslate.segment.domain.SegmentBundleCreatedEvent")
 		.and()
-		.doNotHaveFullyQualifiedName("ch.clicktotranslate.tokenizer.domain.SegmentBundleTokenizedEvent")
+		.doNotHaveFullyQualifiedName("ch.clicktotranslate.lemmatizer.domain.SegmentBundleLemmatizedEvent")
 		.should()
 		.dependOnClassesThat()
 		.resideInAnyPackage("org.springframework..");

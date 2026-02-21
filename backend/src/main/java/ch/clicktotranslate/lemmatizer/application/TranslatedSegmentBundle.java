@@ -1,4 +1,4 @@
-package ch.clicktotranslate.tokenizer.application;
+package ch.clicktotranslate.lemmatizer.application;
 
 import java.time.Instant;
 

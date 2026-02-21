@@ -1,6 +1,6 @@
 package ch.clicktotranslate.vocabulary;
 
-import ch.clicktotranslate.tokenizer.domain.SegmentBundleTokenizedEvent;
+import ch.clicktotranslate.lemmatizer.domain.SegmentBundleLemmatizedEvent;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaEntryEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaUsageEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
@@ -50,7 +50,7 @@ class VocabularyModuleTest {
 				assertThat(entry.getId()).isNotNull();
 				assertThat(entry.getUserId()).isEqualTo(context.userId());
 				assertThat(entry.getLanguage()).isEqualTo(context.sourceLanguage());
-				assertThat(entry.getTerm()).isEqualTo(context.normalizedTokenizedWord());
+				assertThat(entry.getTerm()).isEqualTo(context.normalizedTerm());
 
 				List<JpaUsageEntity> usages = context.usages();
 				assertThat(usages).hasSize(1);
@@ -124,9 +124,9 @@ class VocabularyModuleTest {
 
 		private final String userId = "user-1";
 
-		private final String tokenizedWord = "Haus";
+		private final String term = "Haus";
 
-		private final String tokenizedWordTranslation = "house";
+		private final String termTranslation = "house";
 
 		private final String sourceLanguage = "DE";
 
@@ -156,8 +156,8 @@ class VocabularyModuleTest {
 			return targetLanguage;
 		}
 
-		private String normalizedTokenizedWord() {
-			return tokenizedWord.toLowerCase();
+		private String normalizedTerm() {
+			return term.toLowerCase();
 		}
 
 		private String firstSentence() {
@@ -176,13 +176,13 @@ class VocabularyModuleTest {
 			return secondSentenceTranslation;
 		}
 
-		private SegmentBundleTokenizedEvent newSegmentEvent() {
-			return new SegmentBundleTokenizedEvent(userId, tokenizedWord, tokenizedWordTranslation, firstSentence,
+		private SegmentBundleLemmatizedEvent newSegmentEvent() {
+			return new SegmentBundleLemmatizedEvent(userId, term, termTranslation, firstSentence,
 					firstSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
 		}
 
-		private SegmentBundleTokenizedEvent newUsageForExistingSegmentEvent() {
-			return new SegmentBundleTokenizedEvent(userId, tokenizedWord, tokenizedWordTranslation, secondSentence,
+		private SegmentBundleLemmatizedEvent newUsageForExistingSegmentEvent() {
+			return new SegmentBundleLemmatizedEvent(userId, term, termTranslation, secondSentence,
 					secondSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
 		}
 
@@ -195,7 +195,7 @@ class VocabularyModuleTest {
 		}
 
 		private JpaEntryEntity findEntry() {
-			return entryRepository.findByUserIdAndLanguageAndTerm(userId, sourceLanguage, normalizedTokenizedWord())
+			return entryRepository.findByUserIdAndLanguageAndTerm(userId, sourceLanguage, normalizedTerm())
 				.orElseThrow();
 		}
 
@@ -208,7 +208,7 @@ class VocabularyModuleTest {
 			JpaEntryEntity entry = new JpaEntryEntity();
 			entry.setUserId(userId);
 			entry.setLanguage(sourceLanguage);
-			entry.setTerm(normalizedTokenizedWord());
+			entry.setTerm(normalizedTerm());
 
 			for (int i = 1; i <= count; i++) {
 				JpaUsageEntity usage = new JpaUsageEntity();
@@ -227,7 +227,7 @@ class VocabularyModuleTest {
 		}
 
 		private BiConsumer<TransactionOperations, ApplicationEventPublisher> publishEvent(
-				SegmentBundleTokenizedEvent event) {
+				SegmentBundleLemmatizedEvent event) {
 			return (tx, publisher) -> publisher.publishEvent(event);
 		}
 

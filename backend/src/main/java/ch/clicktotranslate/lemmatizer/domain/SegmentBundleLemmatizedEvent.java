@@ -1,4 +1,4 @@
-package ch.clicktotranslate.tokenizer.domain;
+package ch.clicktotranslate.lemmatizer.domain;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -8,13 +8,13 @@ import org.springframework.modulith.NamedInterface;
 
 @NamedInterface("domain")
 @DomainEvent
-public class SegmentBundleTokenizedEvent {
+public class SegmentBundleLemmatizedEvent {
 
 	private final String userId;
 
-	private final String tokenizedWord;
+	private final String lemmatizedWord;
 
-	private final String tokenizedWordTranslation;
+	private final String lemmatizedWordTranslation;
 
 	private final String sentence;
 
@@ -30,18 +30,18 @@ public class SegmentBundleTokenizedEvent {
 
 	private final Instant occurredAt;
 
-	public SegmentBundleTokenizedEvent(String userId, String tokenizedWord, String tokenizedWordTranslation,
+	public SegmentBundleLemmatizedEvent(String userId, String lemmatizedWord, String lemmatizedWordTranslation,
 			String sentence, String sentenceTranslation, String word, String wordTranslation, String sourceLanguage,
 			String targetLanguage, Instant occurredAt) {
 
-		if (isMissing(userId) || isMissing(tokenizedWord) || isMissing(tokenizedWordTranslation)
+		if (isMissing(userId) || isMissing(lemmatizedWord) || isMissing(lemmatizedWordTranslation)
 				|| isMissing(sourceLanguage) || isMissing(targetLanguage)) {
-			throw new IllegalArgumentException("Invalid segment bundle tokenizedWord event parameters.");
+			throw new IllegalArgumentException("Invalid segment bundle lemmatizedWord event parameters.");
 		}
 
 		this.userId = userId;
-		this.tokenizedWord = tokenizedWord;
-		this.tokenizedWordTranslation = tokenizedWordTranslation;
+		this.lemmatizedWord = lemmatizedWord;
+		this.lemmatizedWordTranslation = lemmatizedWordTranslation;
 		this.sentence = sentence;
 		this.sentenceTranslation = sentenceTranslation;
 		this.word = word;
@@ -55,12 +55,12 @@ public class SegmentBundleTokenizedEvent {
 		return userId;
 	}
 
-	public String tokenizedWord() {
-		return tokenizedWord;
+	public String lemmatizedWord() {
+		return lemmatizedWord;
 	}
 
-	public String tokenizedWordTranslation() {
-		return tokenizedWordTranslation;
+	public String lemmatizedWordTranslation() {
+		return lemmatizedWordTranslation;
 	}
 
 	public String sentence() {
@@ -97,9 +97,9 @@ public class SegmentBundleTokenizedEvent {
 			return true;
 		if (obj == null || obj.getClass() != this.getClass())
 			return false;
-		var that = (SegmentBundleTokenizedEvent) obj;
-		return Objects.equals(this.userId, that.userId) && Objects.equals(this.tokenizedWord, that.tokenizedWord)
-				&& Objects.equals(this.tokenizedWordTranslation, that.tokenizedWordTranslation)
+		var that = (SegmentBundleLemmatizedEvent) obj;
+		return Objects.equals(this.userId, that.userId) && Objects.equals(this.lemmatizedWord, that.lemmatizedWord)
+				&& Objects.equals(this.lemmatizedWordTranslation, that.lemmatizedWordTranslation)
 				&& Objects.equals(this.sentence, that.sentence)
 				&& Objects.equals(this.sentenceTranslation, that.sentenceTranslation)
 				&& Objects.equals(this.word, that.word) && Objects.equals(this.wordTranslation, that.wordTranslation)
@@ -110,17 +110,8 @@ public class SegmentBundleTokenizedEvent {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(userId, tokenizedWord, tokenizedWordTranslation, sentence, sentenceTranslation, word,
+		return Objects.hash(userId, lemmatizedWord, lemmatizedWordTranslation, sentence, sentenceTranslation, word,
 				wordTranslation, sourceLanguage, targetLanguage, occurredAt);
-	}
-
-	@Override
-	public String toString() {
-		return "SegmentBundleTokenizedEvent[" + "userId=" + userId + ", " + "tokenizedWord=" + tokenizedWord + ", "
-				+ "tokenizedWordTranslation=" + tokenizedWordTranslation + ", " + "sentence=" + sentence + ", "
-				+ "sentenceTranslation=" + sentenceTranslation + ", " + "word=" + word + ", " + "wordTranslation="
-				+ wordTranslation + ", " + "language=" + sourceLanguage + ", " + "language=" + targetLanguage + ", "
-				+ "occurredAt=" + occurredAt + ']';
 	}
 
 	private static boolean isMissing(String s) {

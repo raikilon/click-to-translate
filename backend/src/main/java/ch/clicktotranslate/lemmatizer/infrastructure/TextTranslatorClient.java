@@ -1,6 +1,6 @@
-package ch.clicktotranslate.tokenizer.infrastructure;
+package ch.clicktotranslate.lemmatizer.infrastructure;
 
-import ch.clicktotranslate.tokenizer.application.TextTranslator;
+import ch.clicktotranslate.lemmatizer.application.TextTranslator;
 import ch.clicktotranslate.translation.infrastructure.LanguageDto;
 import ch.clicktotranslate.translation.infrastructure.TextTranslationFacade;
 import ch.clicktotranslate.translation.infrastructure.TextToTranslateDto;

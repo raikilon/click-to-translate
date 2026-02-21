@@ -20,7 +20,7 @@ public class UpdateEntry {
 		Entry entry = vocabularyRepository
 			.findEntryById(userProvider.currentUserId(), Entry.Id.of(validatedUpdate.entryId()))
 			.orElseThrow(EntryNotFoundException::new);
-		entry.updateTerm(validatedUpdate.lemma());
+		entry.updateTerm(validatedUpdate.term());
 		vocabularyRepository.saveEntry(entry);
 	}
 
@@ -28,7 +28,7 @@ public class UpdateEntry {
 		if (update == null) {
 			throw new IllegalArgumentException("update must not be null");
 		}
-		if (update.lemma() == null || update.lemma().isBlank()) {
+		if (update.term() == null || update.term().isBlank()) {
 			throw new IllegalArgumentException("term must not be blank");
 		}
 		return update;

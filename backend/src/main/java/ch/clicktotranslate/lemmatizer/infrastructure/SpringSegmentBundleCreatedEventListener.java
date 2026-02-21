@@ -1,11 +1,11 @@
-package ch.clicktotranslate.tokenizer.infrastructure;
+package ch.clicktotranslate.lemmatizer.infrastructure;
 
 import ch.clicktotranslate.segment.domain.SegmentBundleCreatedEvent;
 import org.jmolecules.event.annotation.DomainEventHandler;
 import org.springframework.context.event.EventListener;
 
-import ch.clicktotranslate.tokenizer.application.SegmentBundleCreatedController;
-import ch.clicktotranslate.tokenizer.application.TranslatedSegmentBundle;
+import ch.clicktotranslate.lemmatizer.application.SegmentBundleCreatedController;
+import ch.clicktotranslate.lemmatizer.application.TranslatedSegmentBundle;
 
 public class SpringSegmentBundleCreatedEventListener {
 
@@ -23,7 +23,7 @@ public class SpringSegmentBundleCreatedEventListener {
 	@DomainEventHandler
 	public void onTranslatedSegmentBundle(SegmentBundleCreatedEvent event) {
 		TranslatedSegmentBundle segmentBundle = eventMapper.map(event);
-		segmentBundleCreatedController.tokenize(segmentBundle);
+		segmentBundleCreatedController.lemmatize(segmentBundle);
 	}
 
 }

@@ -1,7 +1,7 @@
-package ch.clicktotranslate.tokenizer.infrastructure;
+package ch.clicktotranslate.lemmatizer.infrastructure;
 
 import ch.clicktotranslate.segment.domain.SegmentBundleCreatedEvent;
-import ch.clicktotranslate.tokenizer.application.TranslatedSegmentBundle;
+import ch.clicktotranslate.lemmatizer.application.TranslatedSegmentBundle;
 
 public class SegmentBundleTranslatedEventMapper {
 

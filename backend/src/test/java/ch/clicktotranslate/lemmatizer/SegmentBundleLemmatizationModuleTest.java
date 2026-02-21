@@ -1,7 +1,7 @@
-package ch.clicktotranslate.tokenizer;
+package ch.clicktotranslate.lemmatizer;
 
 import ch.clicktotranslate.segment.domain.SegmentBundleCreatedEvent;
-import ch.clicktotranslate.tokenizer.domain.SegmentBundleTokenizedEvent;
+import ch.clicktotranslate.lemmatizer.domain.SegmentBundleLemmatizedEvent;
 import ch.clicktotranslate.translation.infrastructure.TextToTranslateDto;
 import ch.clicktotranslate.translation.infrastructure.TextTranslationFacade;
 import org.junit.jupiter.api.Test;
@@ -17,19 +17,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ApplicationModuleTest
-class SegmentBundleTokenizationModuleTest {
+class SegmentBundleLemmatizationModuleTest {
 
 	@MockitoBean
 	private TextTranslationFacade textTranslationFacade;
 
 	@Test
-	void givenTranslatedSegmentBundleEvent_whenTokenize_thenPublishesTokenizedEventAndCallsTranslationFacadeOnce(
+	void givenTranslatedSegmentBundleEvent_whenLemmatize_thenPublishesLemmatizedEventAndCallsTranslationFacadeOnce(
 			Scenario scenario) {
 		TestContext context = new TestContext();
 		context.givenTranslation();
 
 		scenario.publish(context.segmentBundleCreatedEvent)
-			.andWaitForEventOfType(SegmentBundleTokenizedEvent.class)
+			.andWaitForEventOfType(SegmentBundleLemmatizedEvent.class)
 			.matching(context::eventMatches)
 			.toArriveAndVerify(event -> assertThat(event).isEqualTo(context.expectedEvent));
 
@@ -54,9 +54,9 @@ class SegmentBundleTokenizationModuleTest {
 
 		private final String targetLanguage = "EN";
 
-		private final String tokenizedWord = "Haus";
+		private final String lemmatizedWord = "Haus";
 
-		private final String tokenizedWordTranslation = "House";
+		private final String lemmatizedWordTranslation = "House";
 
 		private final SegmentBundleCreatedEvent segmentBundleCreatedEvent = new SegmentBundleCreatedEvent(userId, word,
 				sentence, wordTranslation, sentenceTranslation, sourceLanguage, targetLanguage,
@@ -64,23 +64,23 @@ class SegmentBundleTokenizationModuleTest {
 				new SegmentBundleCreatedEvent.GenericSourceMetadata("https://example.com", "example.com", 3, 1),
 				occurredAt);
 
-		private final TextToTranslateDto translationRequest = new TextToTranslateDto(tokenizedWord,
+		private final TextToTranslateDto translationRequest = new TextToTranslateDto(lemmatizedWord,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.EN);
 
-		private final SegmentBundleTokenizedEvent expectedEvent = new SegmentBundleTokenizedEvent(userId, tokenizedWord,
-				tokenizedWordTranslation, sentence, sentenceTranslation, word, wordTranslation, sourceLanguage,
-				targetLanguage, occurredAt);
+		private final SegmentBundleLemmatizedEvent expectedEvent = new SegmentBundleLemmatizedEvent(userId,
+				lemmatizedWord, lemmatizedWordTranslation, sentence, sentenceTranslation, word, wordTranslation,
+				sourceLanguage, targetLanguage, occurredAt);
 
 		private void givenTranslation() {
-			given(textTranslationFacade.translate(translationRequest)).willReturn(tokenizedWordTranslation);
+			given(textTranslationFacade.translate(translationRequest)).willReturn(lemmatizedWordTranslation);
 		}
 
 		private void verifyTranslationCall() {
 			verify(textTranslationFacade, times(1)).translate(translationRequest);
 		}
 
-		private boolean eventMatches(SegmentBundleTokenizedEvent event) {
+		private boolean eventMatches(SegmentBundleLemmatizedEvent event) {
 			return event.equals(expectedEvent);
 		}
 
