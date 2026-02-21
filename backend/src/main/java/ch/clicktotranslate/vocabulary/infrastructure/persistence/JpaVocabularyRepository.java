@@ -29,9 +29,13 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 
 	@Override
 	public Optional<Entry> findEntryByTerm(UserId userId, Term term) {
-		return entryRepository
-			.findWithUsagesByUserIdAndLanguageAndTerm(userId.value(), term.language().name(), term.term())
-			.map(mapper::toDomainEntry);
+		return entryRepository.findByUserIdAndLanguageAndTerm(userId.value(), term.language().name(), term.term())
+			.map(mapper::toDomainEntryWithoutUsages);
+	}
+
+	@Override
+	public boolean existsUsageBySentenceAndLanguage(Entry.Id entryId, String sentence, Language language) {
+		return usageRepository.existsByEntryIdAndSentenceAndTargetLanguage(entryId.value(), sentence, language.name());
 	}
 
 	@Override

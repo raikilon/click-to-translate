@@ -11,6 +11,8 @@ public interface SpringDataUsageRepository extends JpaRepository<JpaUsageEntity,
 
 	Optional<JpaUsageEntity> findFirstByEntryIdOrderByIdDesc(Long entryId);
 
+	boolean existsByEntryIdAndSentenceAndTargetLanguage(Long entryId, String sentence, String targetLanguage);
+
 	Page<JpaUsageEntity> findByEntryIdAndEntryUserId(Long entryId, String userId, Pageable pageable);
 
 }

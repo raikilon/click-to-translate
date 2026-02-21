@@ -5,6 +5,7 @@ import ch.clicktotranslate.vocabulary.infrastructure.persistence.EntryDataProjec
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaEntryEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaUsageEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
+import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataUsageRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -30,6 +31,9 @@ class VocabularyModuleTest {
 	@Autowired
 	private SpringDataEntryRepository entryRepository;
 
+	@Autowired
+	private SpringDataUsageRepository usageRepository;
+
 	@BeforeEach
 	void cleanDatabase() {
 		entryRepository.deleteAll();
@@ -39,8 +43,8 @@ class VocabularyModuleTest {
 	void givenNewSegmentEvent_whenHandled_thenCreatesEntryWithUsage(Scenario scenario) {
 		TestContext context = new TestContext();
 
-		scenario.stimulate(publishEvent(context.newSegmentEvent()))
-			.andWaitForStateChange(() -> entriesByUser(context.userId()),
+		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+			.andWaitForStateChange(context::entriesByUser,
 					entries -> entries.size() == 1)
 			.andVerify(entries -> {
 				assertThat(entries).hasSize(1);
@@ -50,10 +54,10 @@ class VocabularyModuleTest {
 				assertThat(entry.getLanguage()).isEqualTo(context.sourceLanguage());
 				assertThat(entry.getTerm()).isEqualTo(context.normalizedTokenizedWord());
 
-				JpaEntryEntity persistedEntry = findEntry(context);
-				assertThat(persistedEntry.getUsages()).hasSize(1);
+				List<JpaUsageEntity> usages = context.usages();
+				assertThat(usages).hasSize(1);
 
-				JpaUsageEntity usage = persistedEntry.getUsages().iterator().next();
+				JpaUsageEntity usage = usages.getFirst();
 				assertThat(usage.getSentence()).isEqualTo(context.firstSentence());
 				assertThat(usage.getSentenceStart()).isEqualTo(4);
 				assertThat(usage.getSentenceEnd()).isEqualTo(8);
@@ -68,19 +72,19 @@ class VocabularyModuleTest {
 	void givenExistingSegmentWithNewUsage_whenHandled_thenAddsOnlyNewUsage(Scenario scenario) {
 		TestContext context = new TestContext();
 
-		scenario.stimulate(publishEvent(context.newSegmentEvent()))
-			.andWaitForStateChange(() -> usageCount(context), count -> count == 1)
+		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+			.andWaitForStateChange(context::usageCount, count -> count == 1)
 			.andVerify(count -> assertThat(count).isEqualTo(1));
 
-		scenario.stimulate(publishEvent(context.newUsageForExistingSegmentEvent()))
-			.andWaitForStateChange(() -> usageCount(context), count -> count == 2)
+		scenario.stimulate(context.publishEvent(context.newUsageForExistingSegmentEvent()))
+			.andWaitForStateChange(context::usageCount, count -> count == 2)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(2);
-				JpaEntryEntity entry = findEntry(context);
-				assertThat(entry.getUsages()).hasSize(2);
-				assertThat(entry.getUsages().stream().map(JpaUsageEntity::getSentence).toList())
+				List<JpaUsageEntity> usages = context.usages();
+				assertThat(usages).hasSize(2);
+				assertThat(usages.stream().map(JpaUsageEntity::getSentence).toList())
 					.containsExactlyInAnyOrder(context.firstSentence(), context.secondSentence());
-				assertThat(entry.getUsages().stream().map(JpaUsageEntity::getTranslation).toList())
+				assertThat(usages.stream().map(JpaUsageEntity::getTranslation).toList())
 					.containsExactlyInAnyOrder(context.firstSentenceTranslation(), context.secondSentenceTranslation());
 			});
 	}
@@ -89,39 +93,19 @@ class VocabularyModuleTest {
 	void givenExistingSegmentAndExistingUsage_whenHandled_thenDoesNotCreateDuplicateUsage(Scenario scenario) {
 		TestContext context = new TestContext();
 
-		scenario.stimulate(publishEvent(context.newSegmentEvent()))
-			.andWaitForStateChange(() -> usageCount(context), count -> count == 1)
+		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+			.andWaitForStateChange(context::usageCount, count -> count == 1)
 			.andVerify(count -> assertThat(count).isEqualTo(1));
 
-		scenario.stimulate(publishEvent(context.newSegmentEvent()))
-			.andWaitForStateChange(() -> usageCount(context), count -> count == 1)
+		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+			.andWaitForStateChange(context::usageCount, count -> count == 1)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(1);
-				assertThat(entriesByUser(context.userId())).hasSize(1);
+				assertThat(context.entriesByUser()).hasSize(1);
 			});
 	}
 
-	private List<EntryDataProjection> entriesByUser(String userId) {
-		return entryRepository.findEntryDataByUserId(userId, PageRequest.of(0, 1_000)).getContent();
-	}
-
-	private int usageCount(TestContext context) {
-		return findEntry(context).getUsages().size();
-	}
-
-	private JpaEntryEntity findEntry(TestContext context) {
-		return entryRepository
-			.findWithUsagesByUserIdAndLanguageAndTerm(context.userId(), context.sourceLanguage(),
-					context.normalizedTokenizedWord())
-			.orElseThrow();
-	}
-
-	private BiConsumer<TransactionOperations, ApplicationEventPublisher> publishEvent(
-			SegmentBundleTokenizedEvent event) {
-		return (tx, publisher) -> publisher.publishEvent(event);
-	}
-
-	private static final class TestContext {
+	private final class TestContext {
 
 		private final Instant occurredAt = Instant.parse("2026-02-07T10:15:30Z");
 
@@ -187,6 +171,31 @@ class VocabularyModuleTest {
 		private SegmentBundleTokenizedEvent newUsageForExistingSegmentEvent() {
 			return new SegmentBundleTokenizedEvent(userId, tokenizedWord, tokenizedWordTranslation, secondSentence,
 					secondSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
+		}
+
+		private List<EntryDataProjection> entriesByUser() {
+			return entryRepository.findEntryDataByUserId(userId, PageRequest.of(0, 1_000)).getContent();
+		}
+
+		private int usageCount() {
+			return usages().size();
+		}
+
+		private JpaEntryEntity findEntry() {
+			return entryRepository
+				.findByUserIdAndLanguageAndTerm(userId, sourceLanguage, normalizedTokenizedWord())
+				.orElseThrow();
+		}
+
+		private List<JpaUsageEntity> usages() {
+			return usageRepository
+				.findByEntryIdAndEntryUserId(findEntry().getId(), userId, PageRequest.of(0, 1_000))
+				.getContent();
+		}
+
+		private BiConsumer<TransactionOperations, ApplicationEventPublisher> publishEvent(
+				SegmentBundleTokenizedEvent event) {
+			return (tx, publisher) -> publisher.publishEvent(event);
 		}
 
 	}

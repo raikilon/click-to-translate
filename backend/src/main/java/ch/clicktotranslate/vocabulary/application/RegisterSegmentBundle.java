@@ -32,22 +32,13 @@ public class RegisterSegmentBundle {
 		}
 
 		Entry entry = existingEntry.get();
-		boolean usageAlreadyExists = entry.usages()
-			.stream()
-			.anyMatch(existingUsage -> isExactUsageMatch(existingUsage, usage));
+		boolean usageAlreadyExists = vocabularyRepository.existsUsageBySentenceAndLanguage(entry.id(), usage.sentence(),
+				usage.targetLanguage());
 		if (usageAlreadyExists) {
 			return;
 		}
 		entry.addUsage(usage);
 		vocabularyRepository.saveEntry(entry);
-	}
-
-	private boolean isExactUsageMatch(Usage existingUsage, Usage newUsage) {
-		return existingUsage.sentence().equals(newUsage.sentence())
-				&& existingUsage.sentenceSpan().equals(newUsage.sentenceSpan())
-				&& existingUsage.translation().equals(newUsage.translation())
-				&& existingUsage.translationSpan().equals(newUsage.translationSpan())
-				&& existingUsage.targetLanguage() == newUsage.targetLanguage();
 	}
 
 }

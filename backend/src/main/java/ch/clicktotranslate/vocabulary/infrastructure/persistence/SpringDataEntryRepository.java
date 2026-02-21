@@ -11,6 +11,8 @@ public interface SpringDataEntryRepository extends JpaRepository<JpaEntryEntity,
 
 	Optional<JpaEntryEntity> findByIdAndUserId(Long id, String userId);
 
+	Optional<JpaEntryEntity> findByUserIdAndLanguageAndTerm(String userId, String language, String term);
+
 	Optional<JpaEntryEntity> findWithUsagesByIdAndUserId(Long id, String userId);
 
 	Optional<JpaEntryEntity> findWithUsagesByUserIdAndLanguageAndTerm(String userId, String language, String term);

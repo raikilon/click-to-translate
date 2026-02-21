@@ -1,6 +1,7 @@
 package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Entry;
+import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Term;
 import ch.clicktotranslate.vocabulary.domain.UserId;
 import org.jmolecules.ddd.annotation.Repository;
@@ -11,6 +12,8 @@ import java.util.Optional;
 public interface VocabularyRepository {
 
 	Optional<Entry> findEntryByTerm(UserId userId, Term term);
+
+	boolean existsUsageBySentenceAndLanguage(Entry.Id entryId, String sentence, Language language);
 
 	void saveEntry(Entry entry);
 

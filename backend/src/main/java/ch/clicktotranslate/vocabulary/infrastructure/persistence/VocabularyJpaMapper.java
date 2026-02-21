@@ -53,6 +53,12 @@ class VocabularyJpaMapper {
 				entity.getLastEdit(), entity.getCreatedAt());
 	}
 
+	Entry toDomainEntryWithoutUsages(JpaEntryEntity entity) {
+		return new Entry(Entry.Id.of(entity.getId()), UserId.of(entity.getUserId()),
+				new Term(Language.valueOf(entity.getLanguage()), entity.getTerm()), entity.getTermCustomization(),
+				toDomainTranslations(entity.getTranslations()), List.of(), entity.getLastEdit(), entity.getCreatedAt());
+	}
+
 	Entry toDomainEntry(EntryDataProjection entryData, Optional<JpaUsageEntity> latestUsage) {
 		List<Usage> usages = latestUsage.map(this::toDomainUsage).stream().toList();
 		return new Entry(Entry.Id.of(entryData.getId()), UserId.of(entryData.getUserId()),
