@@ -18,7 +18,7 @@ public class RegisterSegmentBundle {
 	}
 
 	public void execute(SegmentBundle event) {
-		Term term = new Term(event.sourceLanguage(), event.lemmatizedWord());
+		Term term = new Term(event.sourceLanguage(), event.term());
 		Usage usage = new Usage(event.sentence(), event.word(), event.sentenceTranslation(), event.wordTranslation(),
 				event.targetLanguage());
 

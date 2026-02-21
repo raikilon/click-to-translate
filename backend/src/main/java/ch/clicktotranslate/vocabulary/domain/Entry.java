@@ -93,9 +93,9 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		this.termCustomization = requireCustomization(customization);
 	}
 
-	public void setTranslation(Language language, String lemma) {
+	public void setTranslation(Language language, String term) {
 		Language requiredLanguage = requireLanguage(language);
-		Term newTranslation = new Term(requiredLanguage, requireLemma(lemma));
+		Term newTranslation = new Term(requiredLanguage, requireTermValue(term));
 		translations.removeIf(translation -> translation.language() == requiredLanguage);
 		translations.add(newTranslation);
 	}
@@ -193,7 +193,7 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		return value;
 	}
 
-	private static String requireLemma(String value) {
+	private static String requireTermValue(String value) {
 		if (value == null || value.isBlank()) {
 			throw new IllegalArgumentException("term must not be blank");
 		}

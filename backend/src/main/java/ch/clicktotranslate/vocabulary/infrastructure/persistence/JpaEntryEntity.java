@@ -56,12 +56,12 @@ public class JpaEntryEntity {
 		this.userId = userId;
 	}
 
-	public void setTerm(String sourceLemma) {
-		this.term = sourceLemma;
+	public void setTerm(String term) {
+		this.term = term;
 	}
 
-	public void setTermCustomization(String customizationLemma) {
-		this.termCustomization = customizationLemma;
+	public void setTermCustomization(String customizationTerm) {
+		this.termCustomization = customizationTerm;
 	}
 
 	public void setTranslations(Set<JpaTermTranslation> translations) {

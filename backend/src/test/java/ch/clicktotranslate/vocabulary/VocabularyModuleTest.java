@@ -50,7 +50,7 @@ class VocabularyModuleTest {
 				assertThat(entry.getId()).isNotNull();
 				assertThat(entry.getUserId()).isEqualTo(context.userId());
 				assertThat(entry.getLanguage()).isEqualTo(context.sourceLanguage());
-				assertThat(entry.getTerm()).isEqualTo(context.normalizedLemmatizedWord());
+				assertThat(entry.getTerm()).isEqualTo(context.normalizedTerm());
 
 				List<JpaUsageEntity> usages = context.usages();
 				assertThat(usages).hasSize(1);
@@ -124,9 +124,9 @@ class VocabularyModuleTest {
 
 		private final String userId = "user-1";
 
-		private final String lemmatizedWord = "Haus";
+		private final String term = "Haus";
 
-		private final String lemmatizedWordTranslation = "house";
+		private final String termTranslation = "house";
 
 		private final String sourceLanguage = "DE";
 
@@ -156,8 +156,8 @@ class VocabularyModuleTest {
 			return targetLanguage;
 		}
 
-		private String normalizedLemmatizedWord() {
-			return lemmatizedWord.toLowerCase();
+		private String normalizedTerm() {
+			return term.toLowerCase();
 		}
 
 		private String firstSentence() {
@@ -177,12 +177,12 @@ class VocabularyModuleTest {
 		}
 
 		private SegmentBundleLemmatizedEvent newSegmentEvent() {
-			return new SegmentBundleLemmatizedEvent(userId, lemmatizedWord, lemmatizedWordTranslation, firstSentence,
+			return new SegmentBundleLemmatizedEvent(userId, term, termTranslation, firstSentence,
 					firstSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
 		}
 
 		private SegmentBundleLemmatizedEvent newUsageForExistingSegmentEvent() {
-			return new SegmentBundleLemmatizedEvent(userId, lemmatizedWord, lemmatizedWordTranslation, secondSentence,
+			return new SegmentBundleLemmatizedEvent(userId, term, termTranslation, secondSentence,
 					secondSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
 		}
 
@@ -195,7 +195,7 @@ class VocabularyModuleTest {
 		}
 
 		private JpaEntryEntity findEntry() {
-			return entryRepository.findByUserIdAndLanguageAndTerm(userId, sourceLanguage, normalizedLemmatizedWord())
+			return entryRepository.findByUserIdAndLanguageAndTerm(userId, sourceLanguage, normalizedTerm())
 				.orElseThrow();
 		}
 
@@ -208,7 +208,7 @@ class VocabularyModuleTest {
 			JpaEntryEntity entry = new JpaEntryEntity();
 			entry.setUserId(userId);
 			entry.setLanguage(sourceLanguage);
-			entry.setTerm(normalizedLemmatizedWord());
+			entry.setTerm(normalizedTerm());
 
 			for (int i = 1; i <= count; i++) {
 				JpaUsageEntity usage = new JpaUsageEntity();
