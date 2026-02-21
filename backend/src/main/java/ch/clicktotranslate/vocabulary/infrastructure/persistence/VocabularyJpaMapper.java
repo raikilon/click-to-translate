@@ -9,6 +9,7 @@ import ch.clicktotranslate.vocabulary.domain.Entry;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 class VocabularyJpaMapper {
@@ -47,6 +48,14 @@ class VocabularyJpaMapper {
 				new Term(Language.valueOf(entity.getLanguage()), entity.getTerm()), entity.getTermCustomization(),
 				toDomainTranslations(entity.getTranslations()), toDomainUsages(entity.getUsages()),
 				entity.getLastEdit(), entity.getCreatedAt());
+	}
+
+	Entry toDomainEntry(EntryDataProjection entryData, Optional<JpaUsageEntity> latestUsage) {
+		List<Usage> usages = latestUsage.map(this::toDomainUsage).stream().toList();
+		return new Entry(Entry.Id.of(entryData.getId()), UserId.of(entryData.getUserId()),
+				new Term(Language.valueOf(entryData.getLanguage()), entryData.getTerm()),
+				entryData.getTermCustomization().orElse(null), toDomainTranslations(entryData.getTranslations()), usages,
+				entryData.getLastEdit(), entryData.getCreatedAt());
 	}
 
 	Usage toDomainUsage(JpaUsageEntity entity) {

@@ -6,8 +6,6 @@ import ch.clicktotranslate.vocabulary.domain.Usage;
 import ch.clicktotranslate.vocabulary.domain.UserId;
 import org.jmolecules.ddd.annotation.Repository;
 
-import java.util.List;
-
 @Repository
 public interface EntryQuery {
 
@@ -15,8 +13,8 @@ public interface EntryQuery {
 
 	PageResult<Usage> findUsagesByEntry(UserId userId, Entry.Id entryId, PageRequest pageRequest);
 
-	List<Entry> findByLanguage(UserId userId, Language sourceLanguage);
+	PageResult<Entry> findByLanguage(UserId userId, Language sourceLanguage, PageRequest pageRequest);
 
-	List<Entry> search(UserId userId, String query);
+	PageResult<Entry> search(UserId userId, String query, PageRequest pageRequest);
 
 }

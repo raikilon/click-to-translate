@@ -2,7 +2,6 @@ package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Entry;
-import java.util.List;
 
 public class VocabularyController {
 
@@ -33,12 +32,12 @@ public class VocabularyController {
 		return listEntries.execute(pageRequest);
 	}
 
-	public List<Entry> listByLanguage(Language sourceLanguage) {
-		return listEntriesByLanguage.execute(sourceLanguage);
+	public PageResult<Entry> listByLanguage(Language sourceLanguage, PageRequest pageRequest) {
+		return listEntriesByLanguage.execute(sourceLanguage, pageRequest);
 	}
 
-	public List<Entry> search(String query) {
-		return searchEntries.execute(query);
+	public PageResult<Entry> search(String query, PageRequest pageRequest) {
+		return searchEntries.execute(query, pageRequest);
 	}
 
 	public void updateTranslation(TranslationUpdate update) {

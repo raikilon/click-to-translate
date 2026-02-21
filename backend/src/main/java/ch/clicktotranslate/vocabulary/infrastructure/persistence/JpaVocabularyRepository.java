@@ -48,15 +48,21 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	}
 
 	@Override
-	public List<Entry> findByLanguage(UserId userId, Language sourceLanguage) {
-		return toEntries(
-				entryRepository.findEntryDataByUserIdAndLanguageOrderByIdAsc(userId.value(), sourceLanguage.name()));
+	public PageResult<Entry> findByLanguage(UserId userId, Language sourceLanguage, PageRequest pageRequest) {
+		Page<EntryDataProjection> page = entryRepository.findEntryDataByUserIdAndLanguage(userId.value(),
+				sourceLanguage.name(), toSpringPageable(pageRequest));
+		List<Entry> items = toEntries(page.getContent());
+		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
+				page.hasNext());
 	}
 
 	@Override
-	public List<Entry> search(UserId userId, String query) {
-		return toEntries(entryRepository.findEntryDataByUserIdAndTermContainingIgnoreCaseOrderByIdAsc(userId.value(),
-				query.trim()));
+	public PageResult<Entry> search(UserId userId, String query, PageRequest pageRequest) {
+		Page<EntryDataProjection> page = entryRepository.findEntryDataByUserIdAndTermContainingIgnoreCase(
+				userId.value(), query.trim(), toSpringPageable(pageRequest));
+		List<Entry> items = toEntries(page.getContent());
+		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
+				page.hasNext());
 	}
 
 	@Override
@@ -104,20 +110,7 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 
 	private List<Entry> toEntries(List<EntryDataProjection> projections) {
 		return projections.stream()
-			.map(entry -> new Entry(Entry.Id.of(entry.getId()), UserId.of(entry.getUserId()),
-					new Term(Language.valueOf(entry.getLanguage()), entry.getTerm()),
-					entry.getTermCustomization().orElse(null), toTranslations(entry.getTranslations()),
-					usageRepository.findFirstByEntryIdOrderByIdDesc(entry.getId())
-						.map(mapper::toDomainUsage)
-						.stream()
-						.toList(),
-					entry.getLastEdit(), entry.getCreatedAt()))
-			.toList();
-	}
-
-	private List<Term> toTranslations(java.util.Collection<JpaTermTranslation> translations) {
-		return translations.stream()
-			.map(translation -> new Term(Language.valueOf(translation.getLanguage()), translation.getTerm()))
+			.map(entry -> mapper.toDomainEntry(entry, usageRepository.findFirstByEntryIdOrderByIdDesc(entry.getId())))
 			.toList();
 	}
 

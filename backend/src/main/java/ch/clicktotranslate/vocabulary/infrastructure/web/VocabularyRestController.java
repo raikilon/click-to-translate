@@ -3,7 +3,6 @@ package ch.clicktotranslate.vocabulary.infrastructure.web;
 import ch.clicktotranslate.vocabulary.application.PageRequest;
 import ch.clicktotranslate.vocabulary.application.VocabularyController;
 import ch.clicktotranslate.vocabulary.domain.Language;
-import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,13 +37,16 @@ public class VocabularyRestController {
 	}
 
 	@GetMapping("/search")
-	public List<EntryDto> search(@RequestParam("q") String query) {
-		return vocabularyDtoMapper.toEntryDto(vocabularyController.search(query));
+	public PageEnvelope<EntryDto> search(@RequestParam("q") String query, Pageable pageable) {
+		PageRequest pageRequest = pageRequestDtoMapper.toPageRequest(pageable);
+		return PageEnvelope.from(vocabularyController.search(query, pageRequest), vocabularyDtoMapper::toEntryDto);
 	}
 
 	@GetMapping("/{language}")
-	public List<EntryDto> listByLanguage(@PathVariable Language language) {
-		return vocabularyDtoMapper.toEntryDto(vocabularyController.listByLanguage(language));
+	public PageEnvelope<EntryDto> listByLanguage(@PathVariable Language language, Pageable pageable) {
+		PageRequest pageRequest = pageRequestDtoMapper.toPageRequest(pageable);
+		return PageEnvelope.from(vocabularyController.listByLanguage(language, pageRequest),
+				vocabularyDtoMapper::toEntryDto);
 	}
 
 	@PatchMapping("/entries/{entryId}/translation")

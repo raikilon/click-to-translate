@@ -4,8 +4,6 @@ import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Entry;
 import org.jmolecules.ddd.annotation.Service;
 
-import java.util.List;
-
 @Service
 public class ListEntriesByLanguage {
 
@@ -18,8 +16,8 @@ public class ListEntriesByLanguage {
 		this.userProvider = userProvider;
 	}
 
-	public List<Entry> execute(Language language) {
-		return entryQuery.findByLanguage(userProvider.currentUserId(), language);
+	public PageResult<Entry> execute(Language language, PageRequest pageRequest) {
+		return entryQuery.findByLanguage(userProvider.currentUserId(), language, pageRequest);
 	}
 
 }

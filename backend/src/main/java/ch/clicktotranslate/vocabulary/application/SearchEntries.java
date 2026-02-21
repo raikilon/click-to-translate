@@ -1,7 +1,6 @@
 package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Entry;
-import java.util.List;
 import org.jmolecules.ddd.annotation.Service;
 
 @Service
@@ -16,8 +15,8 @@ public class SearchEntries {
 		this.userProvider = userProvider;
 	}
 
-	public List<Entry> execute(String query) {
-		return entryQuery.search(userProvider.currentUserId(), requireQuery(query));
+	public PageResult<Entry> execute(String query, PageRequest pageRequest) {
+		return entryQuery.search(userProvider.currentUserId(), requireQuery(query), pageRequest);
 	}
 
 	private String requireQuery(String query) {

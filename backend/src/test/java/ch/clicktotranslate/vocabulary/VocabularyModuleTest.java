@@ -6,11 +6,13 @@ import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaEntryEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaUsageEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
 import java.time.Instant;
+import java.util.List;
 import java.util.function.BiConsumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.modulith.test.Scenario;
 import org.springframework.test.context.TestPropertySource;
@@ -38,7 +40,7 @@ class VocabularyModuleTest {
 		TestContext context = new TestContext();
 
 		scenario.stimulate(publishEvent(context.newSegmentEvent()))
-			.andWaitForStateChange(() -> entryRepository.findEntryDataByUserIdOrderByIdAsc(context.userId()),
+			.andWaitForStateChange(() -> entriesByUser(context.userId()),
 					entries -> entries.size() == 1)
 			.andVerify(entries -> {
 				assertThat(entries).hasSize(1);
@@ -95,8 +97,12 @@ class VocabularyModuleTest {
 			.andWaitForStateChange(() -> usageCount(context), count -> count == 1)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(1);
-				assertThat(entryRepository.findEntryDataByUserIdOrderByIdAsc(context.userId())).hasSize(1);
+				assertThat(entriesByUser(context.userId())).hasSize(1);
 			});
+	}
+
+	private List<EntryDataProjection> entriesByUser(String userId) {
+		return entryRepository.findEntryDataByUserId(userId, PageRequest.of(0, 1_000)).getContent();
 	}
 
 	private int usageCount(TestContext context) {

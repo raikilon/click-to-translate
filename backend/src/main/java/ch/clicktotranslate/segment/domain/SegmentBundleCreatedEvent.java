@@ -6,7 +6,7 @@ import org.springframework.modulith.NamedInterface;
 import java.time.Instant;
 import java.util.Objects;
 
-@NamedInterface
+@NamedInterface("domain")
 @DomainEvent
 public class SegmentBundleCreatedEvent {
 

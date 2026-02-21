@@ -6,7 +6,7 @@ import java.util.Objects;
 import org.jmolecules.event.annotation.DomainEvent;
 import org.springframework.modulith.NamedInterface;
 
-@NamedInterface
+@NamedInterface("domain")
 @DomainEvent
 public class SegmentBundleTokenizedEvent {
 
