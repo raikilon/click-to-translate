@@ -11,6 +11,8 @@ import org.jmolecules.ddd.types.ValueObject;
 
 public class Entry implements AggregateRoot<Entry, Entry.Id> {
 
+	private static final int MAX_USAGES = 20;
+
 	private final Id id;
 
 	private final UserId userId;
@@ -98,20 +100,41 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		translations.add(newTranslation);
 	}
 
-	public void addUsage(Usage usage) {
+	public boolean addUsage(Usage usage) {
 		Usage requiredUsage = requireUsage(usage);
 		if (requiredUsage.id() != null) {
 			usages.removeIf(existing -> Objects.equals(existing.id(), requiredUsage.id()));
 		}
+		if (usages.size() >= MAX_USAGES) {
+			int removableIndex = findOldestNonStarredUsageIndex();
+			if (removableIndex < 0) {
+				return false;
+			}
+			usages.remove(removableIndex);
+		}
 		usages.add(requiredUsage);
+		return true;
 	}
 
 	public void removeUsage(Usage.Id usageId) {
 		Usage.Id requiredUsageId = requireUsageId(usageId);
-		boolean removed = usages.removeIf(existing -> Objects.equals(existing.id(), requiredUsageId));
-		if (!removed) {
+		int usageIndex = findUsageIndex(requiredUsageId);
+		if (usageIndex < 0) {
 			throw new IllegalArgumentException("usageId must be part of usages");
 		}
+		if (usages.get(usageIndex).starred()) {
+			throw new IllegalArgumentException("starred usage cannot be deleted");
+		}
+		usages.remove(usageIndex);
+	}
+
+	public void starUsage(Usage.Id usageId) {
+		Usage.Id requiredUsageId = requireUsageId(usageId);
+		int usageIndex = findUsageIndex(requiredUsageId);
+		if (usageIndex < 0) {
+			throw new IllegalArgumentException("usageId must be part of usages");
+		}
+		usages.set(usageIndex, usages.get(usageIndex).star());
 	}
 
 	private static UserId requireUserId(UserId value) {
@@ -175,6 +198,45 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 			throw new IllegalArgumentException("term must not be blank");
 		}
 		return value.trim();
+	}
+
+	private int findUsageIndex(Usage.Id usageId) {
+		for (int i = 0; i < usages.size(); i++) {
+			if (Objects.equals(usages.get(i).id(), usageId)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private int findOldestNonStarredUsageIndex() {
+		int removableIndex = -1;
+		for (int i = 0; i < usages.size(); i++) {
+			Usage candidate = usages.get(i);
+			if (candidate.starred()) {
+				continue;
+			}
+			if (removableIndex < 0 || isOlder(candidate, usages.get(removableIndex))) {
+				removableIndex = i;
+			}
+		}
+		return removableIndex;
+	}
+
+	private static boolean isOlder(Usage first, Usage second) {
+		int createdAtComparison = first.createdAt().compareTo(second.createdAt());
+		if (createdAtComparison != 0) {
+			return createdAtComparison < 0;
+		}
+		Long firstId = first.id() == null ? null : first.id().value();
+		Long secondId = second.id() == null ? null : second.id().value();
+		if (firstId == null) {
+			return secondId != null;
+		}
+		if (secondId == null) {
+			return false;
+		}
+		return firstId < secondId;
 	}
 
 	public record Id(Long value) implements Identifier, ValueObject {

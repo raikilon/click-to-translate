@@ -8,9 +8,12 @@ public class VocabularyUsageController {
 
 	private final DeleteUsage deleteUsage;
 
-	public VocabularyUsageController(ListEntryUsages listEntryUsages, DeleteUsage deleteUsage) {
+	private final StarUsage starUsage;
+
+	public VocabularyUsageController(ListEntryUsages listEntryUsages, DeleteUsage deleteUsage, StarUsage starUsage) {
 		this.listEntryUsages = listEntryUsages;
 		this.deleteUsage = deleteUsage;
+		this.starUsage = starUsage;
 	}
 
 	public PageResult<Usage> listByEntry(Long entryId, PageRequest pageRequest) {
@@ -19,6 +22,10 @@ public class VocabularyUsageController {
 
 	public void delete(Long entryId, Long usageId) {
 		deleteUsage.execute(entryId, usageId);
+	}
+
+	public void star(Long entryId, Long usageId) {
+		starUsage.execute(entryId, usageId);
 	}
 
 }

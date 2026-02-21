@@ -14,7 +14,8 @@ public class ListEntryUsages {
 
 	private final UserProvider userProvider;
 
-	public ListEntryUsages(VocabularyRepository vocabularyRepository, EntryQuery entryQuery, UserProvider userProvider) {
+	public ListEntryUsages(VocabularyRepository vocabularyRepository, EntryQuery entryQuery,
+			UserProvider userProvider) {
 		this.vocabularyRepository = vocabularyRepository;
 		this.entryQuery = entryQuery;
 		this.userProvider = userProvider;

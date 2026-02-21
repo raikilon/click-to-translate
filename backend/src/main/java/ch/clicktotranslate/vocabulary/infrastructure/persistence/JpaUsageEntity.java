@@ -1,12 +1,14 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
+@Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class JpaUsageEntity {
@@ -40,6 +42,9 @@ public class JpaUsageEntity {
 	@Column(nullable = false)
 	private String targetLanguage;
 
+	@Column(nullable = false)
+	private boolean starred;
+
 	@LastModifiedDate
 	@Column(nullable = false)
 	private Instant lastEdit;
@@ -48,84 +53,44 @@ public class JpaUsageEntity {
 	@Column(nullable = false, updatable = false)
 	private Instant createdAt;
 
-	public Long getId() {
-		return id;
-	}
-
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public JpaEntryEntity getEntry() {
-		return entry;
 	}
 
 	public void setEntry(JpaEntryEntity entry) {
 		this.entry = entry;
 	}
 
-	public String getSentence() {
-		return sentence;
-	}
-
 	public void setSentence(String sentence) {
 		this.sentence = sentence;
-	}
-
-	public String getTargetLanguage() {
-		return targetLanguage;
 	}
 
 	public void setTargetLanguage(String targetLanguage) {
 		this.targetLanguage = targetLanguage;
 	}
 
-	public Integer getSentenceStart() {
-		return sentenceStart;
+	public void setStarred(boolean starred) {
+		this.starred = starred;
 	}
 
 	public void setSentenceStart(Integer sentenceStart) {
 		this.sentenceStart = sentenceStart;
 	}
 
-	public Integer getSentenceEnd() {
-		return sentenceEnd;
-	}
-
 	public void setSentenceEnd(Integer sentenceEnd) {
 		this.sentenceEnd = sentenceEnd;
-	}
-
-	public String getTranslation() {
-		return translation;
 	}
 
 	public void setTranslation(String translation) {
 		this.translation = translation;
 	}
 
-	public Integer getTranslationStart() {
-		return translationStart;
-	}
-
 	public void setTranslationStart(Integer translationStart) {
 		this.translationStart = translationStart;
 	}
 
-	public Integer getTranslationEnd() {
-		return translationEnd;
-	}
-
 	public void setTranslationEnd(Integer translationEnd) {
 		this.translationEnd = translationEnd;
-	}
-
-	public Instant getLastEdit() {
-		return lastEdit;
-	}
-
-	public Instant getCreatedAt() {
-		return createdAt;
 	}
 
 }

@@ -43,8 +43,8 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 
 	@Override
 	public PageResult<Entry> findByLanguage(UserId userId, Language sourceLanguage, PageRequest pageRequest) {
-		Page<JpaEntryEntity> page = entryRepository.findByUserIdAndLanguage(userId.value(),
-				sourceLanguage.name(), mapper.toSpringPageable(pageRequest));
+		Page<JpaEntryEntity> page = entryRepository.findByUserIdAndLanguage(userId.value(), sourceLanguage.name(),
+				mapper.toSpringPageable(pageRequest));
 		List<Entry> items = page.getContent().stream().map(mapper::toDomainEntry).toList();
 		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
 				page.hasNext());
@@ -52,8 +52,8 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 
 	@Override
 	public PageResult<Entry> search(UserId userId, String query, PageRequest pageRequest) {
-		Page<JpaEntryEntity> page = entryRepository.findByUserIdAndTermContainingIgnoreCase(
-				userId.value(), query.trim(), mapper.toSpringPageable(pageRequest));
+		Page<JpaEntryEntity> page = entryRepository.findByUserIdAndTermContainingIgnoreCase(userId.value(),
+				query.trim(), mapper.toSpringPageable(pageRequest));
 		List<Entry> items = page.getContent().stream().map(mapper::toDomainEntry).toList();
 		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
 				page.hasNext());

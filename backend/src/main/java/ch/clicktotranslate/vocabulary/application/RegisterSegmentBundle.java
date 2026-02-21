@@ -39,8 +39,9 @@ public class RegisterSegmentBundle {
 		if (usageAlreadyExists) {
 			return;
 		}
-		entry.addUsage(usage);
-		vocabularyRepository.saveEntry(entry);
+		if (entry.addUsage(usage)) {
+			vocabularyRepository.saveEntry(entry);
+		}
 	}
 
 }

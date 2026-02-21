@@ -1,7 +1,6 @@
 package ch.clicktotranslate.vocabulary;
 
 import ch.clicktotranslate.tokenizer.domain.SegmentBundleTokenizedEvent;
-import ch.clicktotranslate.vocabulary.infrastructure.persistence.EntryDataProjection;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaEntryEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaUsageEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
@@ -44,11 +43,10 @@ class VocabularyModuleTest {
 		TestContext context = new TestContext();
 
 		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
-			.andWaitForStateChange(context::entriesByUser,
-					entries -> entries.size() == 1)
+			.andWaitForStateChange(context::entriesByUser, entries -> entries.size() == 1)
 			.andVerify(entries -> {
 				assertThat(entries).hasSize(1);
-				EntryDataProjection entry = entries.getFirst();
+				JpaEntryEntity entry = entries.getFirst();
 				assertThat(entry.getId()).isNotNull();
 				assertThat(entry.getUserId()).isEqualTo(context.userId());
 				assertThat(entry.getLanguage()).isEqualTo(context.sourceLanguage());
@@ -102,6 +100,21 @@ class VocabularyModuleTest {
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(1);
 				assertThat(context.entriesByUser()).hasSize(1);
+			});
+	}
+
+	@Test
+	void givenTwentyStarredUsages_whenNewUsageEventHandled_thenSkipsAddingUsage(Scenario scenario) {
+		TestContext context = new TestContext();
+		context.seedEntryWithStarredUsages(20);
+
+		scenario.stimulate(context.publishEvent(context.newUsageForExistingSegmentEvent()))
+			.andWaitForStateChange(context::usageCount, count -> count == 20)
+			.andVerify(count -> {
+				assertThat(count).isEqualTo(20);
+				assertThat(context.usages()).allMatch(JpaUsageEntity::isStarred);
+				assertThat(context.usages().stream().map(JpaUsageEntity::getSentence).toList())
+					.doesNotContain(context.secondSentence());
 			});
 	}
 
@@ -173,8 +186,8 @@ class VocabularyModuleTest {
 					secondSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
 		}
 
-		private List<EntryDataProjection> entriesByUser() {
-			return entryRepository.findEntryDataByUserId(userId, PageRequest.of(0, 1_000)).getContent();
+		private List<JpaEntryEntity> entriesByUser() {
+			return entryRepository.findByUserId(userId, PageRequest.of(0, 1_000)).getContent();
 		}
 
 		private int usageCount() {
@@ -182,15 +195,35 @@ class VocabularyModuleTest {
 		}
 
 		private JpaEntryEntity findEntry() {
-			return entryRepository
-				.findByUserIdAndLanguageAndTerm(userId, sourceLanguage, normalizedTokenizedWord())
+			return entryRepository.findByUserIdAndLanguageAndTerm(userId, sourceLanguage, normalizedTokenizedWord())
 				.orElseThrow();
 		}
 
 		private List<JpaUsageEntity> usages() {
-			return usageRepository
-				.findByEntryIdAndEntryUserId(findEntry().getId(), userId, PageRequest.of(0, 1_000))
+			return usageRepository.findByEntryIdAndEntryUserId(findEntry().getId(), userId, PageRequest.of(0, 1_000))
 				.getContent();
+		}
+
+		private void seedEntryWithStarredUsages(int count) {
+			JpaEntryEntity entry = new JpaEntryEntity();
+			entry.setUserId(userId);
+			entry.setLanguage(sourceLanguage);
+			entry.setTerm(normalizedTokenizedWord());
+
+			for (int i = 1; i <= count; i++) {
+				JpaUsageEntity usage = new JpaUsageEntity();
+				usage.setSentence("Starred usage sentence " + i);
+				usage.setSentenceStart(0);
+				usage.setSentenceEnd(4);
+				usage.setTranslation("Starred usage translation " + i);
+				usage.setTranslationStart(0);
+				usage.setTranslationEnd(4);
+				usage.setTargetLanguage(targetLanguage);
+				usage.setStarred(true);
+				entry.addUsage(usage);
+			}
+
+			entryRepository.save(entry);
 		}
 
 		private BiConsumer<TransactionOperations, ApplicationEventPublisher> publishEvent(

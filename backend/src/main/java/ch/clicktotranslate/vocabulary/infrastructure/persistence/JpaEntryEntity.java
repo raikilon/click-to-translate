@@ -1,6 +1,7 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.time.Instant;
 import java.util.Set;
 
+@Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class JpaEntryEntity {
@@ -42,64 +44,28 @@ public class JpaEntryEntity {
 	@OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<JpaUsageEntity> usages = new HashSet<>();
 
-	public Long getId() {
-		return id;
-	}
-
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getLanguage() {
-		return language;
 	}
 
 	public void setLanguage(String sourceLanguage) {
 		this.language = sourceLanguage;
 	}
 
-	public String getUserId() {
-		return userId;
-	}
-
 	public void setUserId(String userId) {
 		this.userId = userId;
-	}
-
-	public String getTerm() {
-		return term;
 	}
 
 	public void setTerm(String sourceLemma) {
 		this.term = sourceLemma;
 	}
 
-	public String getTermCustomization() {
-		return termCustomization;
-	}
-
 	public void setTermCustomization(String customizationLemma) {
 		this.termCustomization = customizationLemma;
 	}
 
-	public Instant getLastEdit() {
-		return lastEdit;
-	}
-
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
-
-	public Set<JpaTermTranslation> getTranslations() {
-		return translations;
-	}
-
 	public void setTranslations(Set<JpaTermTranslation> translations) {
 		this.translations = translations;
-	}
-
-	public Set<JpaUsageEntity> getUsages() {
-		return usages;
 	}
 
 	public void addUsage(JpaUsageEntity usage) {
