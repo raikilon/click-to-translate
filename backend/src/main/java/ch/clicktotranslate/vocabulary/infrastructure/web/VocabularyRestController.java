@@ -24,8 +24,7 @@ public class VocabularyRestController {
 
 	private final PageRequestDtoMapper pageRequestDtoMapper;
 
-	public VocabularyRestController(VocabularyController vocabularyController,
-			VocabularyDtoMapper vocabularyDtoMapper,
+	public VocabularyRestController(VocabularyController vocabularyController, VocabularyDtoMapper vocabularyDtoMapper,
 			PageRequestDtoMapper pageRequestDtoMapper) {
 		this.vocabularyController = vocabularyController;
 		this.vocabularyDtoMapper = vocabularyDtoMapper;
@@ -64,4 +63,3 @@ public class VocabularyRestController {
 	}
 
 }
-

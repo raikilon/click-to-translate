@@ -22,7 +22,8 @@ public class DeleteUsage {
 		Usage.Id id = Usage.Id.of(usageId);
 		Entry entry = vocabularyRepository.findEntryById(userId, Entry.Id.of(entryId))
 			.orElseThrow(EntryNotFoundException::new);
-		boolean usageBelongsToEntry = entry.usages().stream()
+		boolean usageBelongsToEntry = entry.usages()
+			.stream()
 			.anyMatch(existing -> existing.id() != null && existing.id().equals(id));
 		if (!usageBelongsToEntry) {
 			throw new IllegalArgumentException("Usage not found for entry");
@@ -32,5 +33,3 @@ public class DeleteUsage {
 	}
 
 }
-
-

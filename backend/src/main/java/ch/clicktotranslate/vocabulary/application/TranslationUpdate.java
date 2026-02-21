@@ -4,4 +4,3 @@ import ch.clicktotranslate.vocabulary.domain.Language;
 
 public record TranslationUpdate(Long entryId, Language targetLanguage, String translation) {
 }
-

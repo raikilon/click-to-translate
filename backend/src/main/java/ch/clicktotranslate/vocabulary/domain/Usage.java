@@ -24,7 +24,7 @@ public class Usage implements Entity<Entry, Usage.Id> {
 	private final Instant createdAt;
 
 	public Usage(Id id, String sentence, TextSpan sentenceSpan, String translation, TextSpan translationSpan,
-				 Language language, Instant lastEdit, Instant createdAt) {
+			Language language, Instant lastEdit, Instant createdAt) {
 		this.id = id;
 		this.sentence = requireSentence(sentence);
 		this.sentenceSpan = requireSpan(sentenceSpan, this.sentence, "sentence");
@@ -130,4 +130,3 @@ public class Usage implements Entity<Entry, Usage.Id> {
 	}
 
 }
-

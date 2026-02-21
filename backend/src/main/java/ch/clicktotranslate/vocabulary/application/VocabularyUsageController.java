@@ -8,8 +8,7 @@ public class VocabularyUsageController {
 
 	private final DeleteUsage deleteUsage;
 
-	public VocabularyUsageController(ListEntryUsages listEntryUsages,
-			DeleteUsage deleteUsage) {
+	public VocabularyUsageController(ListEntryUsages listEntryUsages, DeleteUsage deleteUsage) {
 		this.listEntryUsages = listEntryUsages;
 		this.deleteUsage = deleteUsage;
 	}
@@ -23,5 +22,3 @@ public class VocabularyUsageController {
 	}
 
 }
-
-

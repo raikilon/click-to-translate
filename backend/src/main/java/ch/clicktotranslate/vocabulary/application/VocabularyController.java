@@ -4,7 +4,6 @@ import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Entry;
 import java.util.List;
 
-
 public class VocabularyController {
 
 	private final ListEntries listEntries;
@@ -20,8 +19,7 @@ public class VocabularyController {
 	private final DeleteEntry deleteEntry;
 
 	public VocabularyController(ListEntries listEntries, ListEntriesByLanguage listEntriesByLanguage,
-			SearchEntries searchEntries, UpdateEntryTranslation updateEntryTranslation,
-			UpdateEntry updateEntry,
+			SearchEntries searchEntries, UpdateEntryTranslation updateEntryTranslation, UpdateEntry updateEntry,
 			DeleteEntry deleteEntry) {
 		this.listEntries = listEntries;
 		this.listEntriesByLanguage = listEntriesByLanguage;
@@ -56,5 +54,3 @@ public class VocabularyController {
 	}
 
 }
-
-

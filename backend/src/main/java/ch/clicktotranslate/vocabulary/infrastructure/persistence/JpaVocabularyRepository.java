@@ -33,8 +33,8 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 
 	@Override
 	public Optional<Entry> findEntryByTerm(UserId userId, Term term) {
-		return entryRepository.findWithUsagesByUserIdAndLanguageAndTerm(userId.value(), term.language().name(),
-				term.term())
+		return entryRepository
+			.findWithUsagesByUserIdAndLanguageAndTerm(userId.value(), term.language().name(), term.term())
 			.map(mapper::toDomainEntry);
 	}
 
@@ -43,20 +43,20 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 		Page<EntryDataProjection> page = entryRepository.findEntryDataByUserId(userId.value(),
 				toSpringPageable(pageRequest));
 		List<Entry> items = toEntries(page.getContent());
-		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(),
-				page.getTotalPages(), page.hasNext());
+		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
+				page.hasNext());
 	}
 
 	@Override
 	public List<Entry> findByLanguage(UserId userId, Language sourceLanguage) {
-		return toEntries(entryRepository.findEntryDataByUserIdAndLanguageOrderByIdAsc(userId.value(),
-				sourceLanguage.name()));
+		return toEntries(
+				entryRepository.findEntryDataByUserIdAndLanguageOrderByIdAsc(userId.value(), sourceLanguage.name()));
 	}
 
 	@Override
 	public List<Entry> search(UserId userId, String query) {
-		return toEntries(entryRepository.findEntryDataByUserIdAndTermContainingIgnoreCaseOrderByIdAsc(
-				userId.value(), query.trim()));
+		return toEntries(entryRepository.findEntryDataByUserIdAndTermContainingIgnoreCaseOrderByIdAsc(userId.value(),
+				query.trim()));
 	}
 
 	@Override
@@ -66,8 +66,7 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 
 	@Override
 	public Optional<Entry> findEntryById(UserId userId, Entry.Id entryId) {
-		return entryRepository.findWithUsagesByIdAndUserId(entryId.value(), userId.value())
-			.map(mapper::toDomainEntry);
+		return entryRepository.findWithUsagesByIdAndUserId(entryId.value(), userId.value()).map(mapper::toDomainEntry);
 	}
 
 	@Override
@@ -84,8 +83,8 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 			.stream()
 			.map(mapper::toDomainUsage)
 			.toList();
-		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(),
-				page.getTotalPages(), page.hasNext());
+		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
+				page.hasNext());
 	}
 
 	@Override
@@ -104,16 +103,16 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	}
 
 	private List<Entry> toEntries(List<EntryDataProjection> projections) {
-		return projections.stream().map(entry -> new Entry(Entry.Id.of(entry.getId()),
-				UserId.of(entry.getUserId()),
-				new Term(Language.valueOf(entry.getLanguage()), entry.getTerm()),
-				entry.getTermCustomization().orElse(null),
-				toTranslations(entry.getTranslations()),
-				usageRepository.findFirstByEntryIdOrderByIdDesc(entry.getId())
-					.map(mapper::toDomainUsage)
-					.stream()
-					.toList(),
-				entry.getLastEdit(), entry.getCreatedAt())).toList();
+		return projections.stream()
+			.map(entry -> new Entry(Entry.Id.of(entry.getId()), UserId.of(entry.getUserId()),
+					new Term(Language.valueOf(entry.getLanguage()), entry.getTerm()),
+					entry.getTermCustomization().orElse(null), toTranslations(entry.getTranslations()),
+					usageRepository.findFirstByEntryIdOrderByIdDesc(entry.getId())
+						.map(mapper::toDomainUsage)
+						.stream()
+						.toList(),
+					entry.getLastEdit(), entry.getCreatedAt()))
+			.toList();
 	}
 
 	private List<Term> toTranslations(java.util.Collection<JpaTermTranslation> translations) {
@@ -123,5 +122,3 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	}
 
 }
-
-

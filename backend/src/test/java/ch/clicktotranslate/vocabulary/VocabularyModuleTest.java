@@ -19,12 +19,10 @@ import org.springframework.transaction.support.TransactionOperations;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ApplicationModuleTest
-@TestPropertySource(properties = {
-		"spring.datasource.url=jdbc:h2:mem:vocabulary-module-test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL",
-		"spring.datasource.driver-class-name=org.h2.Driver",
-		"spring.datasource.username=sa",
-		"spring.datasource.password=",
-		"spring.jpa.hibernate.ddl-auto=create-drop" })
+@TestPropertySource(
+		properties = { "spring.datasource.url=jdbc:h2:mem:vocabulary-module-test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL",
+				"spring.datasource.driver-class-name=org.h2.Driver", "spring.datasource.username=sa",
+				"spring.datasource.password=", "spring.jpa.hibernate.ddl-auto=create-drop" })
 class VocabularyModuleTest {
 
 	@Autowired
@@ -106,8 +104,10 @@ class VocabularyModuleTest {
 	}
 
 	private JpaEntryEntity findEntry(TestContext context) {
-		return entryRepository.findWithUsagesByUserIdAndLanguageAndTerm(context.userId(),
-				context.sourceLanguage(), context.normalizedTokenizedWord()).orElseThrow();
+		return entryRepository
+			.findWithUsagesByUserIdAndLanguageAndTerm(context.userId(), context.sourceLanguage(),
+					context.normalizedTokenizedWord())
+			.orElseThrow();
 	}
 
 	private BiConsumer<TransactionOperations, ApplicationEventPublisher> publishEvent(

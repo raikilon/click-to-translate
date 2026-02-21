@@ -119,8 +119,8 @@ public class SegmentBundleTokenizedEvent {
 		return "SegmentBundleTokenizedEvent[" + "userId=" + userId + ", " + "tokenizedWord=" + tokenizedWord + ", "
 				+ "tokenizedWordTranslation=" + tokenizedWordTranslation + ", " + "sentence=" + sentence + ", "
 				+ "sentenceTranslation=" + sentenceTranslation + ", " + "word=" + word + ", " + "wordTranslation="
-				+ wordTranslation + ", " + "sourceLanguage=" + sourceLanguage + ", " + "language="
-				+ targetLanguage + ", " + "occurredAt=" + occurredAt + ']';
+				+ wordTranslation + ", " + "sourceLanguage=" + sourceLanguage + ", " + "language=" + targetLanguage
+				+ ", " + "occurredAt=" + occurredAt + ']';
 	}
 
 	private static boolean isMissing(String s) {

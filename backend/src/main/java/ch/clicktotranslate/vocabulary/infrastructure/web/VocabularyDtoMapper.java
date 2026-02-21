@@ -19,7 +19,8 @@ public class VocabularyDtoMapper {
 		Usage lastUsage = lastUsage(entry);
 		return new EntryDto(entry.id().value(), entry.term().language(), entry.term().term(),
 				entry.termCustomization().orElse(null),
-				entry.translations().stream()
+				entry.translations()
+					.stream()
 					.map(translation -> new TermDto(translation.language(), translation.term()))
 					.toList(),
 				lastUsage == null ? null : usageDtoMapper.toDto(entry.id().value(), lastUsage), entry.lastEdit(),
@@ -27,7 +28,8 @@ public class VocabularyDtoMapper {
 	}
 
 	private Usage lastUsage(Entry entry) {
-		return entry.usages().stream()
+		return entry.usages()
+			.stream()
 			.max(Comparator.comparing(usage -> usage.id() == null ? null : usage.id().value(),
 					Comparator.nullsLast(Long::compareTo)))
 			.orElse(null);
@@ -42,4 +44,3 @@ public class VocabularyDtoMapper {
 	}
 
 }
-

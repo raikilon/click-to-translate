@@ -22,8 +22,7 @@ public class RegisterSegmentBundle {
 		Usage usage = new Usage(event.sentence(), event.word(), event.sentenceTranslation(), event.wordTranslation(),
 				event.targetLanguage());
 
-		Optional<Entry> existingEntry = vocabularyRepository.findEntryByTerm(event.userId(),
-				term);
+		Optional<Entry> existingEntry = vocabularyRepository.findEntryByTerm(event.userId(), term);
 
 		if (existingEntry.isEmpty()) {
 			Entry newEntry = Entry.createNew(event.userId(), term);
@@ -33,7 +32,8 @@ public class RegisterSegmentBundle {
 		}
 
 		Entry entry = existingEntry.get();
-		boolean usageAlreadyExists = entry.usages().stream()
+		boolean usageAlreadyExists = entry.usages()
+			.stream()
 			.anyMatch(existingUsage -> isExactUsageMatch(existingUsage, usage));
 		if (usageAlreadyExists) {
 			return;
@@ -51,5 +51,3 @@ public class RegisterSegmentBundle {
 	}
 
 }
-
-

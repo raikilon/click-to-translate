@@ -20,8 +20,7 @@ public class VocabularyUsageRestController {
 	private final PageRequestDtoMapper pageRequestDtoMapper;
 
 	public VocabularyUsageRestController(VocabularyUsageController vocabularyUsageController,
-			UsageDtoMapper usageDtoMapper,
-			PageRequestDtoMapper pageRequestDtoMapper) {
+			UsageDtoMapper usageDtoMapper, PageRequestDtoMapper pageRequestDtoMapper) {
 		this.vocabularyUsageController = vocabularyUsageController;
 		this.usageDtoMapper = usageDtoMapper;
 		this.pageRequestDtoMapper = pageRequestDtoMapper;
@@ -40,4 +39,3 @@ public class VocabularyUsageRestController {
 	}
 
 }
-

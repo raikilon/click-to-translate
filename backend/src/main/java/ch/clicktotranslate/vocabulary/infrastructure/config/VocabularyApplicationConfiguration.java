@@ -31,8 +31,7 @@ public class VocabularyApplicationConfiguration {
 	}
 
 	@Bean
-	public ListEntriesByLanguage listEntriesByLanguage(EntryQuery entryQuery,
-			UserProvider userProvider) {
+	public ListEntriesByLanguage listEntriesByLanguage(EntryQuery entryQuery, UserProvider userProvider) {
 		return new ListEntriesByLanguage(entryQuery, userProvider);
 	}
 
@@ -48,8 +47,7 @@ public class VocabularyApplicationConfiguration {
 	}
 
 	@Bean
-	public UpdateEntry updateEntry(VocabularyRepository vocabularyRepository,
-			UserProvider userProvider) {
+	public UpdateEntry updateEntry(VocabularyRepository vocabularyRepository, UserProvider userProvider) {
 		return new UpdateEntry(vocabularyRepository, userProvider);
 	}
 
@@ -72,11 +70,9 @@ public class VocabularyApplicationConfiguration {
 	@Bean
 	public VocabularyController vocabularyController(ListEntries listEntries,
 			ListEntriesByLanguage listEntriesByLanguage, SearchEntries searchEntries,
-			UpdateEntryTranslation updateEntryTranslation,
-			UpdateEntry updateEntry,
-			DeleteEntry deleteEntry) {
-		return new VocabularyController(listEntries, listEntriesByLanguage, searchEntries,
-				updateEntryTranslation, updateEntry, deleteEntry);
+			UpdateEntryTranslation updateEntryTranslation, UpdateEntry updateEntry, DeleteEntry deleteEntry) {
+		return new VocabularyController(listEntries, listEntriesByLanguage, searchEntries, updateEntryTranslation,
+				updateEntry, deleteEntry);
 	}
 
 	@Bean

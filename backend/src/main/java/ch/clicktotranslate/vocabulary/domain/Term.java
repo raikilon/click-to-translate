@@ -28,4 +28,3 @@ public record Term(Language language, String term) implements ValueObject {
 	}
 
 }
-

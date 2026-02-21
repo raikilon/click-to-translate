@@ -44,9 +44,9 @@ class VocabularyJpaMapper {
 
 	Entry toDomainEntry(JpaEntryEntity entity) {
 		return new Entry(Entry.Id.of(entity.getId()), UserId.of(entity.getUserId()),
-				new Term(Language.valueOf(entity.getLanguage()), entity.getTerm()),
-				entity.getTermCustomization(), toDomainTranslations(entity.getTranslations()),
-				toDomainUsages(entity.getUsages()), entity.getLastEdit(), entity.getCreatedAt());
+				new Term(Language.valueOf(entity.getLanguage()), entity.getTerm()), entity.getTermCustomization(),
+				toDomainTranslations(entity.getTranslations()), toDomainUsages(entity.getUsages()),
+				entity.getLastEdit(), entity.getCreatedAt());
 	}
 
 	Usage toDomainUsage(JpaUsageEntity entity) {
@@ -73,10 +73,9 @@ class VocabularyJpaMapper {
 	}
 
 	private List<Term> toDomainTranslations(Collection<JpaTermTranslation> translations) {
-		return translations.stream().map(translation -> new Term(Language.valueOf(translation.getLanguage()),
-				translation.getTerm())).toList();
+		return translations.stream()
+			.map(translation -> new Term(Language.valueOf(translation.getLanguage()), translation.getTerm()))
+			.toList();
 	}
 
 }
-
-

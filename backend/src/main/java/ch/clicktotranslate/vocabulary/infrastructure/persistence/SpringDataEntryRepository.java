@@ -15,8 +15,7 @@ public interface SpringDataEntryRepository extends JpaRepository<JpaEntryEntity,
 
 	Optional<JpaEntryEntity> findWithUsagesByIdAndUserId(Long id, String userId);
 
-	Optional<JpaEntryEntity> findWithUsagesByUserIdAndLanguageAndTerm(String userId, String language,
-			String term);
+	Optional<JpaEntryEntity> findWithUsagesByUserIdAndLanguageAndTerm(String userId, String language, String term);
 
 	Page<EntryDataProjection> findEntryDataByUserId(String userId, Pageable pageable);
 
@@ -24,8 +23,7 @@ public interface SpringDataEntryRepository extends JpaRepository<JpaEntryEntity,
 
 	List<EntryDataProjection> findEntryDataByUserIdAndLanguageOrderByIdAsc(String userId, String language);
 
-	List<EntryDataProjection> findEntryDataByUserIdAndTermContainingIgnoreCaseOrderByIdAsc(String userId,
-			String term);
+	List<EntryDataProjection> findEntryDataByUserIdAndTermContainingIgnoreCaseOrderByIdAsc(String userId, String term);
 
 	boolean existsByIdAndUserId(Long id, String userId);
 

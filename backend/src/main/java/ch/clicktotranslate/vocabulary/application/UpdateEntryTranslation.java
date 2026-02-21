@@ -19,8 +19,7 @@ public class UpdateEntryTranslation {
 	public void execute(TranslationUpdate update) {
 		TranslationUpdate validatedUpdate = requireUpdate(update);
 		UserId userId = userProvider.currentUserId();
-		Entry entry = vocabularyRepository
-			.findEntryById(userId, Entry.Id.of(validatedUpdate.entryId()))
+		Entry entry = vocabularyRepository.findEntryById(userId, Entry.Id.of(validatedUpdate.entryId()))
 			.orElseThrow(EntryNotFoundException::new);
 		entry.setTranslation(validatedUpdate.targetLanguage(), validatedUpdate.translation());
 		vocabularyRepository.saveEntry(entry);
@@ -40,5 +39,3 @@ public class UpdateEntryTranslation {
 	}
 
 }
-
-

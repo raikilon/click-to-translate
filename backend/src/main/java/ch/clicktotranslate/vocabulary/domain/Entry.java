@@ -27,8 +27,8 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 
 	private final Instant createdAt;
 
-	public Entry(Id id, UserId userId, Term term, String termCustomization,
-			List<Term> translations, List<Usage> usages, Instant lastEdit, Instant createdAt) {
+	public Entry(Id id, UserId userId, Term term, String termCustomization, List<Term> translations, List<Usage> usages,
+			Instant lastEdit, Instant createdAt) {
 		this.id = id;
 		this.userId = requireUserId(userId);
 		this.term = requireTerm(term);
@@ -192,5 +192,3 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 	}
 
 }
-
-

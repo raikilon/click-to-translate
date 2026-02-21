@@ -20,4 +20,3 @@ public interface EntryQuery {
 	List<Entry> search(UserId userId, String query);
 
 }
-
