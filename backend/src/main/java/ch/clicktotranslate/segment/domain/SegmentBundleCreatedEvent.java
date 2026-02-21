@@ -112,14 +112,6 @@ public class SegmentBundleCreatedEvent {
 				targetLanguage, source, sourceMetadata, occurredAt);
 	}
 
-	@Override
-	public String toString() {
-		return "SegmentBundleCreatedEvent[" + "userId=" + userId + ", " + "word=" + word + ", " + "sentence=" + sentence
-				+ ", " + "wordTranslation=" + wordTranslation + ", " + "sentenceTranslation=" + sentenceTranslation
-				+ ", " + "language=" + sourceLanguage + ", " + "language=" + targetLanguage + ", " + "source=" + source
-				+ ", " + "sourceMetadata=" + sourceMetadata + ", " + "occurredAt=" + occurredAt + ']';
-	}
-
 	private static boolean isMissing(String s) {
 		return s == null || s.isBlank();
 	}

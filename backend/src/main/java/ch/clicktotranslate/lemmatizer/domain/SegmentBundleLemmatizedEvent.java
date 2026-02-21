@@ -114,15 +114,6 @@ public class SegmentBundleLemmatizedEvent {
 				wordTranslation, sourceLanguage, targetLanguage, occurredAt);
 	}
 
-	@Override
-	public String toString() {
-		return "SegmentBundleLemmatizedEvent[" + "userId=" + userId + ", " + "lemmatizedWord=" + lemmatizedWord + ", "
-				+ "lemmatizedWordTranslation=" + lemmatizedWordTranslation + ", " + "sentence=" + sentence + ", "
-				+ "sentenceTranslation=" + sentenceTranslation + ", " + "word=" + word + ", " + "wordTranslation="
-				+ wordTranslation + ", " + "language=" + sourceLanguage + ", " + "language=" + targetLanguage + ", "
-				+ "occurredAt=" + occurredAt + ']';
-	}
-
 	private static boolean isMissing(String s) {
 		return s == null || s.isBlank();
 	}
