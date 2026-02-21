@@ -3,7 +3,6 @@ package ch.clicktotranslate.vocabulary.domain;
 import java.time.Instant;
 import org.jmolecules.ddd.types.Entity;
 import org.jmolecules.ddd.types.Identifier;
-import org.jmolecules.ddd.types.ValueObject;
 
 public class Usage implements Entity<Entry, Usage.Id> {
 
@@ -19,7 +18,7 @@ public class Usage implements Entity<Entry, Usage.Id> {
 
 	private final Language language;
 
-	private final boolean starred;
+	private boolean starred;
 
 	private final Instant lastEdit;
 
@@ -32,7 +31,7 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		this.sentenceSpan = requireSpan(sentenceSpan, this.sentence, "sentence");
 		this.translation = requireTranslation(translation);
 		this.translationSpan = requireSpan(translationSpan, this.translation, "translation");
-		this.language = requireTargetLanguage(language);
+		this.language = requireLanguage(language);
 		this.starred = starred;
 		if (lastEdit == null) {
 			throw new IllegalArgumentException("lastEdit must not be null");
@@ -44,10 +43,10 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		this.createdAt = createdAt;
 	}
 
-	public Usage(String sentence, String sentenceFragment, String translation, String translationFragment,
+	public Usage(String sentence, String sentenceFragment, String translation, String translationSpan,
 			Language language) {
 		this(null, sentence, TextSpan.find(sentence, sentenceFragment), translation,
-				TextSpan.find(translation, translationFragment), language, false, Instant.now(), Instant.now());
+				TextSpan.find(translation, translationSpan), language, false, Instant.now(), Instant.now());
 	}
 
 	public Usage(Id id, String sentence, TextSpan sentenceSpan, String translation, TextSpan translationSpan,
@@ -80,7 +79,7 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		return translationSpan;
 	}
 
-	public Language targetLanguage() {
+	public Language language() {
 		return language;
 	}
 
@@ -96,11 +95,8 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		return createdAt;
 	}
 
-	public Usage star() {
-		if (starred) {
-			return this;
-		}
-		return new Usage(id, sentence, sentenceSpan, translation, translationSpan, language, true, lastEdit, createdAt);
+	public void star() {
+		this.starred = true;
 	}
 
 	private static String requireSentence(String value) {
@@ -117,7 +113,7 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		return value.trim();
 	}
 
-	private static Language requireTargetLanguage(Language value) {
+	private static Language requireLanguage(Language value) {
 		if (value == null) {
 			throw new IllegalArgumentException("language must not be null");
 		}

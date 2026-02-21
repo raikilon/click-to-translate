@@ -134,7 +134,7 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		if (usageIndex < 0) {
 			throw new IllegalArgumentException("usageId must be part of usages");
 		}
-		usages.set(usageIndex, usages.get(usageIndex).star());
+		usages.get(usageIndex).star();
 	}
 
 	private static UserId requireUserId(UserId value) {
@@ -210,33 +210,18 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 	}
 
 	private int findOldestNonStarredUsageIndex() {
-		int removableIndex = -1;
-		for (int i = 0; i < usages.size(); i++) {
-			Usage candidate = usages.get(i);
-			if (candidate.starred()) {
-				continue;
-			}
-			if (removableIndex < 0 || isOlder(candidate, usages.get(removableIndex))) {
-				removableIndex = i;
-			}
-		}
-		return removableIndex;
-	}
+		int oldest = -1;
 
-	private static boolean isOlder(Usage first, Usage second) {
-		int createdAtComparison = first.createdAt().compareTo(second.createdAt());
-		if (createdAtComparison != 0) {
-			return createdAtComparison < 0;
+		for (int i = 0; i < usages.size(); i++) {
+			Usage usage = usages.get(i);
+			if (usage.starred())
+				continue;
+
+			if (oldest < 0 || usage.createdAt().isBefore(usages.get(oldest).createdAt())) {
+				oldest = i;
+			}
 		}
-		Long firstId = first.id() == null ? null : first.id().value();
-		Long secondId = second.id() == null ? null : second.id().value();
-		if (firstId == null) {
-			return secondId != null;
-		}
-		if (secondId == null) {
-			return false;
-		}
-		return firstId < secondId;
+		return oldest;
 	}
 
 	public record Id(Long value) implements Identifier, ValueObject {

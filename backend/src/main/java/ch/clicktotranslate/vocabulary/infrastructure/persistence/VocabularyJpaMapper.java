@@ -41,7 +41,7 @@ class VocabularyJpaMapper {
 		usageEntity.setTranslation(usage.translation());
 		usageEntity.setTranslationStart(usage.translationSpan().start());
 		usageEntity.setTranslationEnd(usage.translationSpan().end());
-		usageEntity.setTargetLanguage(usage.targetLanguage().name());
+		usageEntity.setLanguage(usage.language().name());
 		usageEntity.setStarred(usage.starred());
 		return usageEntity;
 	}
@@ -57,7 +57,7 @@ class VocabularyJpaMapper {
 		return new Usage(Usage.Id.of(entity.getId()), entity.getSentence(),
 				new TextSpan(entity.getSentenceStart(), entity.getSentenceEnd()), entity.getTranslation(),
 				new TextSpan(entity.getTranslationStart(), entity.getTranslationEnd()),
-				Language.valueOf(entity.getTargetLanguage()), entity.isStarred(), entity.getLastEdit(),
+				Language.valueOf(entity.getLanguage()), entity.isStarred(), entity.getLastEdit(),
 				entity.getCreatedAt());
 	}
 

@@ -62,7 +62,7 @@ class VocabularyModuleTest {
 				assertThat(usage.getTranslation()).isEqualTo(context.firstSentenceTranslation());
 				assertThat(usage.getTranslationStart()).isEqualTo(4);
 				assertThat(usage.getTranslationEnd()).isEqualTo(9);
-				assertThat(usage.getTargetLanguage()).isEqualTo(context.targetLanguage());
+				assertThat(usage.getLanguage()).isEqualTo(context.targetLanguage());
 			});
 	}
 
@@ -218,7 +218,7 @@ class VocabularyModuleTest {
 				usage.setTranslation("Starred usage translation " + i);
 				usage.setTranslationStart(0);
 				usage.setTranslationEnd(4);
-				usage.setTargetLanguage(targetLanguage);
+				usage.setLanguage(targetLanguage);
 				usage.setStarred(true);
 				entry.addUsage(usage);
 			}

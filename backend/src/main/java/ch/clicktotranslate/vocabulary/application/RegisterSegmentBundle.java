@@ -35,7 +35,7 @@ public class RegisterSegmentBundle {
 		boolean usageAlreadyExists = entry.usages()
 			.stream()
 			.anyMatch(existing -> existing.sentence().equals(usage.sentence())
-					&& existing.targetLanguage().equals(usage.targetLanguage()));
+					&& existing.language().equals(usage.language()));
 		if (usageAlreadyExists) {
 			return;
 		}

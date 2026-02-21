@@ -40,7 +40,7 @@ public class JpaUsageEntity {
 	private Integer translationEnd;
 
 	@Column(nullable = false)
-	private String targetLanguage;
+	private String language;
 
 	@Column(nullable = false)
 	private boolean starred;
@@ -65,8 +65,8 @@ public class JpaUsageEntity {
 		this.sentence = sentence;
 	}
 
-	public void setTargetLanguage(String targetLanguage) {
-		this.targetLanguage = targetLanguage;
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 	public void setStarred(boolean starred) {

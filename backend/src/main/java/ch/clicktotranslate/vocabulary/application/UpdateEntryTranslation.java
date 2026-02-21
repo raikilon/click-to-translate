@@ -30,7 +30,7 @@ public class UpdateEntryTranslation {
 			throw new IllegalArgumentException("update must not be null");
 		}
 		if (update.targetLanguage() == null) {
-			throw new IllegalArgumentException("targetLanguage must not be null");
+			throw new IllegalArgumentException("language must not be null");
 		}
 		if (update.translation() == null || update.translation().isBlank()) {
 			throw new IllegalArgumentException("translation must not be blank");

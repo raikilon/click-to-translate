@@ -9,8 +9,7 @@ public class UsageDtoMapper {
 	public UsageDto toDto(Long entryId, Usage usage) {
 		return new UsageDto(usage.id().value(), entryId, usage.sentence(), usage.sentenceSpan().start(),
 				usage.sentenceSpan().end(), usage.translation(), usage.translationSpan().start(),
-				usage.translationSpan().end(), usage.targetLanguage(), usage.starred(), usage.lastEdit(),
-				usage.createdAt());
+				usage.translationSpan().end(), usage.language(), usage.starred(), usage.lastEdit(), usage.createdAt());
 	}
 
 	public List<UsageDto> toDto(Long entryId, List<Usage> usages) {

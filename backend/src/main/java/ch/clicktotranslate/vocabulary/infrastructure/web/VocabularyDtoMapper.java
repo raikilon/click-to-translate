@@ -3,15 +3,10 @@ package ch.clicktotranslate.vocabulary.infrastructure.web;
 import ch.clicktotranslate.vocabulary.application.UpdateTerm;
 import ch.clicktotranslate.vocabulary.application.TranslationUpdate;
 import ch.clicktotranslate.vocabulary.domain.Entry;
-import java.util.List;
 
 public class VocabularyDtoMapper {
 
 	private final UsageDtoMapper usageDtoMapper = new UsageDtoMapper();
-
-	public List<EntryDto> toEntryDto(List<Entry> entries) {
-		return entries.stream().map(this::toEntryDto).toList();
-	}
 
 	public EntryDto toEntryDto(Entry entry) {
 		return new EntryDto(entry.id().value(), entry.term().language(), entry.term().term(),
@@ -28,7 +23,7 @@ public class VocabularyDtoMapper {
 	}
 
 	public UpdateTerm toUpdateTerm(Long entryId, UpdateTermDto dto) {
-		return new UpdateTerm(entryId, dto.lemma());
+		return new UpdateTerm(entryId, dto.term());
 	}
 
 }

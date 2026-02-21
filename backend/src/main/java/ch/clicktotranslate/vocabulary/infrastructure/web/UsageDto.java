@@ -4,6 +4,6 @@ import ch.clicktotranslate.vocabulary.domain.Language;
 import java.time.Instant;
 
 public record UsageDto(Long usageId, Long entryId, String sentence, Integer sentenceStart, Integer sentenceEnd,
-		String translation, Integer translationStart, Integer translationEnd, Language targetLanguage, boolean starred,
+		String translation, Integer translationStart, Integer translationEnd, Language language, boolean starred,
 		Instant lastEdit, Instant createdAt) {
 }
