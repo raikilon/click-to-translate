@@ -3,14 +3,15 @@ package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.HashSet;
-import java.util.List;
 import java.time.Instant;
 import java.util.Set;
 
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "userId", "sourceLanguage", "sourceLemma" }) })
+@EntityListeners(AuditingEntityListener.class)
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "user_id", "language", "term" }) })
 public class JpaEntryEntity {
 
 	@Id
@@ -29,15 +30,17 @@ public class JpaEntryEntity {
 	private String termCustomization;
 
 	@LastModifiedDate
+	@Column(nullable = false)
 	private Instant lastEdit;
 
 	@CreatedDate
+	@Column(nullable = false, updatable = false)
 	private Instant createdAt;
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<JpaTermTranslation> translations = new HashSet<>();
 
-	@OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<JpaUsageEntity> usages = new HashSet<>();
 
 	public Long getId() {

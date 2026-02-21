@@ -9,25 +9,18 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataEntryRepository extends JpaRepository<JpaEntryEntity, Long> {
 
-
 	Optional<JpaEntryEntity> findByIdAndUserId(Long id, String userId);
 
-	@EntityGraph(attributePaths = { "usages" })
 	Optional<JpaEntryEntity> findWithUsagesByIdAndUserId(Long id, String userId);
 
-	@EntityGraph(attributePaths = { "usages" })
-	Optional<JpaEntryEntity> findWithUsagesByUserIdAndSourceLanguageAndSourceLemma(String userId,
-			String sourceLanguage, String sourceLemma);
+	Optional<JpaEntryEntity> findWithUsagesByUserIdAndLanguageAndTerm(String userId, String language,
+			String term);
 
-	@EntityGraph(attributePaths = { "usages" })
-	List<JpaEntryEntity> findAllByUserIdOrderByIdAsc(String userId);
+	List<EntryDataProjection> findEntryDataByUserIdOrderByIdAsc(String userId);
 
-	@EntityGraph(attributePaths = { "usages" })
-	List<JpaEntryEntity> findAllByUserIdAndSourceLanguageOrderByIdAsc(String userId, String sourceLanguage);
+	List<EntryDataProjection> findEntryDataByUserIdAndLanguageOrderByIdAsc(String userId, String language);
 
-	@EntityGraph(attributePaths = { "usages" })
-	List<JpaEntryEntity> findAllByUserIdAndSourceLemmaContainingIgnoreCaseOrderByIdAsc(String userId,
-			String sourceLemma);
+	List<EntryDataProjection> findEntryDataByUserIdAndTermContainingIgnoreCaseOrderByIdAsc(String userId,
+			String term);
 
 }
-

@@ -23,7 +23,7 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 
 	private final List<Usage> usages;
 
-	private Instant lastEdit;
+	private final Instant lastEdit;
 
 	private final Instant createdAt;
 
@@ -89,7 +89,6 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 
 	public void updateTerm(String customization) {
 		this.termCustomization = requireCustomization(customization);
-		this.lastEdit = Instant.now();
 	}
 
 	public void setTranslation(Language language, String lemma) {
@@ -97,7 +96,6 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		Term newTranslation = new Term(requiredLanguage, requireLemma(lemma));
 		translations.removeIf(translation -> translation.language() == requiredLanguage);
 		translations.add(newTranslation);
-		this.lastEdit = Instant.now();
 	}
 
 	public void addUsage(Usage usage) {
@@ -106,7 +104,6 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 			usages.removeIf(existing -> Objects.equals(existing.id(), requiredUsage.id()));
 		}
 		usages.add(requiredUsage);
-		this.lastEdit = Instant.now();
 	}
 
 	public void removeUsage(Usage.Id usageId) {
@@ -115,7 +112,6 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		if (!removed) {
 			throw new IllegalArgumentException("usageId must be part of usages");
 		}
-		this.lastEdit = Instant.now();
 	}
 
 	private static UserId requireUserId(UserId value) {

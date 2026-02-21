@@ -1,15 +1,15 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
-import ch.clicktotranslate.vocabulary.application.EntryData;
 import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Term;
 import ch.clicktotranslate.vocabulary.domain.TextSpan;
 import ch.clicktotranslate.vocabulary.domain.Usage;
 import ch.clicktotranslate.vocabulary.domain.UserId;
 import ch.clicktotranslate.vocabulary.domain.Entry;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 class VocabularyJpaMapper {
 
@@ -20,8 +20,6 @@ class VocabularyJpaMapper {
 		entity.setLanguage(entry.term().language().name());
 		entity.setTerm(entry.term().term());
 		entity.setTermCustomization(entry.termCustomization().orElse(null));
-		entity.setLastEdit(entry.lastEdit());
-		entity.setCreatedAt(entry.createdAt());
 		entity.setTranslations(toJpaTranslations(entry.translations()));
 
 		for (Usage usage : entry.usages()) {
@@ -41,8 +39,6 @@ class VocabularyJpaMapper {
 		usageEntity.setTranslationStart(usage.translationSpan().start());
 		usageEntity.setTranslationEnd(usage.translationSpan().end());
 		usageEntity.setTargetLanguage(usage.targetLanguage().name());
-		usageEntity.setLastEdit(usage.lastEdit());
-		usageEntity.setCreatedAt(usage.createdAt());
 		return usageEntity;
 	}
 
@@ -60,36 +56,23 @@ class VocabularyJpaMapper {
 				Language.valueOf(entity.getTargetLanguage()), entity.getLastEdit(), entity.getCreatedAt());
 	}
 
-	List<Usage> toDomainUsages(List<JpaUsageEntity> usages) {
+	List<Usage> toDomainUsages(Collection<JpaUsageEntity> usages) {
 		return usages.stream()
 			.sorted(Comparator.comparing(JpaUsageEntity::getId, Comparator.nullsLast(Long::compareTo)))
 			.map(this::toDomainUsage)
 			.toList();
 	}
 
-	EntryData toEntry(JpaEntryEntity entry) {
-		Usage lastUsage = entry.getUsages()
-			.stream()
-			.max(Comparator.comparing(JpaUsageEntity::getId, Comparator.nullsLast(Long::compareTo)))
-			.map(this::toDomainUsage)
-			.orElse(null);
-		return new EntryData(entry.getId(),
-				new Term(Language.valueOf(entry.getLanguage()), entry.getTerm()),
-				Optional.ofNullable(entry.getTermCustomization()),
-				toDomainTranslations(entry.getTranslations()),
-				lastUsage, entry.getLastEdit(), entry.getCreatedAt());
-	}
-
-	private List<JpaTermTranslation> toJpaTranslations(List<Term> translations) {
+	private Set<JpaTermTranslation> toJpaTranslations(List<Term> translations) {
 		return translations.stream().map(translation -> {
 			JpaTermTranslation value = new JpaTermTranslation();
 			value.setLanguage(translation.language().name());
 			value.setTerm(translation.term());
 			return value;
-		}).toList();
+		}).collect(java.util.stream.Collectors.toSet());
 	}
 
-	private List<Term> toDomainTranslations(List<JpaTermTranslation> translations) {
+	private List<Term> toDomainTranslations(Collection<JpaTermTranslation> translations) {
 		return translations.stream().map(translation -> new Term(Language.valueOf(translation.getLanguage()),
 				translation.getTerm())).toList();
 	}

@@ -1,7 +1,7 @@
 package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Language;
-import ch.clicktotranslate.vocabulary.domain.UserId;
+import ch.clicktotranslate.vocabulary.domain.Entry;
 import org.jmolecules.ddd.annotation.Service;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public class ListEntriesByLanguage {
 		this.userProvider = userProvider;
 	}
 
-	public List<EntryData> execute(Language language) {
+	public List<Entry> execute(Language language) {
 		return entryQuery.findByLanguage(userProvider.currentUserId(), language);
 	}
 

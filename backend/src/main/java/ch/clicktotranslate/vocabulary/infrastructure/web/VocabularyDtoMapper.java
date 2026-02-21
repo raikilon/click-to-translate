@@ -2,25 +2,37 @@ package ch.clicktotranslate.vocabulary.infrastructure.web;
 
 import ch.clicktotranslate.vocabulary.application.UpdateTerm;
 import ch.clicktotranslate.vocabulary.application.TranslationUpdate;
-import ch.clicktotranslate.vocabulary.application.EntryData;
+import ch.clicktotranslate.vocabulary.domain.Entry;
+import ch.clicktotranslate.vocabulary.domain.Usage;
+import java.util.Comparator;
 import java.util.List;
 
 public class VocabularyDtoMapper {
 
 	private final UsageDtoMapper usageDtoMapper = new UsageDtoMapper();
 
-	public List<EntryDto> toEntryDto(List<EntryData> entries) {
+	public List<EntryDto> toEntryDto(List<Entry> entries) {
 		return entries.stream()
-			.map(entry -> new EntryDto(entry.entryId(), entry.term().language(), entry.term().term(),
-					entry.termCustomization().orElse(null),
-					entry.translations().stream()
-						.map(translation -> new TermDto(translation.language(), translation.term()))
-						.toList(),
-					entry.lastUsage() == null
-							? null
-							: usageDtoMapper.toDto(entry.entryId(), List.of(entry.lastUsage())).getFirst(),
-					entry.lastEdit(), entry.createdAt()))
+			.map(entry -> {
+				Usage lastUsage = lastUsage(entry);
+				return new EntryDto(entry.id().value(), entry.term().language(), entry.term().term(),
+						entry.termCustomization().orElse(null),
+						entry.translations().stream()
+							.map(translation -> new TermDto(translation.language(), translation.term()))
+							.toList(),
+						lastUsage == null
+								? null
+								: usageDtoMapper.toDto(entry.id().value(), List.of(lastUsage)).getFirst(),
+						entry.lastEdit(), entry.createdAt());
+			})
 			.toList();
+	}
+
+	private Usage lastUsage(Entry entry) {
+		return entry.usages().stream()
+			.max(Comparator.comparing(usage -> usage.id() == null ? null : usage.id().value(),
+					Comparator.nullsLast(Long::compareTo)))
+			.orElse(null);
 	}
 
 	public TranslationUpdate toTranslationUpdate(Long entryId, UpdateTranslationDto dto) {

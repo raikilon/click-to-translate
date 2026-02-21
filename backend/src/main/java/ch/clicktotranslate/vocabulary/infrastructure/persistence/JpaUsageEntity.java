@@ -9,11 +9,16 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.Instant;
 
 @Table(indexes = { @Index(columnList = "entry_id"), @Index(columnList = "sentence"),
 		@Index(columnList = "translation") })
 @Entity
+@jakarta.persistence.EntityListeners(AuditingEntityListener.class)
 public class JpaUsageEntity {
 
 	@Id
@@ -45,10 +50,12 @@ public class JpaUsageEntity {
 	@Column(nullable = false)
 	private String targetLanguage;
 
+	@LastModifiedDate
 	@Column(nullable = false)
 	private Instant lastEdit;
 
-	@Column(nullable = false)
+	@CreatedDate
+	@Column(nullable = false, updatable = false)
 	private Instant createdAt;
 
 	public Long getId() {
@@ -127,16 +134,8 @@ public class JpaUsageEntity {
 		return lastEdit;
 	}
 
-	public void setLastEdit(Instant lastEdit) {
-		this.lastEdit = lastEdit;
-	}
-
 	public Instant getCreatedAt() {
 		return createdAt;
-	}
-
-	public void setCreatedAt(Instant createdAt) {
-		this.createdAt = createdAt;
 	}
 
 }

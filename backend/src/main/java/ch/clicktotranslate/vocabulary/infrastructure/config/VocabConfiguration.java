@@ -5,6 +5,7 @@ import ch.clicktotranslate.vocabulary.infrastructure.event.SegmentBundleTokenize
 import ch.clicktotranslate.vocabulary.infrastructure.event.SpringSegmentBundleTokenizedEventListener;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaVocabularyRepository;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
+import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataUsageRepository;
 import ch.clicktotranslate.vocabulary.infrastructure.security.SpringSecurityUserProvider;
 import ch.clicktotranslate.vocabulary.infrastructure.web.VocabularyDtoMapper;
 import ch.clicktotranslate.vocabulary.infrastructure.web.UsageDtoMapper;
@@ -15,8 +16,9 @@ import org.springframework.context.annotation.Configuration;
 public class VocabConfiguration {
 
 	@Bean
-	public JpaVocabularyRepository jpaVocabularyRepository(SpringDataEntryRepository entryRepository) {
-		return new JpaVocabularyRepository(entryRepository);
+	public JpaVocabularyRepository jpaVocabularyRepository(SpringDataEntryRepository entryRepository,
+			SpringDataUsageRepository usageRepository) {
+		return new JpaVocabularyRepository(entryRepository, usageRepository);
 	}
 
 	@Bean

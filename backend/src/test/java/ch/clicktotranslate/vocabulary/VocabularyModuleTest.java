@@ -1,6 +1,7 @@
 package ch.clicktotranslate.vocabulary;
 
 import ch.clicktotranslate.tokenizer.domain.SegmentBundleTokenizedEvent;
+import ch.clicktotranslate.vocabulary.infrastructure.persistence.EntryDataProjection;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaEntryEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaUsageEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
@@ -39,18 +40,20 @@ class VocabularyModuleTest {
 		TestContext context = new TestContext();
 
 		scenario.stimulate(publishEvent(context.newSegmentEvent()))
-			.andWaitForStateChange(() -> entryRepository.findAllByUserIdOrderByIdAsc(context.userId()),
+			.andWaitForStateChange(() -> entryRepository.findEntryDataByUserIdOrderByIdAsc(context.userId()),
 					entries -> entries.size() == 1)
 			.andVerify(entries -> {
 				assertThat(entries).hasSize(1);
-				JpaEntryEntity entry = entries.getFirst();
+				EntryDataProjection entry = entries.getFirst();
 				assertThat(entry.getId()).isNotNull();
 				assertThat(entry.getUserId()).isEqualTo(context.userId());
 				assertThat(entry.getLanguage()).isEqualTo(context.sourceLanguage());
 				assertThat(entry.getTerm()).isEqualTo(context.normalizedTokenizedWord());
-				assertThat(entry.getUsages()).hasSize(1);
 
-				JpaUsageEntity usage = entry.getUsages().getFirst();
+				JpaEntryEntity persistedEntry = findEntry(context);
+				assertThat(persistedEntry.getUsages()).hasSize(1);
+
+				JpaUsageEntity usage = persistedEntry.getUsages().iterator().next();
 				assertThat(usage.getSentence()).isEqualTo(context.firstSentence());
 				assertThat(usage.getSentenceStart()).isEqualTo(4);
 				assertThat(usage.getSentenceEnd()).isEqualTo(8);
@@ -94,7 +97,7 @@ class VocabularyModuleTest {
 			.andWaitForStateChange(() -> usageCount(context), count -> count == 1)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(1);
-				assertThat(entryRepository.findAllByUserIdOrderByIdAsc(context.userId())).hasSize(1);
+				assertThat(entryRepository.findEntryDataByUserIdOrderByIdAsc(context.userId())).hasSize(1);
 			});
 	}
 
@@ -103,7 +106,7 @@ class VocabularyModuleTest {
 	}
 
 	private JpaEntryEntity findEntry(TestContext context) {
-		return entryRepository.findWithUsagesByUserIdAndSourceLanguageAndSourceLemma(context.userId(),
+		return entryRepository.findWithUsagesByUserIdAndLanguageAndTerm(context.userId(),
 				context.sourceLanguage(), context.normalizedTokenizedWord()).orElseThrow();
 	}
 

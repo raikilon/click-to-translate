@@ -1,8 +1,8 @@
 package ch.clicktotranslate.vocabulary.application;
 
-import org.jmolecules.ddd.annotation.Service;
-
+import ch.clicktotranslate.vocabulary.domain.Entry;
 import java.util.List;
+import org.jmolecules.ddd.annotation.Service;
 
 @Service
 public class SearchEntries {
@@ -16,7 +16,7 @@ public class SearchEntries {
 		this.userProvider = userProvider;
 	}
 
-	public List<EntryData> execute(String query) {
+	public List<Entry> execute(String query) {
 		return entryQuery.search(userProvider.currentUserId(), requireQuery(query));
 	}
 

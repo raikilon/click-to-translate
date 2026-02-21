@@ -1,6 +1,7 @@
 package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Language;
+import ch.clicktotranslate.vocabulary.domain.Entry;
 import java.util.List;
 
 
@@ -30,15 +31,15 @@ public class VocabularyController {
 		this.deleteEntry = deleteEntry;
 	}
 
-	public List<EntryData> listAll() {
+	public List<Entry> listAll() {
 		return listEntries.execute();
 	}
 
-	public List<EntryData> listByLanguage(Language sourceLanguage) {
+	public List<Entry> listByLanguage(Language sourceLanguage) {
 		return listEntriesByLanguage.execute(sourceLanguage);
 	}
 
-	public List<EntryData> search(String query) {
+	public List<Entry> search(String query) {
 		return searchEntries.execute(query);
 	}
 
