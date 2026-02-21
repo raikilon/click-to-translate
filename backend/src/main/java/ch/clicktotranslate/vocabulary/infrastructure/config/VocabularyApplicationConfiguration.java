@@ -3,6 +3,7 @@ package ch.clicktotranslate.vocabulary.infrastructure.config;
 import ch.clicktotranslate.vocabulary.application.DeleteEntry;
 import ch.clicktotranslate.vocabulary.application.DeleteUsage;
 import ch.clicktotranslate.vocabulary.application.EntryQuery;
+import ch.clicktotranslate.vocabulary.application.GetEntry;
 import ch.clicktotranslate.vocabulary.application.ListEntries;
 import ch.clicktotranslate.vocabulary.application.ListEntriesByLanguage;
 import ch.clicktotranslate.vocabulary.application.ListEntryUsages;
@@ -41,6 +42,11 @@ public class VocabularyApplicationConfiguration {
 	}
 
 	@Bean
+	public GetEntry getEntry(VocabularyRepository vocabularyRepository, UserProvider userProvider) {
+		return new GetEntry(vocabularyRepository, userProvider);
+	}
+
+	@Bean
 	public UpdateEntryTranslation updateEntryTranslation(VocabularyRepository vocabularyRepository,
 			UserProvider userProvider) {
 		return new UpdateEntryTranslation(vocabularyRepository, userProvider);
@@ -69,10 +75,10 @@ public class VocabularyApplicationConfiguration {
 
 	@Bean
 	public VocabularyController vocabularyController(ListEntries listEntries,
-			ListEntriesByLanguage listEntriesByLanguage, SearchEntries searchEntries,
+			ListEntriesByLanguage listEntriesByLanguage, SearchEntries searchEntries, GetEntry getEntry,
 			UpdateEntryTranslation updateEntryTranslation, UpdateEntry updateEntry, DeleteEntry deleteEntry) {
-		return new VocabularyController(listEntries, listEntriesByLanguage, searchEntries, updateEntryTranslation,
-				updateEntry, deleteEntry);
+		return new VocabularyController(listEntries, listEntriesByLanguage, searchEntries, getEntry,
+				updateEntryTranslation, updateEntry, deleteEntry);
 	}
 
 	@Bean

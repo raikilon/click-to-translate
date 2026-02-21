@@ -13,16 +13,11 @@ public interface SpringDataEntryRepository extends JpaRepository<JpaEntryEntity,
 
 	Optional<JpaEntryEntity> findByUserIdAndLanguageAndTerm(String userId, String language, String term);
 
-	Optional<JpaEntryEntity> findWithUsagesByIdAndUserId(Long id, String userId);
+	Page<JpaEntryEntity> findByUserId(String userId, Pageable pageable);
 
-	Optional<JpaEntryEntity> findWithUsagesByUserIdAndLanguageAndTerm(String userId, String language, String term);
+	Page<JpaEntryEntity> findByUserIdAndLanguage(String userId, String language, Pageable pageable);
 
-	Page<EntryDataProjection> findEntryDataByUserId(String userId, Pageable pageable);
-
-	Page<EntryDataProjection> findEntryDataByUserIdAndLanguage(String userId, String language, Pageable pageable);
-
-	Page<EntryDataProjection> findEntryDataByUserIdAndTermContainingIgnoreCase(String userId, String term,
-			Pageable pageable);
+	Page<JpaEntryEntity> findByUserIdAndTermContainingIgnoreCase(String userId, String term, Pageable pageable);
 
 	boolean existsByIdAndUserId(Long id, String userId);
 

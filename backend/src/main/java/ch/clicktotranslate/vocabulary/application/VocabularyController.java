@@ -11,6 +11,8 @@ public class VocabularyController {
 
 	private final SearchEntries searchEntries;
 
+	private final GetEntry getEntry;
+
 	private final UpdateEntryTranslation updateEntryTranslation;
 
 	private final UpdateEntry updateEntry;
@@ -18,11 +20,12 @@ public class VocabularyController {
 	private final DeleteEntry deleteEntry;
 
 	public VocabularyController(ListEntries listEntries, ListEntriesByLanguage listEntriesByLanguage,
-			SearchEntries searchEntries, UpdateEntryTranslation updateEntryTranslation, UpdateEntry updateEntry,
-			DeleteEntry deleteEntry) {
+			SearchEntries searchEntries, GetEntry getEntry, UpdateEntryTranslation updateEntryTranslation,
+			UpdateEntry updateEntry, DeleteEntry deleteEntry) {
 		this.listEntries = listEntries;
 		this.listEntriesByLanguage = listEntriesByLanguage;
 		this.searchEntries = searchEntries;
+		this.getEntry = getEntry;
 		this.updateEntryTranslation = updateEntryTranslation;
 		this.updateEntry = updateEntry;
 		this.deleteEntry = deleteEntry;
@@ -38,6 +41,10 @@ public class VocabularyController {
 
 	public PageResult<Entry> search(String query, PageRequest pageRequest) {
 		return searchEntries.execute(query, pageRequest);
+	}
+
+	public Entry getEntry(Long entryId) {
+		return getEntry.execute(entryId);
 	}
 
 	public void updateTranslation(TranslationUpdate update) {

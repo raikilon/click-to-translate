@@ -30,37 +30,31 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	@Override
 	public Optional<Entry> findEntryByTerm(UserId userId, Term term) {
 		return entryRepository.findByUserIdAndLanguageAndTerm(userId.value(), term.language().name(), term.term())
-			.map(mapper::toDomainEntryWithoutUsages);
-	}
-
-	@Override
-	public boolean existsUsageBySentenceAndLanguage(Entry.Id entryId, String sentence, Language language) {
-		return usageRepository.existsByEntryIdAndSentenceAndTargetLanguage(entryId.value(), sentence, language.name());
+			.map(mapper::toDomainEntry);
 	}
 
 	@Override
 	public PageResult<Entry> findEntriesByUser(UserId userId, PageRequest pageRequest) {
-		Page<EntryDataProjection> page = entryRepository.findEntryDataByUserId(userId.value(),
-				mapper.toSpringPageable(pageRequest));
-		List<Entry> items = toEntries(page.getContent());
+		Page<JpaEntryEntity> page = entryRepository.findByUserId(userId.value(), mapper.toSpringPageable(pageRequest));
+		List<Entry> items = page.getContent().stream().map(mapper::toDomainEntry).toList();
 		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
 				page.hasNext());
 	}
 
 	@Override
 	public PageResult<Entry> findByLanguage(UserId userId, Language sourceLanguage, PageRequest pageRequest) {
-		Page<EntryDataProjection> page = entryRepository.findEntryDataByUserIdAndLanguage(userId.value(),
+		Page<JpaEntryEntity> page = entryRepository.findByUserIdAndLanguage(userId.value(),
 				sourceLanguage.name(), mapper.toSpringPageable(pageRequest));
-		List<Entry> items = toEntries(page.getContent());
+		List<Entry> items = page.getContent().stream().map(mapper::toDomainEntry).toList();
 		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
 				page.hasNext());
 	}
 
 	@Override
 	public PageResult<Entry> search(UserId userId, String query, PageRequest pageRequest) {
-		Page<EntryDataProjection> page = entryRepository.findEntryDataByUserIdAndTermContainingIgnoreCase(
+		Page<JpaEntryEntity> page = entryRepository.findByUserIdAndTermContainingIgnoreCase(
 				userId.value(), query.trim(), mapper.toSpringPageable(pageRequest));
-		List<Entry> items = toEntries(page.getContent());
+		List<Entry> items = page.getContent().stream().map(mapper::toDomainEntry).toList();
 		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
 				page.hasNext());
 	}
@@ -72,7 +66,7 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 
 	@Override
 	public Optional<Entry> findEntryById(UserId userId, Entry.Id entryId) {
-		return entryRepository.findWithUsagesByIdAndUserId(entryId.value(), userId.value()).map(mapper::toDomainEntry);
+		return entryRepository.findByIdAndUserId(entryId.value(), userId.value()).map(mapper::toDomainEntry);
 	}
 
 	@Override
@@ -96,12 +90,6 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	@Override
 	public void deleteEntryById(UserId userId, Entry.Id entryId) {
 		entryRepository.findByIdAndUserId(entryId.value(), userId.value()).ifPresent(entryRepository::delete);
-	}
-
-	private List<Entry> toEntries(List<EntryDataProjection> projections) {
-		return projections.stream()
-			.map(entry -> mapper.toDomainEntry(entry, usageRepository.findFirstByEntryIdOrderByIdDesc(entry.getId())))
-			.toList();
 	}
 
 }

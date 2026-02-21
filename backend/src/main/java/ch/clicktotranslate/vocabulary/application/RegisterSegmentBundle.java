@@ -32,8 +32,10 @@ public class RegisterSegmentBundle {
 		}
 
 		Entry entry = existingEntry.get();
-		boolean usageAlreadyExists = vocabularyRepository.existsUsageBySentenceAndLanguage(entry.id(), usage.sentence(),
-				usage.targetLanguage());
+		boolean usageAlreadyExists = entry.usages()
+			.stream()
+			.anyMatch(existing -> existing.sentence().equals(usage.sentence())
+					&& existing.targetLanguage().equals(usage.targetLanguage()));
 		if (usageAlreadyExists) {
 			return;
 		}

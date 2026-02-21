@@ -49,6 +49,11 @@ public class VocabularyRestController {
 				vocabularyDtoMapper::toEntryDto);
 	}
 
+	@GetMapping("/entries/{entryId}")
+	public EntryDto getEntry(@PathVariable Long entryId) {
+		return vocabularyDtoMapper.toEntryDto(vocabularyController.getEntry(entryId));
+	}
+
 	@PatchMapping("/entries/{entryId}/translation")
 	public void updateEntryTranslation(@PathVariable Long entryId, @RequestBody UpdateTranslationDto request) {
 		vocabularyController.updateTranslation(vocabularyDtoMapper.toTranslationUpdate(entryId, request));
