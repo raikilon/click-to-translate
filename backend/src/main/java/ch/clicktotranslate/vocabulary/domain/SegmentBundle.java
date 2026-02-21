@@ -1,19 +1,19 @@
 package ch.clicktotranslate.vocabulary.domain;
 
-public record SegmentBundle(UserId userId, String tokenizedWord, String word, String sentence,
-		String tokenizedWordTranslation, String wordTranslation, String sentenceTranslation, Language sourceLanguage,
+public record SegmentBundle(UserId userId, String lemmatizedWord, String word, String sentence,
+		String lemmatizedWordTranslation, String wordTranslation, String sentenceTranslation, Language sourceLanguage,
 		Language targetLanguage) {
 
 	public SegmentBundle {
-		if (userId == null || isMissing(tokenizedWord) || isMissing(tokenizedWordTranslation) || sourceLanguage == null
-				|| targetLanguage == null) {
+		if (userId == null || isMissing(lemmatizedWord) || isMissing(lemmatizedWordTranslation)
+				|| sourceLanguage == null || targetLanguage == null) {
 			throw new IllegalArgumentException("Invalid segment bundle parameters.");
 		}
 	}
 
-	public SegmentBundle(UserId userId, String tokenized, String word, String sentence, String tokenizedTranslation,
+	public SegmentBundle(UserId userId, String lemmatized, String word, String sentence, String lemmatizedTranslation,
 			String wordTranslation, String sentenceTranslation, String sourceLanguage, String targetLanguage) {
-		this(userId, tokenized, word, sentence, tokenizedTranslation, wordTranslation, sentenceTranslation,
+		this(userId, lemmatized, word, sentence, lemmatizedTranslation, wordTranslation, sentenceTranslation,
 				toLanguage(sourceLanguage), toLanguage(targetLanguage));
 	}
 

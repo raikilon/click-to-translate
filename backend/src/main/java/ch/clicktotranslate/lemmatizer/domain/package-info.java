@@ -1,4 +1,4 @@
 @DomainRing
-package ch.clicktotranslate.tokenizer.domain;
+package ch.clicktotranslate.lemmatizer.domain;
 
 import org.jmolecules.architecture.onion.simplified.DomainRing;

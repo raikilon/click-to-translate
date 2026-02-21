@@ -1,18 +1,18 @@
 package ch.clicktotranslate.vocabulary.infrastructure.event;
 
-import ch.clicktotranslate.tokenizer.domain.SegmentBundleTokenizedEvent;
+import ch.clicktotranslate.lemmatizer.domain.SegmentBundleLemmatizedEvent;
 import ch.clicktotranslate.vocabulary.domain.SegmentBundle;
 import ch.clicktotranslate.vocabulary.application.RegisterSegmentBundle;
 import org.jmolecules.event.annotation.DomainEventHandler;
 import org.springframework.context.event.EventListener;
 
-public class SpringSegmentBundleTokenizedEventListener {
+public class SpringSegmentBundleLemmatizedEventListener {
 
-	private final SegmentBundleTokenizedEventMapper eventMapper;
+	private final SegmentBundleLemmatizedEventMapper eventMapper;
 
 	private final RegisterSegmentBundle registerSegmentBundle;
 
-	public SpringSegmentBundleTokenizedEventListener(SegmentBundleTokenizedEventMapper eventMapper,
+	public SpringSegmentBundleLemmatizedEventListener(SegmentBundleLemmatizedEventMapper eventMapper,
 			RegisterSegmentBundle registerSegmentBundle) {
 		this.eventMapper = eventMapper;
 		this.registerSegmentBundle = registerSegmentBundle;
@@ -20,8 +20,8 @@ public class SpringSegmentBundleTokenizedEventListener {
 
 	@EventListener
 	@DomainEventHandler
-	public void onTranslatedWord(SegmentBundleTokenizedEvent segmentBundleTokenizedEvent) {
-		SegmentBundle event = eventMapper.map(segmentBundleTokenizedEvent);
+	public void onTranslatedWord(SegmentBundleLemmatizedEvent segmentBundleLemmatizedEvent) {
+		SegmentBundle event = eventMapper.map(segmentBundleLemmatizedEvent);
 		registerSegmentBundle.execute(event);
 	}
 

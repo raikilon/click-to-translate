@@ -1,12 +1,12 @@
-package ch.clicktotranslate.tokenizer.application;
+package ch.clicktotranslate.lemmatizer.application;
 
 import org.jmolecules.ddd.annotation.Service;
 
 @Service
-public class SimpleWordTokenizer implements Tokenizer {
+public class SimpleWordLemmatizer implements Lemmatizer {
 
 	@Override
-	public String tokenize(String word) {
+	public String lemmatize(String word) {
 		if (word == null) {
 			return null;
 		}

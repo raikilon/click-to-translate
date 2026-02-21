@@ -2,8 +2,8 @@ package ch.clicktotranslate.vocabulary.infrastructure.config;
 
 import ch.clicktotranslate.vocabulary.application.RegisterSegmentBundle;
 import ch.clicktotranslate.vocabulary.application.UserProvider;
-import ch.clicktotranslate.vocabulary.infrastructure.event.SegmentBundleTokenizedEventMapper;
-import ch.clicktotranslate.vocabulary.infrastructure.event.SpringSegmentBundleTokenizedEventListener;
+import ch.clicktotranslate.vocabulary.infrastructure.event.SegmentBundleLemmatizedEventMapper;
+import ch.clicktotranslate.vocabulary.infrastructure.event.SpringSegmentBundleLemmatizedEventListener;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaVocabularyRepository;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataUsageRepository;
@@ -24,14 +24,14 @@ public class VocabularyInfrastructureConfiguration {
 	}
 
 	@Bean
-	public SegmentBundleTokenizedEventMapper segmentBundleTokenizedEventMapper() {
-		return new SegmentBundleTokenizedEventMapper();
+	public SegmentBundleLemmatizedEventMapper segmentBundleLemmatizedEventMapper() {
+		return new SegmentBundleLemmatizedEventMapper();
 	}
 
 	@Bean
-	public SpringSegmentBundleTokenizedEventListener springSegmentBundleTokenizedEventListener(
-			SegmentBundleTokenizedEventMapper eventMapper, RegisterSegmentBundle registerSegmentBundle) {
-		return new SpringSegmentBundleTokenizedEventListener(eventMapper, registerSegmentBundle);
+	public SpringSegmentBundleLemmatizedEventListener springSegmentBundleLemmatizedEventListener(
+			SegmentBundleLemmatizedEventMapper eventMapper, RegisterSegmentBundle registerSegmentBundle) {
+		return new SpringSegmentBundleLemmatizedEventListener(eventMapper, registerSegmentBundle);
 	}
 
 	@Bean
