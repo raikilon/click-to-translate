@@ -1,74 +1,95 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
-import ch.clicktotranslate.vocabulary.application.EntryData;
 import ch.clicktotranslate.vocabulary.application.EntryQuery;
+import ch.clicktotranslate.vocabulary.application.PageRequest;
+import ch.clicktotranslate.vocabulary.application.PageResult;
+import ch.clicktotranslate.vocabulary.application.VocabularyRepository;
+import ch.clicktotranslate.vocabulary.domain.Entry;
 import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Term;
-import ch.clicktotranslate.vocabulary.domain.Usage;
 import ch.clicktotranslate.vocabulary.domain.UserId;
-import ch.clicktotranslate.vocabulary.domain.Entry;
-import ch.clicktotranslate.vocabulary.domain.VocabularyRepository;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
 
-@Transactional(readOnly = true)
 public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery {
 
 	private final SpringDataEntryRepository entryRepository;
 
+	private final SpringDataUsageRepository usageRepository;
+
 	private final VocabularyJpaMapper mapper;
 
-	public JpaVocabularyRepository(SpringDataEntryRepository entryRepository) {
+	public JpaVocabularyRepository(SpringDataEntryRepository entryRepository,
+			SpringDataUsageRepository usageRepository) {
 		this.entryRepository = entryRepository;
+		this.usageRepository = usageRepository;
 		this.mapper = new VocabularyJpaMapper();
 	}
 
 	@Override
 	public Optional<Entry> findEntryByTerm(UserId userId, Term term) {
-		return entryRepository
-			.findWithUsagesByUserIdAndSourceLanguageAndSourceLemma(userId.value(), term.language().name(),
-					term.term())
+		return entryRepository.findByUserIdAndLanguageAndTerm(userId.value(), term.language().name(), term.term())
 			.map(mapper::toDomainEntry);
 	}
 
 	@Override
-	public List<EntryData> findAll(UserId userId) {
-		return entryRepository.findAllByUserIdOrderByIdAsc(userId.value()).stream().map(mapper::toEntry).toList();
+	public PageResult<Entry> findEntriesByUser(UserId userId, PageRequest pageRequest) {
+		Page<JpaEntryEntity> page = entryRepository.findByUserId(userId.value(), mapper.toSpringPageable(pageRequest));
+		List<Entry> items = page.getContent().stream().map(mapper::toDomainEntry).toList();
+		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
+				page.hasNext());
 	}
 
 	@Override
-	public List<EntryData> findByLanguage(UserId userId, Language sourceLanguage) {
-		return entryRepository.findAllByUserIdAndSourceLanguageOrderByIdAsc(userId.value(), sourceLanguage.name())
-			.stream()
-			.map(mapper::toEntry)
-			.toList();
+	public PageResult<Entry> findByLanguage(UserId userId, Language sourceLanguage, PageRequest pageRequest) {
+		Page<JpaEntryEntity> page = entryRepository.findByUserIdAndLanguage(userId.value(), sourceLanguage.name(),
+				mapper.toSpringPageable(pageRequest));
+		List<Entry> items = page.getContent().stream().map(mapper::toDomainEntry).toList();
+		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
+				page.hasNext());
 	}
 
 	@Override
-	public List<EntryData> search(UserId userId, String query) {
-		return entryRepository.findAllByUserIdAndSourceLemmaContainingIgnoreCaseOrderByIdAsc(userId.value(),
-				query.trim()).stream().map(mapper::toEntry).toList();
+	public PageResult<Entry> search(UserId userId, String query, PageRequest pageRequest) {
+		Page<JpaEntryEntity> page = entryRepository.findByUserIdAndTermContainingIgnoreCase(userId.value(),
+				query.trim(), mapper.toSpringPageable(pageRequest));
+		List<Entry> items = page.getContent().stream().map(mapper::toDomainEntry).toList();
+		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
+				page.hasNext());
 	}
 
 	@Override
-	@Transactional
 	public void saveEntry(Entry entry) {
-		mapper.toDomainEntry(entryRepository.save(mapper.toJpaEntryEntity(entry)));
+		entryRepository.save(mapper.toJpaEntryEntity(entry));
 	}
 
 	@Override
 	public Optional<Entry> findEntryById(UserId userId, Entry.Id entryId) {
-		return entryRepository.findWithUsagesByIdAndUserId(entryId.value(), userId.value())
-			.map(mapper::toDomainEntry);
+		return entryRepository.findByIdAndUserId(entryId.value(), userId.value()).map(mapper::toDomainEntry);
 	}
 
 	@Override
-	@Transactional
+	public boolean existsEntryById(UserId userId, Entry.Id entryId) {
+		return entryRepository.existsByIdAndUserId(entryId.value(), userId.value());
+	}
+
+	@Override
+	public PageResult<ch.clicktotranslate.vocabulary.domain.Usage> findUsagesByEntry(UserId userId, Entry.Id entryId,
+			PageRequest pageRequest) {
+		Page<JpaUsageEntity> page = usageRepository.findByEntryIdAndEntryUserId(entryId.value(), userId.value(),
+				mapper.toSpringPageable(pageRequest));
+		List<ch.clicktotranslate.vocabulary.domain.Usage> items = page.getContent()
+			.stream()
+			.map(mapper::toDomainUsage)
+			.toList();
+		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
+				page.hasNext());
+	}
+
+	@Override
 	public void deleteEntryById(UserId userId, Entry.Id entryId) {
 		entryRepository.findByIdAndUserId(entryId.value(), userId.value()).ifPresent(entryRepository::delete);
 	}
 
 }
-
-

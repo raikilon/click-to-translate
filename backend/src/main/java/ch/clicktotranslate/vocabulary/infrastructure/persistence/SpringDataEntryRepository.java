@@ -1,33 +1,24 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
-import java.util.List;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SpringDataEntryRepository extends JpaRepository<JpaEntryEntity, Long> {
 
-
 	Optional<JpaEntryEntity> findByIdAndUserId(Long id, String userId);
 
-	@EntityGraph(attributePaths = { "usages" })
-	Optional<JpaEntryEntity> findWithUsagesByIdAndUserId(Long id, String userId);
+	Optional<JpaEntryEntity> findByUserIdAndLanguageAndTerm(String userId, String language, String term);
 
-	@EntityGraph(attributePaths = { "usages" })
-	Optional<JpaEntryEntity> findWithUsagesByUserIdAndSourceLanguageAndSourceLemma(String userId,
-			String sourceLanguage, String sourceLemma);
+	Page<JpaEntryEntity> findByUserId(String userId, Pageable pageable);
 
-	@EntityGraph(attributePaths = { "usages" })
-	List<JpaEntryEntity> findAllByUserIdOrderByIdAsc(String userId);
+	Page<JpaEntryEntity> findByUserIdAndLanguage(String userId, String language, Pageable pageable);
 
-	@EntityGraph(attributePaths = { "usages" })
-	List<JpaEntryEntity> findAllByUserIdAndSourceLanguageOrderByIdAsc(String userId, String sourceLanguage);
+	Page<JpaEntryEntity> findByUserIdAndTermContainingIgnoreCase(String userId, String term, Pageable pageable);
 
-	@EntityGraph(attributePaths = { "usages" })
-	List<JpaEntryEntity> findAllByUserIdAndSourceLemmaContainingIgnoreCaseOrderByIdAsc(String userId,
-			String sourceLemma);
+	boolean existsByIdAndUserId(Long id, String userId);
 
 }
-

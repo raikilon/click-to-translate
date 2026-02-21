@@ -1,7 +1,9 @@
 package ch.clicktotranslate.vocabulary.application;
 
-import java.util.List;
+import ch.clicktotranslate.vocabulary.domain.Entry;
+import org.jmolecules.ddd.annotation.Service;
 
+@Service
 public class SearchEntries {
 
 	private final EntryQuery entryQuery;
@@ -13,8 +15,8 @@ public class SearchEntries {
 		this.userProvider = userProvider;
 	}
 
-	public List<EntryData> execute(String query) {
-		return entryQuery.search(userProvider.currentUserId(), requireQuery(query));
+	public PageResult<Entry> execute(String query, PageRequest pageRequest) {
+		return entryQuery.search(userProvider.currentUserId(), requireQuery(query), pageRequest);
 	}
 
 	private String requireQuery(String query) {
@@ -29,4 +31,3 @@ public class SearchEntries {
 	}
 
 }
-

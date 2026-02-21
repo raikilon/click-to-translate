@@ -6,7 +6,7 @@ import org.springframework.modulith.NamedInterface;
 import java.time.Instant;
 import java.util.Objects;
 
-@NamedInterface
+@NamedInterface("domain")
 @DomainEvent
 public class SegmentBundleCreatedEvent {
 
@@ -116,9 +116,8 @@ public class SegmentBundleCreatedEvent {
 	public String toString() {
 		return "SegmentBundleCreatedEvent[" + "userId=" + userId + ", " + "word=" + word + ", " + "sentence=" + sentence
 				+ ", " + "wordTranslation=" + wordTranslation + ", " + "sentenceTranslation=" + sentenceTranslation
-				+ ", " + "sourceLanguage=" + sourceLanguage + ", " + "language=" + targetLanguage + ", "
-				+ "source=" + source + ", " + "sourceMetadata=" + sourceMetadata + ", " + "occurredAt=" + occurredAt
-				+ ']';
+				+ ", " + "language=" + sourceLanguage + ", " + "language=" + targetLanguage + ", " + "source=" + source
+				+ ", " + "sourceMetadata=" + sourceMetadata + ", " + "occurredAt=" + occurredAt + ']';
 	}
 
 	private static boolean isMissing(String s) {

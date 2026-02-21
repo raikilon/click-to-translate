@@ -1,16 +1,20 @@
 package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Language;
+import ch.clicktotranslate.vocabulary.domain.Entry;
+import ch.clicktotranslate.vocabulary.domain.Usage;
 import ch.clicktotranslate.vocabulary.domain.UserId;
-import java.util.List;
+import org.jmolecules.ddd.annotation.Repository;
 
+@Repository
 public interface EntryQuery {
 
-	List<EntryData> findAll(UserId userId);
+	PageResult<Entry> findEntriesByUser(UserId userId, PageRequest pageRequest);
 
-	List<EntryData> findByLanguage(UserId userId, Language sourceLanguage);
+	PageResult<Usage> findUsagesByEntry(UserId userId, Entry.Id entryId, PageRequest pageRequest);
 
-	List<EntryData> search(UserId userId, String query);
+	PageResult<Entry> findByLanguage(UserId userId, Language sourceLanguage, PageRequest pageRequest);
+
+	PageResult<Entry> search(UserId userId, String query, PageRequest pageRequest);
 
 }
-

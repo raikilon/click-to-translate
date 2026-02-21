@@ -6,7 +6,7 @@ import java.util.Objects;
 import org.jmolecules.event.annotation.DomainEvent;
 import org.springframework.modulith.NamedInterface;
 
-@NamedInterface
+@NamedInterface("domain")
 @DomainEvent
 public class SegmentBundleTokenizedEvent {
 
@@ -119,8 +119,8 @@ public class SegmentBundleTokenizedEvent {
 		return "SegmentBundleTokenizedEvent[" + "userId=" + userId + ", " + "tokenizedWord=" + tokenizedWord + ", "
 				+ "tokenizedWordTranslation=" + tokenizedWordTranslation + ", " + "sentence=" + sentence + ", "
 				+ "sentenceTranslation=" + sentenceTranslation + ", " + "word=" + word + ", " + "wordTranslation="
-				+ wordTranslation + ", " + "sourceLanguage=" + sourceLanguage + ", " + "language="
-				+ targetLanguage + ", " + "occurredAt=" + occurredAt + ']';
+				+ wordTranslation + ", " + "language=" + sourceLanguage + ", " + "language=" + targetLanguage + ", "
+				+ "occurredAt=" + occurredAt + ']';
 	}
 
 	private static boolean isMissing(String s) {

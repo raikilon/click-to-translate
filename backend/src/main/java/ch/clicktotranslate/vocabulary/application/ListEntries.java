@@ -1,7 +1,6 @@
 package ch.clicktotranslate.vocabulary.application;
 
-import ch.clicktotranslate.vocabulary.domain.UserId;
-import java.util.List;
+import ch.clicktotranslate.vocabulary.domain.Entry;
 
 public class ListEntries {
 
@@ -14,9 +13,8 @@ public class ListEntries {
 		this.userProvider = userProvider;
 	}
 
-	public List<EntryData> execute() {
-		return entryQuery.findAll(userProvider.currentUserId());
+	public PageResult<Entry> execute(PageRequest pageRequest) {
+		return entryQuery.findEntriesByUser(userProvider.currentUserId(), pageRequest);
 	}
 
 }
-

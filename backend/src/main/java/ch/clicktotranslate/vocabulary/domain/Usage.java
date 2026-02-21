@@ -3,7 +3,6 @@ package ch.clicktotranslate.vocabulary.domain;
 import java.time.Instant;
 import org.jmolecules.ddd.types.Entity;
 import org.jmolecules.ddd.types.Identifier;
-import org.jmolecules.ddd.types.ValueObject;
 
 public class Usage implements Entity<Entry, Usage.Id> {
 
@@ -19,18 +18,21 @@ public class Usage implements Entity<Entry, Usage.Id> {
 
 	private final Language language;
 
+	private boolean starred;
+
 	private final Instant lastEdit;
 
 	private final Instant createdAt;
 
 	public Usage(Id id, String sentence, TextSpan sentenceSpan, String translation, TextSpan translationSpan,
-				 Language language, Instant lastEdit, Instant createdAt) {
+			Language language, boolean starred, Instant lastEdit, Instant createdAt) {
 		this.id = id;
 		this.sentence = requireSentence(sentence);
 		this.sentenceSpan = requireSpan(sentenceSpan, this.sentence, "sentence");
 		this.translation = requireTranslation(translation);
 		this.translationSpan = requireSpan(translationSpan, this.translation, "translation");
-		this.language = requireTargetLanguage(language);
+		this.language = requireLanguage(language);
+		this.starred = starred;
 		if (lastEdit == null) {
 			throw new IllegalArgumentException("lastEdit must not be null");
 		}
@@ -41,10 +43,15 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		this.createdAt = createdAt;
 	}
 
-	public Usage(String sentence, String sentenceFragment, String translation, String translationFragment,
+	public Usage(String sentence, String sentenceFragment, String translation, String translationSpan,
 			Language language) {
 		this(null, sentence, TextSpan.find(sentence, sentenceFragment), translation,
-				TextSpan.find(translation, translationFragment), language, Instant.now(), Instant.now());
+				TextSpan.find(translation, translationSpan), language, false, Instant.now(), Instant.now());
+	}
+
+	public Usage(Id id, String sentence, TextSpan sentenceSpan, String translation, TextSpan translationSpan,
+			Language language, Instant lastEdit, Instant createdAt) {
+		this(id, sentence, sentenceSpan, translation, translationSpan, language, false, lastEdit, createdAt);
 	}
 
 	@Override
@@ -72,8 +79,12 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		return translationSpan;
 	}
 
-	public Language targetLanguage() {
+	public Language language() {
 		return language;
+	}
+
+	public boolean starred() {
+		return starred;
 	}
 
 	public Instant lastEdit() {
@@ -82,6 +93,10 @@ public class Usage implements Entity<Entry, Usage.Id> {
 
 	public Instant createdAt() {
 		return createdAt;
+	}
+
+	public void star() {
+		this.starred = true;
 	}
 
 	private static String requireSentence(String value) {
@@ -98,7 +113,7 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		return value.trim();
 	}
 
-	private static Language requireTargetLanguage(Language value) {
+	private static Language requireLanguage(Language value) {
 		if (value == null) {
 			throw new IllegalArgumentException("language must not be null");
 		}
@@ -130,4 +145,3 @@ public class Usage implements Entity<Entry, Usage.Id> {
 	}
 
 }
-

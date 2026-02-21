@@ -1,7 +1,7 @@
 package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Language;
-import java.util.List;
+import ch.clicktotranslate.vocabulary.domain.Entry;
 
 public class VocabularyController {
 
@@ -11,6 +11,8 @@ public class VocabularyController {
 
 	private final SearchEntries searchEntries;
 
+	private final GetEntry getEntry;
+
 	private final UpdateEntryTranslation updateEntryTranslation;
 
 	private final UpdateEntry updateEntry;
@@ -18,27 +20,31 @@ public class VocabularyController {
 	private final DeleteEntry deleteEntry;
 
 	public VocabularyController(ListEntries listEntries, ListEntriesByLanguage listEntriesByLanguage,
-			SearchEntries searchEntries, UpdateEntryTranslation updateEntryTranslation,
-			UpdateEntry updateEntry,
-			DeleteEntry deleteEntry) {
+			SearchEntries searchEntries, GetEntry getEntry, UpdateEntryTranslation updateEntryTranslation,
+			UpdateEntry updateEntry, DeleteEntry deleteEntry) {
 		this.listEntries = listEntries;
 		this.listEntriesByLanguage = listEntriesByLanguage;
 		this.searchEntries = searchEntries;
+		this.getEntry = getEntry;
 		this.updateEntryTranslation = updateEntryTranslation;
 		this.updateEntry = updateEntry;
 		this.deleteEntry = deleteEntry;
 	}
 
-	public List<EntryData> listAll() {
-		return listEntries.execute();
+	public PageResult<Entry> listAll(PageRequest pageRequest) {
+		return listEntries.execute(pageRequest);
 	}
 
-	public List<EntryData> listByLanguage(Language sourceLanguage) {
-		return listEntriesByLanguage.execute(sourceLanguage);
+	public PageResult<Entry> listByLanguage(Language sourceLanguage, PageRequest pageRequest) {
+		return listEntriesByLanguage.execute(sourceLanguage, pageRequest);
 	}
 
-	public List<EntryData> search(String query) {
-		return searchEntries.execute(query);
+	public PageResult<Entry> search(String query, PageRequest pageRequest) {
+		return searchEntries.execute(query, pageRequest);
+	}
+
+	public Entry getEntry(Long entryId) {
+		return getEntry.execute(entryId);
 	}
 
 	public void updateTranslation(TranslationUpdate update) {
@@ -54,5 +60,3 @@ public class VocabularyController {
 	}
 
 }
-
-

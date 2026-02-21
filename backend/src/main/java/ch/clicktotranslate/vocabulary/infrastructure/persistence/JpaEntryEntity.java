@@ -1,21 +1,18 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import java.util.ArrayList;
-import java.util.List;
-import java.time.Instant;
+import jakarta.persistence.*;
+import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.HashSet;
+import java.time.Instant;
+import java.util.Set;
+
+@Getter
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "userId", "sourceLanguage", "sourceLemma" }) })
+@EntityListeners(AuditingEntityListener.class)
 public class JpaEntryEntity {
 
 	@Id
@@ -26,91 +23,49 @@ public class JpaEntryEntity {
 	private String userId;
 
 	@Column(nullable = false)
-	private String sourceLanguage;
+	private String language;
 
 	@Column(nullable = false)
-	private String sourceLemma;
+	private String term;
 
-	private String customizationLemma;
+	private String termCustomization;
 
+	@LastModifiedDate
 	@Column(nullable = false)
 	private Instant lastEdit;
 
-	@Column(nullable = false)
+	@CreatedDate
+	@Column(nullable = false, updatable = false)
 	private Instant createdAt;
 
-	@ElementCollection
-	private List<JpaTermTranslationValue> translations = new ArrayList<>();
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<JpaTermTranslation> translations = new HashSet<>();
 
-	@OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<JpaUsageEntity> usages = new ArrayList<>();
-
-	public Long getId() {
-		return id;
-	}
+	@OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<JpaUsageEntity> usages = new HashSet<>();
 
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getSourceLanguage() {
-		return sourceLanguage;
-	}
-
-	public void setSourceLanguage(String sourceLanguage) {
-		this.sourceLanguage = sourceLanguage;
-	}
-
-	public String getUserId() {
-		return userId;
+	public void setLanguage(String sourceLanguage) {
+		this.language = sourceLanguage;
 	}
 
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 
-	public String getSourceLemma() {
-		return sourceLemma;
+	public void setTerm(String sourceLemma) {
+		this.term = sourceLemma;
 	}
 
-	public void setSourceLemma(String sourceLemma) {
-		this.sourceLemma = sourceLemma;
+	public void setTermCustomization(String customizationLemma) {
+		this.termCustomization = customizationLemma;
 	}
 
-	public String getCustomizationLemma() {
-		return customizationLemma;
-	}
-
-	public void setCustomizationLemma(String customizationLemma) {
-		this.customizationLemma = customizationLemma;
-	}
-
-	public Instant getLastEdit() {
-		return lastEdit;
-	}
-
-	public void setLastEdit(Instant lastEdit) {
-		this.lastEdit = lastEdit;
-	}
-
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(Instant createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public List<JpaTermTranslationValue> getTranslations() {
-		return translations;
-	}
-
-	public void setTranslations(List<JpaTermTranslationValue> translations) {
+	public void setTranslations(Set<JpaTermTranslation> translations) {
 		this.translations = translations;
-	}
-
-	public List<JpaUsageEntity> getUsages() {
-		return usages;
 	}
 
 	public void addUsage(JpaUsageEntity usage) {
@@ -119,5 +74,3 @@ public class JpaEntryEntity {
 	}
 
 }
-
-

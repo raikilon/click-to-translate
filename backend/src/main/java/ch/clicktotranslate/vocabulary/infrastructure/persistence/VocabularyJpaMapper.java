@@ -1,15 +1,18 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
-import ch.clicktotranslate.vocabulary.application.EntryData;
+import ch.clicktotranslate.vocabulary.application.PageRequest;
 import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Term;
 import ch.clicktotranslate.vocabulary.domain.TextSpan;
 import ch.clicktotranslate.vocabulary.domain.Usage;
 import ch.clicktotranslate.vocabulary.domain.UserId;
 import ch.clicktotranslate.vocabulary.domain.Entry;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 class VocabularyJpaMapper {
 
@@ -17,11 +20,9 @@ class VocabularyJpaMapper {
 		JpaEntryEntity entity = new JpaEntryEntity();
 		entity.setId(entry.id() == null ? null : entry.id().value());
 		entity.setUserId(entry.userId().value());
-		entity.setSourceLanguage(entry.term().language().name());
-		entity.setSourceLemma(entry.term().term());
-		entity.setCustomizationLemma(entry.termCustomization().orElse(null));
-		entity.setLastEdit(entry.lastEdit());
-		entity.setCreatedAt(entry.createdAt());
+		entity.setLanguage(entry.term().language().name());
+		entity.setTerm(entry.term().term());
+		entity.setTermCustomization(entry.termCustomization().orElse(null));
 		entity.setTranslations(toJpaTranslations(entry.translations()));
 
 		for (Usage usage : entry.usages()) {
@@ -40,60 +41,56 @@ class VocabularyJpaMapper {
 		usageEntity.setTranslation(usage.translation());
 		usageEntity.setTranslationStart(usage.translationSpan().start());
 		usageEntity.setTranslationEnd(usage.translationSpan().end());
-		usageEntity.setTargetLanguage(usage.targetLanguage().name());
-		usageEntity.setLastEdit(usage.lastEdit());
-		usageEntity.setCreatedAt(usage.createdAt());
+		usageEntity.setLanguage(usage.language().name());
+		usageEntity.setStarred(usage.starred());
 		return usageEntity;
 	}
 
 	Entry toDomainEntry(JpaEntryEntity entity) {
 		return new Entry(Entry.Id.of(entity.getId()), UserId.of(entity.getUserId()),
-				new Term(Language.valueOf(entity.getSourceLanguage()), entity.getSourceLemma()),
-				entity.getCustomizationLemma(), toDomainTranslations(entity.getTranslations()),
-				toDomainUsages(entity.getUsages()), entity.getLastEdit(), entity.getCreatedAt());
+				new Term(Language.valueOf(entity.getLanguage()), entity.getTerm()), entity.getTermCustomization(),
+				toDomainTranslations(entity.getTranslations()), toDomainUsages(entity.getUsages()),
+				entity.getLastEdit(), entity.getCreatedAt());
 	}
 
 	Usage toDomainUsage(JpaUsageEntity entity) {
 		return new Usage(Usage.Id.of(entity.getId()), entity.getSentence(),
 				new TextSpan(entity.getSentenceStart(), entity.getSentenceEnd()), entity.getTranslation(),
 				new TextSpan(entity.getTranslationStart(), entity.getTranslationEnd()),
-				Language.valueOf(entity.getTargetLanguage()), entity.getLastEdit(), entity.getCreatedAt());
+				Language.valueOf(entity.getLanguage()), entity.isStarred(), entity.getLastEdit(),
+				entity.getCreatedAt());
 	}
 
-	List<Usage> toDomainUsages(List<JpaUsageEntity> usages) {
+	List<Usage> toDomainUsages(Collection<JpaUsageEntity> usages) {
 		return usages.stream()
 			.sorted(Comparator.comparing(JpaUsageEntity::getId, Comparator.nullsLast(Long::compareTo)))
 			.map(this::toDomainUsage)
 			.toList();
 	}
 
-	EntryData toEntry(JpaEntryEntity entry) {
-		Usage lastUsage = entry.getUsages()
-			.stream()
-			.max(Comparator.comparing(JpaUsageEntity::getId, Comparator.nullsLast(Long::compareTo)))
-			.map(this::toDomainUsage)
-			.orElse(null);
-		return new EntryData(entry.getId(),
-				new Term(Language.valueOf(entry.getSourceLanguage()), entry.getSourceLemma()),
-				Optional.ofNullable(entry.getCustomizationLemma()),
-				toDomainTranslations(entry.getTranslations()),
-				lastUsage, entry.getLastEdit(), entry.getCreatedAt());
+	Pageable toSpringPageable(PageRequest pageRequest) {
+		Sort springSort = Sort.unsorted();
+		for (PageRequest.Sort sort : pageRequest.sort()) {
+			springSort = springSort.and(Sort.by(
+					sort.direction() == PageRequest.Sort.Direction.ASC ? Sort.Direction.ASC : Sort.Direction.DESC,
+					sort.field()));
+		}
+		return org.springframework.data.domain.PageRequest.of(pageRequest.page(), pageRequest.size(), springSort);
 	}
 
-	private List<JpaTermTranslationValue> toJpaTranslations(List<Term> translations) {
+	private Set<JpaTermTranslation> toJpaTranslations(List<Term> translations) {
 		return translations.stream().map(translation -> {
-			JpaTermTranslationValue value = new JpaTermTranslationValue();
+			JpaTermTranslation value = new JpaTermTranslation();
 			value.setLanguage(translation.language().name());
-			value.setLemma(translation.term());
+			value.setTerm(translation.term());
 			return value;
-		}).toList();
+		}).collect(java.util.stream.Collectors.toSet());
 	}
 
-	private List<Term> toDomainTranslations(List<JpaTermTranslationValue> translations) {
-		return translations.stream().map(translation -> new Term(Language.valueOf(translation.getLanguage()),
-				translation.getLemma())).toList();
+	private List<Term> toDomainTranslations(Collection<JpaTermTranslation> translations) {
+		return translations.stream()
+			.map(translation -> new Term(Language.valueOf(translation.getLanguage()), translation.getTerm()))
+			.toList();
 	}
 
 }
-
-

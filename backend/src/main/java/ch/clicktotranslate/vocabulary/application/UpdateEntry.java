@@ -1,8 +1,9 @@
 package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Entry;
-import ch.clicktotranslate.vocabulary.domain.VocabularyRepository;
+import org.jmolecules.ddd.annotation.Service;
 
+@Service
 public class UpdateEntry {
 
 	private final VocabularyRepository vocabularyRepository;
@@ -34,5 +35,3 @@ public class UpdateEntry {
 	}
 
 }
-
-

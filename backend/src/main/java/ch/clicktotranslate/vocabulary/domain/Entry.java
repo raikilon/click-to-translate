@@ -11,6 +11,8 @@ import org.jmolecules.ddd.types.ValueObject;
 
 public class Entry implements AggregateRoot<Entry, Entry.Id> {
 
+	private static final int MAX_USAGES = 20;
+
 	private final Id id;
 
 	private final UserId userId;
@@ -23,12 +25,12 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 
 	private final List<Usage> usages;
 
-	private Instant lastEdit;
+	private final Instant lastEdit;
 
 	private final Instant createdAt;
 
-	public Entry(Id id, UserId userId, Term term, String termCustomization,
-			List<Term> translations, List<Usage> usages, Instant lastEdit, Instant createdAt) {
+	public Entry(Id id, UserId userId, Term term, String termCustomization, List<Term> translations, List<Usage> usages,
+			Instant lastEdit, Instant createdAt) {
 		this.id = id;
 		this.userId = requireUserId(userId);
 		this.term = requireTerm(term);
@@ -71,7 +73,6 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		return Optional.ofNullable(termCustomization);
 	}
 
-
 	public List<Term> translations() {
 		return List.copyOf(translations);
 	}
@@ -90,7 +91,6 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 
 	public void updateTerm(String customization) {
 		this.termCustomization = requireCustomization(customization);
-		this.lastEdit = Instant.now();
 	}
 
 	public void setTranslation(Language language, String lemma) {
@@ -98,25 +98,43 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		Term newTranslation = new Term(requiredLanguage, requireLemma(lemma));
 		translations.removeIf(translation -> translation.language() == requiredLanguage);
 		translations.add(newTranslation);
-		this.lastEdit = Instant.now();
 	}
 
-	public void addUsage(Usage usage) {
+	public boolean addUsage(Usage usage) {
 		Usage requiredUsage = requireUsage(usage);
 		if (requiredUsage.id() != null) {
 			usages.removeIf(existing -> Objects.equals(existing.id(), requiredUsage.id()));
 		}
+		if (usages.size() >= MAX_USAGES) {
+			int removableIndex = findOldestNonStarredUsageIndex();
+			if (removableIndex < 0) {
+				return false;
+			}
+			usages.remove(removableIndex);
+		}
 		usages.add(requiredUsage);
-		this.lastEdit = Instant.now();
+		return true;
 	}
 
 	public void removeUsage(Usage.Id usageId) {
 		Usage.Id requiredUsageId = requireUsageId(usageId);
-		boolean removed = usages.removeIf(existing -> Objects.equals(existing.id(), requiredUsageId));
-		if (!removed) {
+		int usageIndex = findUsageIndex(requiredUsageId);
+		if (usageIndex < 0) {
 			throw new IllegalArgumentException("usageId must be part of usages");
 		}
-		this.lastEdit = Instant.now();
+		if (usages.get(usageIndex).starred()) {
+			throw new IllegalArgumentException("starred usage cannot be deleted");
+		}
+		usages.remove(usageIndex);
+	}
+
+	public void starUsage(Usage.Id usageId) {
+		Usage.Id requiredUsageId = requireUsageId(usageId);
+		int usageIndex = findUsageIndex(requiredUsageId);
+		if (usageIndex < 0) {
+			throw new IllegalArgumentException("usageId must be part of usages");
+		}
+		usages.get(usageIndex).star();
 	}
 
 	private static UserId requireUserId(UserId value) {
@@ -182,6 +200,30 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		return value.trim();
 	}
 
+	private int findUsageIndex(Usage.Id usageId) {
+		for (int i = 0; i < usages.size(); i++) {
+			if (Objects.equals(usages.get(i).id(), usageId)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private int findOldestNonStarredUsageIndex() {
+		int oldest = -1;
+
+		for (int i = 0; i < usages.size(); i++) {
+			Usage usage = usages.get(i);
+			if (usage.starred())
+				continue;
+
+			if (oldest < 0 || usage.createdAt().isBefore(usages.get(oldest).createdAt())) {
+				oldest = i;
+			}
+		}
+		return oldest;
+	}
+
 	public record Id(Long value) implements Identifier, ValueObject {
 
 		public static Id of(Long value) {
@@ -197,5 +239,3 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 	}
 
 }
-
-
