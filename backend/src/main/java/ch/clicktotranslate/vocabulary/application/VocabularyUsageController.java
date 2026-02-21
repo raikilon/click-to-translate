@@ -2,8 +2,6 @@ package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Usage;
 
-import java.util.List;
-
 public class VocabularyUsageController {
 
 	private final ListEntryUsages listEntryUsages;
@@ -16,8 +14,8 @@ public class VocabularyUsageController {
 		this.deleteUsage = deleteUsage;
 	}
 
-	public List<Usage> listByEntry(Long entryId) {
-		return listEntryUsages.execute(entryId);
+	public PageResult<Usage> listByEntry(Long entryId, PageRequest pageRequest) {
+		return listEntryUsages.execute(entryId, pageRequest);
 	}
 
 	public void delete(Long entryId, Long usageId) {

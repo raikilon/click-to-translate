@@ -31,8 +31,8 @@ public class VocabularyController {
 		this.deleteEntry = deleteEntry;
 	}
 
-	public List<Entry> listAll() {
-		return listEntries.execute();
+	public PageResult<Entry> listAll(PageRequest pageRequest) {
+		return listEntries.execute(pageRequest);
 	}
 
 	public List<Entry> listByLanguage(Language sourceLanguage) {

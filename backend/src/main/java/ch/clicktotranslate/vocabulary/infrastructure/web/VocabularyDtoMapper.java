@@ -12,20 +12,18 @@ public class VocabularyDtoMapper {
 	private final UsageDtoMapper usageDtoMapper = new UsageDtoMapper();
 
 	public List<EntryDto> toEntryDto(List<Entry> entries) {
-		return entries.stream()
-			.map(entry -> {
-				Usage lastUsage = lastUsage(entry);
-				return new EntryDto(entry.id().value(), entry.term().language(), entry.term().term(),
-						entry.termCustomization().orElse(null),
-						entry.translations().stream()
-							.map(translation -> new TermDto(translation.language(), translation.term()))
-							.toList(),
-						lastUsage == null
-								? null
-								: usageDtoMapper.toDto(entry.id().value(), List.of(lastUsage)).getFirst(),
-						entry.lastEdit(), entry.createdAt());
-			})
-			.toList();
+		return entries.stream().map(this::toEntryDto).toList();
+	}
+
+	public EntryDto toEntryDto(Entry entry) {
+		Usage lastUsage = lastUsage(entry);
+		return new EntryDto(entry.id().value(), entry.term().language(), entry.term().term(),
+				entry.termCustomization().orElse(null),
+				entry.translations().stream()
+					.map(translation -> new TermDto(translation.language(), translation.term()))
+					.toList(),
+				lastUsage == null ? null : usageDtoMapper.toDto(entry.id().value(), lastUsage), entry.lastEdit(),
+				entry.createdAt());
 	}
 
 	private Usage lastUsage(Entry entry) {

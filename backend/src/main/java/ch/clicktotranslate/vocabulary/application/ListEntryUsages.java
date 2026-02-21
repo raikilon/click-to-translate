@@ -5,25 +5,29 @@ import ch.clicktotranslate.vocabulary.domain.UserId;
 import ch.clicktotranslate.vocabulary.domain.Entry;
 import org.jmolecules.ddd.annotation.Service;
 
-import java.util.List;
-
 @Service
 public class ListEntryUsages {
 
 	private final VocabularyRepository vocabularyRepository;
 
+	private final EntryQuery entryQuery;
+
 	private final UserProvider userProvider;
 
-	public ListEntryUsages(VocabularyRepository vocabularyRepository, UserProvider userProvider) {
+	public ListEntryUsages(VocabularyRepository vocabularyRepository, EntryQuery entryQuery,
+			UserProvider userProvider) {
 		this.vocabularyRepository = vocabularyRepository;
+		this.entryQuery = entryQuery;
 		this.userProvider = userProvider;
 	}
 
-	public List<Usage> execute(Long entryId) {
+	public PageResult<Usage> execute(Long entryId, PageRequest pageRequest) {
 		UserId userId = userProvider.currentUserId();
-		Entry entry = vocabularyRepository.findEntryById(userId, Entry.Id.of(entryId))
-			.orElseThrow(EntryNotFoundException::new);
-		return entry.usages();
+		Entry.Id id = Entry.Id.of(entryId);
+		if (!vocabularyRepository.existsEntryById(userId, id)) {
+			throw new EntryNotFoundException();
+		}
+		return entryQuery.findUsagesByEntry(userId, id, pageRequest);
 	}
 
 }

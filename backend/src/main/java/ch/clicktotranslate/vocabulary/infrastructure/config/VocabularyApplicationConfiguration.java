@@ -1,47 +1,29 @@
 package ch.clicktotranslate.vocabulary.infrastructure.config;
 
-import ch.clicktotranslate.vocabulary.application.*;
-import ch.clicktotranslate.vocabulary.infrastructure.event.SegmentBundleTokenizedEventMapper;
-import ch.clicktotranslate.vocabulary.infrastructure.event.SpringSegmentBundleTokenizedEventListener;
-import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaVocabularyRepository;
-import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
-import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataUsageRepository;
-import ch.clicktotranslate.vocabulary.infrastructure.security.SpringSecurityUserProvider;
-import ch.clicktotranslate.vocabulary.infrastructure.web.VocabularyDtoMapper;
-import ch.clicktotranslate.vocabulary.infrastructure.web.UsageDtoMapper;
+import ch.clicktotranslate.vocabulary.application.DeleteEntry;
+import ch.clicktotranslate.vocabulary.application.DeleteUsage;
+import ch.clicktotranslate.vocabulary.application.EntryQuery;
+import ch.clicktotranslate.vocabulary.application.ListEntries;
+import ch.clicktotranslate.vocabulary.application.ListEntriesByLanguage;
+import ch.clicktotranslate.vocabulary.application.ListEntryUsages;
+import ch.clicktotranslate.vocabulary.application.RegisterSegmentBundle;
+import ch.clicktotranslate.vocabulary.application.SearchEntries;
+import ch.clicktotranslate.vocabulary.application.UpdateEntry;
+import ch.clicktotranslate.vocabulary.application.UpdateEntryTranslation;
+import ch.clicktotranslate.vocabulary.application.UserProvider;
+import ch.clicktotranslate.vocabulary.application.VocabularyController;
+import ch.clicktotranslate.vocabulary.application.VocabularyRepository;
+import ch.clicktotranslate.vocabulary.application.VocabularyUsageController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class VocabConfiguration {
-
-	@Bean
-	public JpaVocabularyRepository jpaVocabularyRepository(SpringDataEntryRepository entryRepository,
-			SpringDataUsageRepository usageRepository) {
-		return new JpaVocabularyRepository(entryRepository, usageRepository);
-	}
+public class VocabularyApplicationConfiguration {
 
 	@Bean
 	public RegisterSegmentBundle registerSegmentBundle(VocabularyRepository vocabularyRepository) {
 		return new RegisterSegmentBundle(vocabularyRepository);
 	}
-
-	@Bean
-	public SegmentBundleTokenizedEventMapper segmentBundleTokenizedEventMapper() {
-		return new SegmentBundleTokenizedEventMapper();
-	}
-
-	@Bean
-	public SpringSegmentBundleTokenizedEventListener springSegmentBundleTokenizedEventListener(
-			SegmentBundleTokenizedEventMapper eventMapper, RegisterSegmentBundle registerSegmentBundle) {
-		return new SpringSegmentBundleTokenizedEventListener(eventMapper, registerSegmentBundle);
-	}
-
-	@Bean
-	public UserProvider userProvider() {
-		return new SpringSecurityUserProvider();
-	}
-
 
 	@Bean
 	public ListEntries listEntries(EntryQuery entryQuery, UserProvider userProvider) {
@@ -61,13 +43,13 @@ public class VocabConfiguration {
 
 	@Bean
 	public UpdateEntryTranslation updateEntryTranslation(VocabularyRepository vocabularyRepository,
-                                                         UserProvider userProvider) {
+			UserProvider userProvider) {
 		return new UpdateEntryTranslation(vocabularyRepository, userProvider);
 	}
 
 	@Bean
 	public UpdateEntry updateEntry(VocabularyRepository vocabularyRepository,
-                                   UserProvider userProvider) {
+			UserProvider userProvider) {
 		return new UpdateEntry(vocabularyRepository, userProvider);
 	}
 
@@ -77,9 +59,9 @@ public class VocabConfiguration {
 	}
 
 	@Bean
-	public ListEntryUsages listEntryUsages(VocabularyRepository vocabularyRepository,
-                                           UserProvider userProvider) {
-		return new ListEntryUsages(vocabularyRepository, userProvider);
+	public ListEntryUsages listEntryUsages(VocabularyRepository vocabularyRepository, EntryQuery entryQuery,
+			UserProvider userProvider) {
+		return new ListEntryUsages(vocabularyRepository, entryQuery, userProvider);
 	}
 
 	@Bean
@@ -103,16 +85,4 @@ public class VocabConfiguration {
 		return new VocabularyUsageController(listEntryUsages, deleteUsage);
 	}
 
-	@Bean
-	public VocabularyDtoMapper vocabularyDtoMapper() {
-		return new VocabularyDtoMapper();
-	}
-
-	@Bean
-	public UsageDtoMapper vocabularyUsageDtoMapper() {
-		return new UsageDtoMapper();
-	}
-
 }
-
-

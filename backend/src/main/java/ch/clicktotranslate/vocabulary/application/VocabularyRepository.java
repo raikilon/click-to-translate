@@ -16,6 +16,8 @@ public interface VocabularyRepository {
 
     Optional<Entry> findEntryById(UserId userId, Entry.Id entryId);
 
+    boolean existsEntryById(UserId userId, Entry.Id entryId);
+
     void deleteEntryById(UserId userId, Entry.Id entryId);
 
 }
