@@ -1,5 +1,6 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
+import ch.clicktotranslate.vocabulary.application.PageRequest;
 import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Term;
 import ch.clicktotranslate.vocabulary.domain.TextSpan;
@@ -11,6 +12,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 class VocabularyJpaMapper {
 
@@ -70,6 +73,16 @@ class VocabularyJpaMapper {
 			.sorted(Comparator.comparing(JpaUsageEntity::getId, Comparator.nullsLast(Long::compareTo)))
 			.map(this::toDomainUsage)
 			.toList();
+	}
+
+	Pageable toSpringPageable(PageRequest pageRequest) {
+		Sort springSort = Sort.unsorted();
+		for (PageRequest.Sort sort : pageRequest.sort()) {
+			springSort = springSort.and(Sort.by(
+					sort.direction() == PageRequest.Sort.Direction.ASC ? Sort.Direction.ASC : Sort.Direction.DESC,
+					sort.field()));
+		}
+		return org.springframework.data.domain.PageRequest.of(pageRequest.page(), pageRequest.size(), springSort);
 	}
 
 	private Set<JpaTermTranslation> toJpaTranslations(List<Term> translations) {

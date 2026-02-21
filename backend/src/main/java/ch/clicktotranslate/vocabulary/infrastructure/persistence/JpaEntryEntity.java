@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "user_id", "language", "term" }) })
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "language", "term" }))
 public class JpaEntryEntity {
 
 	@Id
@@ -40,7 +40,7 @@ public class JpaEntryEntity {
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<JpaTermTranslation> translations = new HashSet<>();
 
-	@OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "entry", cascade = CascadeType.ALL)
 	private Set<JpaUsageEntity> usages = new HashSet<>();
 
 	public Long getId() {

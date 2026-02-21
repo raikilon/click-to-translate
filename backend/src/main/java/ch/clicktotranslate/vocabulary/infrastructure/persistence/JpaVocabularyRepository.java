@@ -11,11 +11,7 @@ import ch.clicktotranslate.vocabulary.domain.UserId;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery {
 
 	private final SpringDataEntryRepository entryRepository;
@@ -41,7 +37,7 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	@Override
 	public PageResult<Entry> findEntriesByUser(UserId userId, PageRequest pageRequest) {
 		Page<EntryDataProjection> page = entryRepository.findEntryDataByUserId(userId.value(),
-				toSpringPageable(pageRequest));
+				mapper.toSpringPageable(pageRequest));
 		List<Entry> items = toEntries(page.getContent());
 		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
 				page.hasNext());
@@ -50,7 +46,7 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	@Override
 	public PageResult<Entry> findByLanguage(UserId userId, Language sourceLanguage, PageRequest pageRequest) {
 		Page<EntryDataProjection> page = entryRepository.findEntryDataByUserIdAndLanguage(userId.value(),
-				sourceLanguage.name(), toSpringPageable(pageRequest));
+				sourceLanguage.name(), mapper.toSpringPageable(pageRequest));
 		List<Entry> items = toEntries(page.getContent());
 		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
 				page.hasNext());
@@ -59,7 +55,7 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	@Override
 	public PageResult<Entry> search(UserId userId, String query, PageRequest pageRequest) {
 		Page<EntryDataProjection> page = entryRepository.findEntryDataByUserIdAndTermContainingIgnoreCase(
-				userId.value(), query.trim(), toSpringPageable(pageRequest));
+				userId.value(), query.trim(), mapper.toSpringPageable(pageRequest));
 		List<Entry> items = toEntries(page.getContent());
 		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
 				page.hasNext());
@@ -84,7 +80,7 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	public PageResult<ch.clicktotranslate.vocabulary.domain.Usage> findUsagesByEntry(UserId userId, Entry.Id entryId,
 			PageRequest pageRequest) {
 		Page<JpaUsageEntity> page = usageRepository.findByEntryIdAndEntryUserId(entryId.value(), userId.value(),
-				toSpringPageable(pageRequest));
+				mapper.toSpringPageable(pageRequest));
 		List<ch.clicktotranslate.vocabulary.domain.Usage> items = page.getContent()
 			.stream()
 			.map(mapper::toDomainUsage)
@@ -96,16 +92,6 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	@Override
 	public void deleteEntryById(UserId userId, Entry.Id entryId) {
 		entryRepository.findByIdAndUserId(entryId.value(), userId.value()).ifPresent(entryRepository::delete);
-	}
-
-	private Pageable toSpringPageable(PageRequest pageRequest) {
-		Sort springSort = Sort.unsorted();
-		for (PageRequest.Sort sort : pageRequest.sort()) {
-			springSort = springSort.and(Sort.by(
-					sort.direction() == PageRequest.Sort.Direction.ASC ? Sort.Direction.ASC : Sort.Direction.DESC,
-					sort.field()));
-		}
-		return org.springframework.data.domain.PageRequest.of(pageRequest.page(), pageRequest.size(), springSort);
 	}
 
 	private List<Entry> toEntries(List<EntryDataProjection> projections) {

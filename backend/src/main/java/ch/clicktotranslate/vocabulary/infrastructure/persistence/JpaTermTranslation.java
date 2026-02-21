@@ -1,12 +1,15 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class JpaTermTranslation {
 
+	@Column(nullable = false)
 	private String language;
 
+	@Column(nullable = false)
 	private String term;
 
 	public String getLanguage() {
