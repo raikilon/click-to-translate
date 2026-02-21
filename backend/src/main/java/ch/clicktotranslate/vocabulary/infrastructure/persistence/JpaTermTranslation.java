@@ -3,11 +3,11 @@ package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class JpaTermTranslationValue {
+public class JpaTermTranslation {
 
 	private String language;
 
-	private String lemma;
+	private String term;
 
 	public String getLanguage() {
 		return language;
@@ -17,12 +17,12 @@ public class JpaTermTranslationValue {
 		this.language = language;
 	}
 
-	public String getLemma() {
-		return lemma;
+	public String getTerm() {
+		return term;
 	}
 
-	public void setLemma(String lemma) {
-		this.lemma = lemma;
+	public void setTerm(String lemma) {
+		this.term = lemma;
 	}
 
 }

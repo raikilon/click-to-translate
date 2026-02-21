@@ -1,8 +1,9 @@
 package ch.clicktotranslate.vocabulary.application;
 
-import ch.clicktotranslate.vocabulary.domain.VocabularyRepository;
 import ch.clicktotranslate.vocabulary.domain.Entry;
+import org.jmolecules.ddd.annotation.Service;
 
+@Service
 public class DeleteEntry {
 
 	private final VocabularyRepository vocabularyRepository;

@@ -1,19 +1,6 @@
 package ch.clicktotranslate.vocabulary.infrastructure.config;
 
-import ch.clicktotranslate.vocabulary.application.RegisterSegmentBundle;
-import ch.clicktotranslate.vocabulary.application.UserProvider;
-import ch.clicktotranslate.vocabulary.application.DeleteEntry;
-import ch.clicktotranslate.vocabulary.application.DeleteUsage;
-import ch.clicktotranslate.vocabulary.application.ListEntries;
-import ch.clicktotranslate.vocabulary.application.ListEntriesByLanguage;
-import ch.clicktotranslate.vocabulary.application.ListEntryUsages;
-import ch.clicktotranslate.vocabulary.application.SearchEntries;
-import ch.clicktotranslate.vocabulary.application.UpdateEntryTranslation;
-import ch.clicktotranslate.vocabulary.application.EntryQuery;
-import ch.clicktotranslate.vocabulary.application.UpdateEntry;
-import ch.clicktotranslate.vocabulary.application.VocabularyUsageController;
-import ch.clicktotranslate.vocabulary.application.VocabularyController;
-import ch.clicktotranslate.vocabulary.domain.VocabularyRepository;
+import ch.clicktotranslate.vocabulary.application.*;
 import ch.clicktotranslate.vocabulary.infrastructure.event.SegmentBundleTokenizedEventMapper;
 import ch.clicktotranslate.vocabulary.infrastructure.event.SpringSegmentBundleTokenizedEventListener;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaVocabularyRepository;
@@ -72,13 +59,13 @@ public class VocabConfiguration {
 
 	@Bean
 	public UpdateEntryTranslation updateEntryTranslation(VocabularyRepository vocabularyRepository,
-																		  UserProvider userProvider) {
+                                                         UserProvider userProvider) {
 		return new UpdateEntryTranslation(vocabularyRepository, userProvider);
 	}
 
 	@Bean
 	public UpdateEntry updateEntry(VocabularyRepository vocabularyRepository,
-														  UserProvider userProvider) {
+                                   UserProvider userProvider) {
 		return new UpdateEntry(vocabularyRepository, userProvider);
 	}
 
@@ -89,7 +76,7 @@ public class VocabConfiguration {
 
 	@Bean
 	public ListEntryUsages listEntryUsages(VocabularyRepository vocabularyRepository,
-			UserProvider userProvider) {
+                                           UserProvider userProvider) {
 		return new ListEntryUsages(vocabularyRepository, userProvider);
 	}
 

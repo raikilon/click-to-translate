@@ -2,12 +2,12 @@ package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
 import ch.clicktotranslate.vocabulary.application.EntryData;
 import ch.clicktotranslate.vocabulary.application.EntryQuery;
+import ch.clicktotranslate.vocabulary.application.VocabularyRepository;
 import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Term;
-import ch.clicktotranslate.vocabulary.domain.Usage;
 import ch.clicktotranslate.vocabulary.domain.UserId;
 import ch.clicktotranslate.vocabulary.domain.Entry;
-import ch.clicktotranslate.vocabulary.domain.VocabularyRepository;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,7 +52,6 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	}
 
 	@Override
-	@Transactional
 	public void saveEntry(Entry entry) {
 		mapper.toDomainEntry(entryRepository.save(mapper.toJpaEntryEntity(entry)));
 	}
@@ -64,7 +63,6 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	}
 
 	@Override
-	@Transactional
 	public void deleteEntryById(UserId userId, Entry.Id entryId) {
 		entryRepository.findByIdAndUserId(entryId.value(), userId.value()).ifPresent(entryRepository::delete);
 	}

@@ -1,12 +1,14 @@
 package ch.clicktotranslate.vocabulary.application;
 
-import ch.clicktotranslate.vocabulary.domain.VocabularyRepository;
 import ch.clicktotranslate.vocabulary.domain.Term;
 import ch.clicktotranslate.vocabulary.domain.SegmentBundle;
 import ch.clicktotranslate.vocabulary.domain.Usage;
 import ch.clicktotranslate.vocabulary.domain.Entry;
+import org.jmolecules.ddd.annotation.Service;
+
 import java.util.Optional;
 
+@Service
 public class RegisterSegmentBundle {
 
 	private final VocabularyRepository vocabularyRepository;

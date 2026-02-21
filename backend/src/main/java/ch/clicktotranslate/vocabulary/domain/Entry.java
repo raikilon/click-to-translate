@@ -71,7 +71,6 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		return Optional.ofNullable(termCustomization);
 	}
 
-
 	public List<Term> translations() {
 		return List.copyOf(translations);
 	}

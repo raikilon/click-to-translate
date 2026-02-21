@@ -3,9 +3,11 @@ package ch.clicktotranslate.vocabulary.application;
 import ch.clicktotranslate.vocabulary.domain.Usage;
 import ch.clicktotranslate.vocabulary.domain.UserId;
 import ch.clicktotranslate.vocabulary.domain.Entry;
-import ch.clicktotranslate.vocabulary.domain.VocabularyRepository;
+import org.jmolecules.ddd.annotation.Service;
+
 import java.util.List;
 
+@Service
 public class ListEntryUsages {
 
 	private final VocabularyRepository vocabularyRepository;

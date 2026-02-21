@@ -17,9 +17,9 @@ class VocabularyJpaMapper {
 		JpaEntryEntity entity = new JpaEntryEntity();
 		entity.setId(entry.id() == null ? null : entry.id().value());
 		entity.setUserId(entry.userId().value());
-		entity.setSourceLanguage(entry.term().language().name());
-		entity.setSourceLemma(entry.term().term());
-		entity.setCustomizationLemma(entry.termCustomization().orElse(null));
+		entity.setLanguage(entry.term().language().name());
+		entity.setTerm(entry.term().term());
+		entity.setTermCustomization(entry.termCustomization().orElse(null));
 		entity.setLastEdit(entry.lastEdit());
 		entity.setCreatedAt(entry.createdAt());
 		entity.setTranslations(toJpaTranslations(entry.translations()));
@@ -48,8 +48,8 @@ class VocabularyJpaMapper {
 
 	Entry toDomainEntry(JpaEntryEntity entity) {
 		return new Entry(Entry.Id.of(entity.getId()), UserId.of(entity.getUserId()),
-				new Term(Language.valueOf(entity.getSourceLanguage()), entity.getSourceLemma()),
-				entity.getCustomizationLemma(), toDomainTranslations(entity.getTranslations()),
+				new Term(Language.valueOf(entity.getLanguage()), entity.getTerm()),
+				entity.getTermCustomization(), toDomainTranslations(entity.getTranslations()),
 				toDomainUsages(entity.getUsages()), entity.getLastEdit(), entity.getCreatedAt());
 	}
 
@@ -74,24 +74,24 @@ class VocabularyJpaMapper {
 			.map(this::toDomainUsage)
 			.orElse(null);
 		return new EntryData(entry.getId(),
-				new Term(Language.valueOf(entry.getSourceLanguage()), entry.getSourceLemma()),
-				Optional.ofNullable(entry.getCustomizationLemma()),
+				new Term(Language.valueOf(entry.getLanguage()), entry.getTerm()),
+				Optional.ofNullable(entry.getTermCustomization()),
 				toDomainTranslations(entry.getTranslations()),
 				lastUsage, entry.getLastEdit(), entry.getCreatedAt());
 	}
 
-	private List<JpaTermTranslationValue> toJpaTranslations(List<Term> translations) {
+	private List<JpaTermTranslation> toJpaTranslations(List<Term> translations) {
 		return translations.stream().map(translation -> {
-			JpaTermTranslationValue value = new JpaTermTranslationValue();
+			JpaTermTranslation value = new JpaTermTranslation();
 			value.setLanguage(translation.language().name());
-			value.setLemma(translation.term());
+			value.setTerm(translation.term());
 			return value;
 		}).toList();
 	}
 
-	private List<Term> toDomainTranslations(List<JpaTermTranslationValue> translations) {
+	private List<Term> toDomainTranslations(List<JpaTermTranslation> translations) {
 		return translations.stream().map(translation -> new Term(Language.valueOf(translation.getLanguage()),
-				translation.getLemma())).toList();
+				translation.getTerm())).toList();
 	}
 
 }

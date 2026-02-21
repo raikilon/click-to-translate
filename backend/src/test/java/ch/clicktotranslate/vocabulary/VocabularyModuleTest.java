@@ -46,8 +46,8 @@ class VocabularyModuleTest {
 				JpaEntryEntity entry = entries.getFirst();
 				assertThat(entry.getId()).isNotNull();
 				assertThat(entry.getUserId()).isEqualTo(context.userId());
-				assertThat(entry.getSourceLanguage()).isEqualTo(context.sourceLanguage());
-				assertThat(entry.getSourceLemma()).isEqualTo(context.normalizedTokenizedWord());
+				assertThat(entry.getLanguage()).isEqualTo(context.sourceLanguage());
+				assertThat(entry.getTerm()).isEqualTo(context.normalizedTokenizedWord());
 				assertThat(entry.getUsages()).hasSize(1);
 
 				JpaUsageEntity usage = entry.getUsages().getFirst();

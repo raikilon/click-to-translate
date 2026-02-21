@@ -1,6 +1,5 @@
 package ch.clicktotranslate.vocabulary.application;
 
-import ch.clicktotranslate.vocabulary.domain.UserId;
 import java.util.List;
 
 public class ListEntries {

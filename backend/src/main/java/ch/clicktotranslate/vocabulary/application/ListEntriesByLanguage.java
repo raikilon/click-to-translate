@@ -2,8 +2,11 @@ package ch.clicktotranslate.vocabulary.application;
 
 import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.UserId;
+import org.jmolecules.ddd.annotation.Service;
+
 import java.util.List;
 
+@Service
 public class ListEntriesByLanguage {
 
 	private final EntryQuery entryQuery;

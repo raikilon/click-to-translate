@@ -4,6 +4,6 @@ import ch.clicktotranslate.vocabulary.domain.UserId;
 
 public interface UserProvider {
 
-	UserId currentUserId();
+    UserId currentUserId();
 
 }

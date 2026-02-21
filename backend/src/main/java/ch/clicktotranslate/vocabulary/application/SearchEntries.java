@@ -1,7 +1,10 @@
 package ch.clicktotranslate.vocabulary.application;
 
+import org.jmolecules.ddd.annotation.Service;
+
 import java.util.List;
 
+@Service
 public class SearchEntries {
 
 	private final EntryQuery entryQuery;

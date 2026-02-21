@@ -3,6 +3,7 @@ package ch.clicktotranslate.vocabulary.application;
 import ch.clicktotranslate.vocabulary.domain.Language;
 import java.util.List;
 
+
 public class VocabularyController {
 
 	private final ListEntries listEntries;
