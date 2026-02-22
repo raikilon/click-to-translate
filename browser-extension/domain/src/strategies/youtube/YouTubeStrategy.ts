@@ -66,18 +66,13 @@ export class YouTubeStrategy implements Strategy {
   }
 
   computeDisplay(
-    _capture: CaptureResult,
-    trigger: Trigger,
-    snapshots: Snapshots,
+    capture: CaptureResult,
+    _trigger: Trigger,
+    _snapshots: Snapshots,
   ): DisplayInstruction {
-    const anchor =
-      snapshots.subtitle?.provider === "youtube"
-        ? snapshots.subtitle.anchor
-        : getPointAnchor(trigger);
-
     return {
       mode: "VIDEO_OVERLAY",
-      anchor,
+      anchor: capture.anchor,
     };
   }
 }

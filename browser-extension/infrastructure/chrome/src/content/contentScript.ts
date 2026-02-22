@@ -3,7 +3,7 @@ import type {
   ErrorMessageResponse,
   HandleTriggerResponse,
 } from "../background/messageTypes";
-import { collectGenericSnapshots } from "./probes/genericPageProbe";
+import { collectSnapshots } from "./probes/probeResolver";
 import { ContentRendererBridge } from "./render/rendererBridge";
 
 const renderer = new ContentRendererBridge();
@@ -41,10 +41,10 @@ function toTrigger(event: MouseEvent): Trigger {
   };
 }
 
-function sendHandleTrigger(
+async function sendHandleTrigger(
   trigger: Trigger,
 ): Promise<HandleTriggerResponse | ErrorMessageResponse> {
-  const snapshots = collectGenericSnapshots(trigger);
+  const snapshots = await collectSnapshots(trigger);
 
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(

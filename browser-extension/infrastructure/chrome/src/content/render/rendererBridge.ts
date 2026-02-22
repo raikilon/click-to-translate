@@ -1,6 +1,7 @@
 import type { RenderPayload, Renderer } from "@application";
 import type { DisplayInstruction } from "@domain";
 import { tooltipRenderer } from "./tooltipRenderer";
+import { videoOverlayRenderer } from "./videoOverlayRenderer";
 
 export class ContentRendererBridge implements Renderer {
   async render(instruction: DisplayInstruction, payload: RenderPayload): Promise<void> {
@@ -8,11 +9,21 @@ export class ContentRendererBridge implements Renderer {
       return;
     }
 
-    // MVP: render all non-popup instructions as tooltip.
-    tooltipRenderer.render(instruction, payload);
+    if (instruction.mode === "TOOLTIP") {
+      tooltipRenderer.render(instruction, payload);
+      return;
+    }
+
+    if (instruction.mode === "VIDEO_OVERLAY") {
+      videoOverlayRenderer.show(instruction.anchor, payload.text, {
+        dismissOnOutsideClick: instruction.dismissOn?.outsideClick,
+        dismissOnEscape: instruction.dismissOn?.escape,
+      });
+    }
   }
 
   async dismiss(): Promise<void> {
     tooltipRenderer.dismiss();
+    videoOverlayRenderer.hide();
   }
 }
