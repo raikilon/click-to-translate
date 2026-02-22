@@ -1,16 +1,24 @@
 import { createCompositionRoot } from "../compositionRoot";
 import type { BrowserAdapter } from "../platform/BrowserAdapter";
 import type {
-  ErrorMessageResponse,
   ExtensionRequestMessage,
   ExtensionResponseMessage,
-  HandleTriggerResponse,
+  HandleTriggerData,
+  MessageError,
+  MessageSuccess,
 } from "./messageTypes";
 
-function toErrorResponse(error: unknown): ErrorMessageResponse {
+function toErrorResponse(error: unknown): MessageError {
   return {
     ok: false,
     error: error instanceof Error ? error.message : "Unknown error",
+  };
+}
+
+function toSuccessResponse<TData>(data: TData): MessageSuccess<TData> {
+  return {
+    ok: true,
+    data,
   };
 }
 
@@ -28,25 +36,11 @@ export function registerBackground(adapter: BrowserAdapter): void {
 
   async function handleTriggerMessage(
     message: Extract<ExtensionRequestMessage, { type: "HANDLE_TRIGGER" }>,
-  ): Promise<HandleTriggerResponse> {
+  ): Promise<HandleTriggerData> {
     const triggerResult = await root.useCases.handleTrigger.execute(message.trigger, {
       snapshots: message.snapshots,
       fallbackText: "Saved",
     });
-
-    if (
-      triggerResult.status === "rendered" ||
-      (triggerResult.status === "no_translation" &&
-        !!triggerResult.instruction &&
-        !!triggerResult.renderPayload)
-    ) {
-      return {
-        status: "ok",
-        instruction: triggerResult.instruction,
-        renderPayload: triggerResult.renderPayload,
-        triggerResult,
-      };
-    }
 
     return {
       status: triggerResult.status,
@@ -59,35 +53,35 @@ export function registerBackground(adapter: BrowserAdapter): void {
 
   async function routeMessage(
     message: ExtensionRequestMessage,
-  ): Promise<ExtensionResponseMessage | HandleTriggerResponse> {
+  ): Promise<ExtensionResponseMessage> {
     switch (message.type) {
       case "GET_SETTINGS": {
         const settings = await root.useCases.getSettings.execute();
-        return { ok: true, settings };
+        return toSuccessResponse({ settings });
       }
 
       case "SAVE_SETTINGS": {
         const settings = await root.useCases.saveSettings.execute(message.settings);
-        return { ok: true, settings };
+        return toSuccessResponse({ settings });
       }
 
       case "LOGIN": {
         const session = await root.useCases.login.execute();
-        return { ok: true, session };
+        return toSuccessResponse({ session });
       }
 
       case "LOGOUT": {
         await root.useCases.logout.execute();
-        return { ok: true };
+        return toSuccessResponse({});
       }
 
       case "GET_LANGUAGES": {
         const result = await root.useCases.loadLanguages.execute();
-        return { ok: true, result };
+        return toSuccessResponse({ result });
       }
 
       case "HANDLE_TRIGGER": {
-        return handleTriggerMessage(message);
+        return toSuccessResponse(await handleTriggerMessage(message));
       }
     }
   }
@@ -97,7 +91,7 @@ export function registerBackground(adapter: BrowserAdapter): void {
       return Promise.resolve({
         ok: false,
         error: "Unsupported message payload.",
-      } satisfies ErrorMessageResponse);
+      } satisfies MessageError);
     }
 
     return routeMessage(rawMessage).catch((error: unknown) => toErrorResponse(error));

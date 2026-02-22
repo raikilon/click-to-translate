@@ -42,56 +42,67 @@ export type ExtensionRequestMessage =
   | GetLanguagesMessage
   | HandleTriggerMessage;
 
-export interface ErrorMessageResponse {
+export interface MessageSuccess<TData> {
+  ok: true;
+  data: TData;
+}
+
+export interface MessageError {
   ok: false;
   error: string;
+  code?: string;
 }
 
-export interface GetSettingsResponse {
-  ok: true;
+export type MessageEnvelope<TData> = MessageSuccess<TData> | MessageError;
+
+export interface GetSettingsData {
   settings: Settings;
 }
 
-export interface SaveSettingsResponse {
-  ok: true;
+export interface SaveSettingsData {
   settings: Settings;
 }
 
-export interface LoginResponse {
-  ok: true;
+export interface LoginData {
   session: AuthSession | null;
 }
 
-export interface LogoutResponse {
-  ok: true;
-}
+export type LogoutData = Record<string, never>;
 
-export interface GetLanguagesResponse {
-  ok: true;
+export interface GetLanguagesData {
   result: GetSelectableLanguagesResult;
 }
 
-export type HandleTriggerMessageStatus =
-  | "ok"
-  | Exclude<HandleTranslateTriggerResult["status"], "rendered">;
+export type HandleTriggerStatus = HandleTranslateTriggerResult["status"];
 
-export interface HandleTriggerResponse {
-  status: HandleTriggerMessageStatus;
+export interface HandleTriggerData {
+  status: HandleTriggerStatus;
   reason?: string;
   instruction?: DisplayInstruction;
   renderPayload?: RenderPayload;
-  triggerResult?: HandleTranslateTriggerResult;
-  error?: string;
+  triggerResult: HandleTranslateTriggerResult;
 }
 
+export type GetSettingsResponse = MessageEnvelope<GetSettingsData>;
+export type SaveSettingsResponse = MessageEnvelope<SaveSettingsData>;
+export type LoginResponse = MessageEnvelope<LoginData>;
+export type LogoutResponse = MessageEnvelope<LogoutData>;
+export type GetLanguagesResponse = MessageEnvelope<GetLanguagesData>;
+export type HandleTriggerResponse = MessageEnvelope<HandleTriggerData>;
+
 export type ExtensionResponseMessage =
-  | ErrorMessageResponse
   | GetSettingsResponse
   | SaveSettingsResponse
   | LoginResponse
   | LogoutResponse
   | GetLanguagesResponse
   | HandleTriggerResponse;
+
+export function isMessageError<TData>(
+  envelope: MessageEnvelope<TData>,
+): envelope is MessageError {
+  return envelope.ok === false;
+}
 
 export function isHandleTriggerMessage(
   message: ExtensionRequestMessage,

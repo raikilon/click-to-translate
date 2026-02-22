@@ -1,8 +1,11 @@
 import type { Renderer } from "@application";
+import type { RenderPayload } from "@application";
 import type { Snapshots, Trigger } from "@domain";
+import type { DisplayInstruction } from "@domain";
 import type {
-  ErrorMessageResponse,
+  HandleTriggerData,
   HandleTriggerResponse,
+  MessageEnvelope,
 } from "../background/messageTypes";
 import type { RuntimePort } from "../platform/BrowserAdapter";
 
@@ -25,10 +28,19 @@ function toMouseButton(button: number): "left" | "middle" | "right" {
   return "left";
 }
 
-function isErrorResponse(
-  response: HandleTriggerResponse | ErrorMessageResponse,
-): response is ErrorMessageResponse {
-  return "ok" in response && response.ok === false;
+type RenderableHandleTriggerData = HandleTriggerData & {
+  instruction: DisplayInstruction;
+  renderPayload: RenderPayload;
+};
+
+function shouldRender(
+  payload: HandleTriggerData,
+): payload is RenderableHandleTriggerData {
+  if (!payload.instruction || !payload.renderPayload) {
+    return false;
+  }
+
+  return payload.status === "rendered" || payload.status === "no_translation";
 }
 
 export function registerContentScript(dependencies: ContentScriptDependencies): void {
@@ -55,9 +67,9 @@ export function registerContentScript(dependencies: ContentScriptDependencies): 
 
   async function sendHandleTrigger(
     trigger: Trigger,
-  ): Promise<HandleTriggerResponse | ErrorMessageResponse> {
+  ): Promise<MessageEnvelope<HandleTriggerData>> {
     const snapshots = await dependencies.collectSnapshots(trigger);
-    return dependencies.runtime.sendMessage<HandleTriggerResponse | ErrorMessageResponse>(
+    return dependencies.runtime.sendMessage<HandleTriggerResponse>(
       {
         type: "HANDLE_TRIGGER",
         trigger,
@@ -71,16 +83,15 @@ export function registerContentScript(dependencies: ContentScriptDependencies): 
 
     void sendHandleTrigger(trigger)
       .then(async (response) => {
-        if (isErrorResponse(response)) {
+        if (!response.ok) {
           return;
         }
 
-        if (
-          response.status === "ok" &&
-          response.instruction &&
-          response.renderPayload
-        ) {
-          await dependencies.renderer.render(response.instruction, response.renderPayload);
+        if (shouldRender(response.data)) {
+          await dependencies.renderer.render(
+            response.data.instruction,
+            response.data.renderPayload,
+          );
         }
       })
       .catch(() => {

@@ -1,8 +1,8 @@
 import type {
-  ErrorMessageResponse,
-  GetLanguagesResponse,
-  GetSettingsResponse,
-  LoginResponse,
+  GetLanguagesData,
+  GetSettingsData,
+  LoginData,
+  MessageEnvelope,
 } from "../background/messageTypes";
 import type { RuntimePort, StoragePort } from "../platform/BrowserAdapter";
 
@@ -26,29 +26,18 @@ function setStatus(message: string, isError = false): void {
   status.dataset.kind = isError ? "error" : "ok";
 }
 
-function isErrorResponse<TResponse>(
-  response: TResponse | ErrorMessageResponse,
-): response is ErrorMessageResponse {
-  return (
-    response &&
-    typeof response === "object" &&
-    "ok" in response &&
-    (response as ErrorMessageResponse).ok === false
-  );
-}
-
 function createMessageSender(runtime: RuntimePort) {
-  return async function sendMessage<TResponse>(message: unknown): Promise<TResponse> {
-    const response = await runtime.sendMessage<TResponse | ErrorMessageResponse>(message);
+  return async function sendMessage<TData>(message: unknown): Promise<TData> {
+    const response = await runtime.sendMessage<MessageEnvelope<TData>>(message);
     if (!response) {
       throw new Error("No response from background.");
     }
 
-    if (isErrorResponse(response)) {
+    if (!response.ok) {
       throw new Error(response.error);
     }
 
-    return response as TResponse;
+    return response.data;
   };
 }
 
@@ -58,7 +47,7 @@ export function registerPopup(dependencies: PopupDependencies): void {
   async function refreshPopupState(): Promise<void> {
     const [storedSession, settingsResponse] = await Promise.all([
       dependencies.storage.get<unknown>("authSession"),
-      sendMessage<GetSettingsResponse>({ type: "GET_SETTINGS" }),
+      sendMessage<GetSettingsData>({ type: "GET_SETTINGS" }),
     ]);
 
     const sessionLabel = byId<HTMLDivElement>("sessionState");
@@ -74,7 +63,7 @@ export function registerPopup(dependencies: PopupDependencies): void {
   }
 
   async function onLogin(): Promise<void> {
-    const response = await sendMessage<LoginResponse>({ type: "LOGIN" });
+    const response = await sendMessage<LoginData>({ type: "LOGIN" });
     if (response.session) {
       setStatus("Login successful.");
     } else {
@@ -91,7 +80,7 @@ export function registerPopup(dependencies: PopupDependencies): void {
   }
 
   async function onGetLanguages(): Promise<void> {
-    const response = await sendMessage<GetLanguagesResponse>({
+    const response = await sendMessage<GetLanguagesData>({
       type: "GET_LANGUAGES",
     });
     const names = response.result.languages.map((language) => language.code).join(", ");
