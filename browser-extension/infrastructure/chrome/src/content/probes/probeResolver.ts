@@ -1,7 +1,12 @@
 import type { Snapshots, Trigger } from "@domain";
 import { collectGenericSnapshots } from "./genericPageProbe";
 import {
-  getSubtitleSnapshot,
+  getSubtitleSnapshot as getNetflixSubtitleSnapshot,
+  startNetflixSubtitleObserver,
+  stopNetflixSubtitleObserver,
+} from "./netflixProbe";
+import {
+  getSubtitleSnapshot as getYouTubeSubtitleSnapshot,
   startYouTubeSubtitleObserver,
   stopYouTubeSubtitleObserver,
 } from "./youtubeProbe";
@@ -10,20 +15,36 @@ function isYouTubeWatchUrl(url: string): boolean {
   return url.includes("youtube.com/watch") || url.includes("youtu.be/");
 }
 
+function isNetflixWatchUrl(url: string): boolean {
+  return url.includes("netflix.com/watch");
+}
+
 export async function collectSnapshots(trigger: Trigger): Promise<Snapshots> {
   const genericSnapshots = collectGenericSnapshots(trigger);
 
-  if (!isYouTubeWatchUrl(trigger.url)) {
-    stopYouTubeSubtitleObserver();
-    return genericSnapshots;
+  if (isYouTubeWatchUrl(trigger.url)) {
+    stopNetflixSubtitleObserver();
+    startYouTubeSubtitleObserver();
+    const subtitle = await getYouTubeSubtitleSnapshot(trigger);
+
+    return {
+      ...genericSnapshots,
+      subtitle: subtitle ?? null,
+    };
   }
 
-  startYouTubeSubtitleObserver();
-  const subtitle = await getSubtitleSnapshot(trigger);
+  if (isNetflixWatchUrl(trigger.url)) {
+    stopYouTubeSubtitleObserver();
+    startNetflixSubtitleObserver();
+    const subtitle = await getNetflixSubtitleSnapshot(trigger);
 
-  return {
-    ...genericSnapshots,
-    subtitle: subtitle ?? null,
-  };
+    return {
+      ...genericSnapshots,
+      subtitle: subtitle ?? null,
+    };
+  }
+
+  stopYouTubeSubtitleObserver();
+  stopNetflixSubtitleObserver();
+  return genericSnapshots;
 }
-
