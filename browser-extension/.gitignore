@@ -9,6 +9,8 @@ pnpm-debug.log*
 
 # Build output
 dist/
+dist/chrome/
+dist/firefox/
 build/
 coverage/
 *.tsbuildinfo

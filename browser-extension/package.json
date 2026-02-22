@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "node scripts/build-extension.mjs clean",
+    "typecheck:chrome": "tsc -p infrastructure/chrome/tsconfig.json",
+    "typecheck:firefox": "tsc -p infrastructure/firefox/tsconfig.json",
+    "typecheck": "npm run typecheck:chrome && npm run typecheck:firefox",
+    "build:chrome": "node scripts/build-extension.mjs chrome",
+    "build:firefox": "node scripts/build-extension.mjs firefox",
+    "build": "node scripts/build-extension.mjs all",
+    "test": "npm run typecheck"
   },
   "keywords": [],
   "author": "",
@@ -11,6 +18,8 @@
   "description": "",
   "devDependencies": {
     "@types/chrome": "^0.1.37",
+    "@types/firefox-webext-browser": "^120.0.4",
+    "esbuild": "^0.25.10",
     "typescript": "^5.9.3"
   }
 }
