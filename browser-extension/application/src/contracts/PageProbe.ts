@@ -3,7 +3,7 @@ import type {
   SubtitleSnapshot,
   TextAtPoint,
   Trigger,
-} from "../../../domain/src";
+} from "@domain";
 
 export interface PageInfo {
   url: string;

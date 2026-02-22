@@ -1,4 +1,4 @@
-import type { DisplayInstruction } from "../../../domain/src";
+import type { DisplayInstruction } from "@domain";
 
 export interface RenderPayload {
   text: string;

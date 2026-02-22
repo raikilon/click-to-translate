@@ -10,3 +10,4 @@ export type { TextAtPoint } from "./input/TextAtPoint";
 export type { SubtitleSnapshot } from "./input/SubtitleSnapshot";
 export type { CaptureResult } from "./model/CaptureResult";
 export type { DisplayInstruction } from "./model/DisplayInstruction";
+export * from "./strategies";

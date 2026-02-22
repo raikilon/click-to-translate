@@ -1,4 +1,4 @@
-import type { LanguageDto, SegmentBundleDto } from "../../../domain/src";
+import type { LanguageDto, SegmentBundleDto } from "@domain";
 import type { AuthSession } from "../model/AuthSession";
 import type { PostSegmentResponse } from "../model/ApiModels";
 
