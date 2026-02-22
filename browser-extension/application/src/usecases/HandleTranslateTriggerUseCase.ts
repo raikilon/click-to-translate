@@ -11,7 +11,7 @@ import {
 import type { ApiClient } from "../contracts/ApiClient";
 import type { Clock } from "../contracts/Clock";
 import type { PageInfo, PageProbe } from "../contracts/PageProbe";
-import type { Renderer } from "../contracts/Renderer";
+import type { RenderPayload, Renderer } from "../contracts/Renderer";
 import type { SettingsStore } from "../contracts/SettingsStore";
 import type { PostSegmentResponse } from "../model/ApiModels";
 import type { Settings } from "../model/Settings";
@@ -31,6 +31,13 @@ export interface HandleTranslateTriggerResult {
   capture?: CaptureResult;
   response?: PostSegmentResponse;
   instruction?: DisplayInstruction;
+  renderPayload?: RenderPayload;
+}
+
+export interface HandleTranslateTriggerExecuteOptions {
+  snapshots?: Snapshots;
+  render?: boolean;
+  fallbackText?: string;
 }
 
 export class HandleTranslateTriggerUseCase {
@@ -49,7 +56,10 @@ export class HandleTranslateTriggerUseCase {
       strategyResolver ?? new StrategyResolver(createDefaultStrategies());
   }
 
-  async execute(trigger: Trigger): Promise<HandleTranslateTriggerResult> {
+  async execute(
+    trigger: Trigger,
+    options: HandleTranslateTriggerExecuteOptions = {},
+  ): Promise<HandleTranslateTriggerResult> {
     const settings = await this.settingsStore.get();
     if (!triggerMatchesSettings(trigger, settings)) {
       return {
@@ -58,19 +68,8 @@ export class HandleTranslateTriggerUseCase {
       };
     }
 
-    const [pageInfo, selection, textAtPoint, subtitle] = await Promise.all([
-      this.pageProbe.getPageInfo(),
-      this.pageProbe.getSelectionSnapshot(trigger),
-      this.pageProbe.getTextAtPoint(trigger),
-      this.pageProbe.getSubtitleSnapshot(trigger),
-    ]);
-
-    const snapshots: Snapshots = {
-      pageInfo,
-      selection,
-      textAtPoint,
-      subtitle,
-    };
+    const snapshots = options.snapshots ?? (await this.captureSnapshots(trigger));
+    const pageInfo = snapshots.pageInfo ?? { url: trigger.url };
 
     const strategy = this.strategyResolver.resolve(
       pageInfo.url || trigger.url,
@@ -109,35 +108,55 @@ export class HandleTranslateTriggerUseCase {
     const accessToken = await this.resolveAccessToken();
     const response = await this.apiClient.postSegment(accessToken, bundle);
     const translatedText = pickTranslatedText(response);
-
-    if (!translatedText) {
-      return {
-        status: "no_translation",
-        capture,
-        response,
-      };
-    }
-
     const instruction: DisplayInstruction = settings.showTooltip
       ? strategy.computeDisplay(capture, trigger, snapshots)
       : {
           mode: "POPUP_ONLY",
           anchor: capture.anchor,
         };
+    const renderPayload = buildRenderPayload(
+      capture,
+      response,
+      translatedText,
+      options.fallbackText,
+    );
+    const shouldRender = options.render ?? true;
+    if (shouldRender) {
+      await this.renderer.render(instruction, renderPayload);
+    }
 
-    await this.renderer.render(instruction, {
-      text: translatedText,
-      debug: {
-        word: capture.word,
-        sentence: capture.sentence,
-      },
-    });
+    if (!translatedText) {
+      return {
+        status: "no_translation",
+        capture,
+        response,
+        instruction,
+        renderPayload,
+      };
+    }
 
     return {
       status: "rendered",
       capture,
       response,
       instruction,
+      renderPayload,
+    };
+  }
+
+  private async captureSnapshots(trigger: Trigger): Promise<Snapshots> {
+    const [pageInfo, selection, textAtPoint, subtitle] = await Promise.all([
+      this.pageProbe.getPageInfo(),
+      this.pageProbe.getSelectionSnapshot(trigger),
+      this.pageProbe.getTextAtPoint(trigger),
+      this.pageProbe.getSubtitleSnapshot(trigger),
+    ]);
+
+    return {
+      pageInfo,
+      selection,
+      textAtPoint,
+      subtitle,
     };
   }
 
@@ -217,4 +236,28 @@ function pickTranslatedText(response: PostSegmentResponse): string | null {
   }
 
   return null;
+}
+
+function buildRenderPayload(
+  capture: CaptureResult,
+  response: PostSegmentResponse,
+  translatedText: string | null,
+  fallbackText?: string,
+): RenderPayload {
+  return {
+    text: translatedText ?? buildPlaceholderText(response, fallbackText),
+    debug: {
+      word: capture.word,
+      sentence: capture.sentence,
+    },
+  };
+}
+
+function buildPlaceholderText(
+  response: PostSegmentResponse,
+  fallbackText?: string,
+): string {
+  const normalizedFallback = fallbackText?.trim() ? fallbackText.trim() : "Saved";
+  const segmentId = response.segmentId?.trim();
+  return segmentId ? `${normalizedFallback} (#${segmentId})` : normalizedFallback;
 }
