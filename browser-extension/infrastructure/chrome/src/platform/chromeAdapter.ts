@@ -1,4 +1,4 @@
-import type { BrowserAdapter } from "@infra-shared";
+import type { BrowserAdapter } from "@infra-shared/platform/BrowserAdapter";
 
 function toErrorPayload(error: unknown): { ok: false; error: string } {
   return {

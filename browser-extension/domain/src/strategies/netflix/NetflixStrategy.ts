@@ -32,26 +32,6 @@ function getWord(snapshots: Snapshots): string | null {
   return fromTextAtPoint || null;
 }
 
-function buildSentenceFromContext(word: string, surroundingText?: string): string | null {
-  if (!surroundingText) {
-    return null;
-  }
-
-  const normalized = normalizeText(surroundingText);
-  if (!normalized) {
-    return null;
-  }
-
-  const wordIndex = normalized.toLowerCase().indexOf(word.toLowerCase());
-  if (wordIndex < 0) {
-    return normalized;
-  }
-
-  const start = Math.max(0, wordIndex - 80);
-  const end = Math.min(normalized.length, wordIndex + word.length + 80);
-  return normalized.slice(start, end).trim();
-}
-
 export class NetflixStrategy implements Strategy {
   readonly id = "netflix" as const;
 
@@ -60,66 +40,42 @@ export class NetflixStrategy implements Strategy {
   }
 
   computeCapture(trigger: Trigger, snapshots: Snapshots): CaptureResult | null {
-    const word = getWord(snapshots);
-    if (!word) {
-      return null;
-    }
-
     const netflixSubtitle =
       snapshots.subtitle?.provider === "netflix" &&
       normalizeText(snapshots.subtitle.text)
         ? snapshots.subtitle
         : null;
-
-    if (netflixSubtitle) {
-      const anchor =
-        netflixSubtitle.anchor ??
-        snapshots.selection?.anchor ??
-        snapshots.textAtPoint?.anchor ??
-        getPointAnchor(trigger);
-
-      return {
-        word,
-        sentence: normalizeText(netflixSubtitle.text),
-        source: "NETFLIX",
-        anchor,
-      };
+    if (!netflixSubtitle) {
+      return null;
     }
 
-    const fallbackAnchor =
+    const word = getWord(snapshots);
+    if (!word) {
+      return null;
+    }
+
+    const anchor =
+      netflixSubtitle.anchor ??
       snapshots.selection?.anchor ??
       snapshots.textAtPoint?.anchor ??
       getPointAnchor(trigger);
-    const fallbackSentence =
-      buildSentenceFromContext(word, snapshots.textAtPoint?.surroundingText) ?? word;
 
     return {
       word,
-      sentence: fallbackSentence,
-      source: "WEB_PAGE",
-      anchor: fallbackAnchor,
+      sentence: normalizeText(netflixSubtitle.text),
+      source: "NETFLIX",
+      anchor,
     };
   }
 
   computeDisplay(
     capture: CaptureResult,
     _trigger: Trigger,
-    snapshots: Snapshots,
+    _snapshots: Snapshots,
   ): DisplayInstruction {
-    if (snapshots.subtitle?.provider === "netflix") {
-      return {
-        mode: "VIDEO_OVERLAY",
-        anchor: snapshots.subtitle.anchor,
-      };
-    }
-
     return {
-      mode: "TOOLTIP",
+      mode: "VIDEO_OVERLAY",
       anchor: capture.anchor,
-      dismissOn: {
-        outsideClick: true,
-        escape: true,
-      },
     };
   }
 }

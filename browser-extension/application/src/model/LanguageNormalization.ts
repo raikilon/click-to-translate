@@ -20,7 +20,7 @@ function hasText(value: string): boolean {
   return value.trim().length > 0;
 }
 
-export function normalizeLanguageCode(value: string): string {
+function normalizeLanguageCode(value: string): string {
   return value.trim().toLowerCase();
 }
 

@@ -4,6 +4,7 @@ import type {
   PostSegmentResponse,
   SettingsStore,
 } from "@application";
+import { normalizeLanguageList } from "@application";
 import type { LanguageDto, SegmentBundleDto, SourceMetadataDto } from "@domain";
 
 interface TokenResponseDto {
@@ -70,46 +71,6 @@ function segmentBundleToBackend(bundle: SegmentBundleDto): unknown {
     sourceMetadata: sourceMetadataToBackend(bundle.sourceMetadata),
     occurredAt: bundle.occurredAt,
   };
-}
-
-function toLanguageDto(code: string): LanguageDto {
-  const normalized = code.trim().toLowerCase();
-  const upperCode = normalized.toUpperCase();
-
-  return {
-    id: normalized,
-    code: normalized,
-    name: upperCode,
-  };
-}
-
-function normalizeLanguages(payload: unknown): LanguageDto[] {
-  if (!Array.isArray(payload)) {
-    return [];
-  }
-
-  const result: LanguageDto[] = [];
-  for (const candidate of payload) {
-    if (typeof candidate === "string") {
-      result.push(toLanguageDto(candidate));
-      continue;
-    }
-
-    if (!candidate || typeof candidate !== "object") {
-      continue;
-    }
-
-    const language = candidate as Partial<LanguageDto>;
-    if (typeof language.code === "string") {
-      result.push({
-        id: typeof language.id === "string" ? language.id : language.code,
-        code: language.code,
-        name: typeof language.name === "string" ? language.name : language.code,
-      });
-    }
-  }
-
-  return result;
 }
 
 async function readJsonBody(response: Response): Promise<unknown> {
@@ -181,7 +142,7 @@ export class HttpApiClient implements ApiClient {
       throw new ApiHttpError(response.status, error.message, error.code);
     }
 
-    return normalizeLanguages(payload);
+    return normalizeLanguageList(payload);
   }
 
   async postSegment(

@@ -1,14 +1,13 @@
 import type {
   GetLanguagesData,
-  GetSettingsData,
+  GetPopupStateData,
   LoginData,
   MessageEnvelope,
 } from "../background/messageTypes";
-import type { RuntimePort, StoragePort } from "../platform/BrowserAdapter";
+import type { RuntimePort } from "../platform/BrowserAdapter";
 
 interface PopupDependencies {
   runtime: RuntimePort;
-  storage: StoragePort;
 }
 
 function byId<T extends HTMLElement>(id: string): T {
@@ -45,20 +44,19 @@ export function registerPopup(dependencies: PopupDependencies): void {
   const sendMessage = createMessageSender(dependencies.runtime);
 
   async function refreshPopupState(): Promise<void> {
-    const [storedSession, settingsResponse] = await Promise.all([
-      dependencies.storage.get<unknown>("authSession"),
-      sendMessage<GetSettingsData>({ type: "GET_SETTINGS" }),
-    ]);
+    const popupState = await sendMessage<GetPopupStateData>({
+      type: "GET_POPUP_STATE",
+    });
 
     const sessionLabel = byId<HTMLDivElement>("sessionState");
     const languageLabel = byId<HTMLDivElement>("languageState");
 
-    sessionLabel.textContent = storedSession
+    sessionLabel.textContent = popupState.loggedIn
       ? "Session: Logged in"
       : "Session: Logged out";
 
-    const source = settingsResponse.settings.sourceLanguageId ?? "?";
-    const target = settingsResponse.settings.targetLanguageId ?? "?";
+    const source = popupState.sourceLanguageId ?? "?";
+    const target = popupState.targetLanguageId ?? "?";
     languageLabel.textContent = `Languages: ${source} -> ${target}`;
   }
 

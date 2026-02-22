@@ -1,4 +1,7 @@
-import type { BrowserAdapter, IdentityPort } from "@infra-shared";
+import type {
+  BrowserAdapter,
+  IdentityPort,
+} from "@infra-shared/platform/BrowserAdapter";
 
 function resolveIdentityApi(): IdentityPort {
   if (typeof browser === "undefined" || !browser.identity) {

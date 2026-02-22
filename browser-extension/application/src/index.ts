@@ -15,4 +15,9 @@ export type {
 export { DEFAULT_SETTINGS } from "./model/Settings";
 export type { AuthSession } from "./model/AuthSession";
 export type { PostSegmentResponse, ApiError } from "./model/ApiModels";
+export {
+  findLanguageById,
+  languageFromCode,
+  normalizeLanguageList,
+} from "./model/LanguageNormalization";
 export * from "./usecases";

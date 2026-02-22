@@ -3,5 +3,4 @@ import { firefoxAdapter } from "../../platform/firefoxAdapter";
 
 registerPopup({
   runtime: firefoxAdapter.runtime,
-  storage: firefoxAdapter.storage,
 });

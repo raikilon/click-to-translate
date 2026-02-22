@@ -40,16 +40,19 @@ export class YouTubeStrategy implements Strategy {
   }
 
   computeCapture(trigger: Trigger, snapshots: Snapshots): CaptureResult | null {
-    const word = getWord(snapshots);
-    if (!word) {
-      return null;
-    }
-
     const youtubeSubtitle =
       snapshots.subtitle?.provider === "youtube" &&
       normalizeText(snapshots.subtitle.text)
         ? snapshots.subtitle
         : null;
+    if (!youtubeSubtitle) {
+      return null;
+    }
+
+    const word = getWord(snapshots);
+    if (!word) {
+      return null;
+    }
 
     const anchor =
       youtubeSubtitle?.anchor ??
@@ -59,7 +62,7 @@ export class YouTubeStrategy implements Strategy {
 
     return {
       word,
-      sentence: youtubeSubtitle ? normalizeText(youtubeSubtitle.text) : word,
+      sentence: normalizeText(youtubeSubtitle.text),
       source: "YOUTUBE",
       anchor,
     };

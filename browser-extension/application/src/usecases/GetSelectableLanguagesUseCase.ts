@@ -2,10 +2,7 @@ import type { LanguageDto } from "@domain";
 import type { ApiClient } from "../contracts/ApiClient";
 import type { SettingsStore } from "../contracts/SettingsStore";
 import type { EnsureAuthSessionUseCase } from "./EnsureAuthSessionUseCase";
-import {
-  findLanguageById,
-  normalizeLanguageList,
-} from "./LanguageUtils";
+import { findLanguageById } from "../model/LanguageNormalization";
 
 export interface GetSelectableLanguagesResult {
   languages: LanguageDto[];
@@ -23,10 +20,7 @@ export class GetSelectableLanguagesUseCase {
   async execute(): Promise<GetSelectableLanguagesResult> {
     const settings = await this.settingsStore.get();
     const accessToken = await this.resolveAccessToken();
-    const rawLanguages = (await this.apiClient.getLanguages(
-      accessToken,
-    )) as unknown;
-    const languages = normalizeLanguageList(rawLanguages);
+    const languages = await this.apiClient.getLanguages(accessToken);
 
     return {
       languages,

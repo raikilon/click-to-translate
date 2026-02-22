@@ -28,6 +28,10 @@ export interface GetLanguagesMessage {
   type: "GET_LANGUAGES";
 }
 
+export interface GetPopupStateMessage {
+  type: "GET_POPUP_STATE";
+}
+
 export interface HandleTriggerMessage {
   type: "HANDLE_TRIGGER";
   trigger: Trigger;
@@ -40,6 +44,7 @@ export type ExtensionRequestMessage =
   | LoginMessage
   | LogoutMessage
   | GetLanguagesMessage
+  | GetPopupStateMessage
   | HandleTriggerMessage;
 
 export interface MessageSuccess<TData> {
@@ -73,6 +78,12 @@ export interface GetLanguagesData {
   result: GetSelectableLanguagesResult;
 }
 
+export interface GetPopupStateData {
+  loggedIn: boolean;
+  sourceLanguageId: string | null;
+  targetLanguageId: string | null;
+}
+
 export type HandleTriggerStatus = HandleTranslateTriggerResult["status"];
 
 export interface HandleTriggerData {
@@ -88,6 +99,7 @@ export type SaveSettingsResponse = MessageEnvelope<SaveSettingsData>;
 export type LoginResponse = MessageEnvelope<LoginData>;
 export type LogoutResponse = MessageEnvelope<LogoutData>;
 export type GetLanguagesResponse = MessageEnvelope<GetLanguagesData>;
+export type GetPopupStateResponse = MessageEnvelope<GetPopupStateData>;
 export type HandleTriggerResponse = MessageEnvelope<HandleTriggerData>;
 
 export type ExtensionResponseMessage =
@@ -96,16 +108,5 @@ export type ExtensionResponseMessage =
   | LoginResponse
   | LogoutResponse
   | GetLanguagesResponse
+  | GetPopupStateResponse
   | HandleTriggerResponse;
-
-export function isMessageError<TData>(
-  envelope: MessageEnvelope<TData>,
-): envelope is MessageError {
-  return envelope.ok === false;
-}
-
-export function isHandleTriggerMessage(
-  message: ExtensionRequestMessage,
-): message is HandleTriggerMessage {
-  return message.type === "HANDLE_TRIGGER";
-}

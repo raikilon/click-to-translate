@@ -14,7 +14,7 @@ import type { RenderPayload } from "../contracts/Renderer";
 import type { SettingsStore } from "../contracts/SettingsStore";
 import type { PostSegmentResponse } from "../model/ApiModels";
 import type { EnsureAuthSessionUseCase } from "./EnsureAuthSessionUseCase";
-import { languageFromCode } from "./LanguageUtils";
+import { languageFromCode } from "../model/LanguageNormalization";
 
 export type HandleTranslateTriggerStatus =
   | "ignored"

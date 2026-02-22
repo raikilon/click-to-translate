@@ -1,5 +1,7 @@
 import { DEFAULT_SETTINGS, type Settings } from "@application";
+import type { LanguageDto } from "@domain";
 import type {
+  GetLanguagesData,
   GetSettingsData,
   MessageEnvelope,
   SaveSettingsData,
@@ -7,6 +9,7 @@ import type {
 import type { RuntimePort } from "../platform/BrowserAdapter";
 
 let currentSettings: Settings = { ...DEFAULT_SETTINGS };
+let availableLanguages: LanguageDto[] = [];
 
 function byId<T extends HTMLElement>(id: string): T {
   const element = document.getElementById(id);
@@ -23,6 +26,68 @@ function setStatus(message: string, isError = false): void {
   status.dataset.kind = isError ? "error" : "ok";
 }
 
+function normalizeLanguageId(value: string | null | undefined): string {
+  return (value ?? "").trim().toLowerCase();
+}
+
+function pickLanguageId(languages: LanguageDto[], selectedId: string | null): string {
+  const normalizedSelectedId = normalizeLanguageId(selectedId);
+  if (!normalizedSelectedId) {
+    return "";
+  }
+
+  const match = languages.find((language) => {
+    const normalizedId = normalizeLanguageId(language.id);
+    const normalizedCode = normalizeLanguageId(language.code);
+    return (
+      normalizedId === normalizedSelectedId || normalizedCode === normalizedSelectedId
+    );
+  });
+
+  return match?.id ?? "";
+}
+
+function fillLanguageSelect(
+  selectId: "sourceLanguageId" | "targetLanguageId",
+  placeholder: string,
+  selectedId: string | null,
+): void {
+  const select = byId<HTMLSelectElement>(selectId);
+  select.replaceChildren();
+
+  const placeholderOption = document.createElement("option");
+  placeholderOption.value = "";
+  placeholderOption.textContent = placeholder;
+  select.append(placeholderOption);
+
+  for (const language of availableLanguages) {
+    const option = document.createElement("option");
+    option.value = language.id;
+    option.textContent = `${language.name} (${language.code})`;
+    select.append(option);
+  }
+
+  select.value = pickLanguageId(availableLanguages, selectedId);
+}
+
+function fillLanguageSelects(
+  languages: LanguageDto[],
+  sourceLanguageId: string | null,
+  targetLanguageId: string | null,
+): void {
+  availableLanguages = languages;
+  fillLanguageSelect(
+    "sourceLanguageId",
+    "Select source language",
+    sourceLanguageId,
+  );
+  fillLanguageSelect(
+    "targetLanguageId",
+    "Select target language",
+    targetLanguageId,
+  );
+}
+
 function fillForm(settings: Settings): void {
   byId<HTMLInputElement>("apiBaseUrl").value = settings.apiBaseUrl;
   byId<HTMLInputElement>("languagesPath").value = settings.languagesPath;
@@ -31,8 +96,6 @@ function fillForm(settings: Settings): void {
   byId<HTMLInputElement>("authTokenUrl").value = settings.authTokenUrl;
   byId<HTMLInputElement>("oauthClientId").value = settings.oauthClientId;
   byId<HTMLInputElement>("scopes").value = settings.scopes.join(" ");
-  byId<HTMLInputElement>("sourceLanguageId").value = settings.sourceLanguageId ?? "";
-  byId<HTMLInputElement>("targetLanguageId").value = settings.targetLanguageId ?? "";
   byId<HTMLSelectElement>("mouseButton").value = settings.mouseButton;
   byId<HTMLInputElement>("modAlt").checked = settings.modifiers.alt;
   byId<HTMLInputElement>("modCtrl").checked = settings.modifiers.ctrl;
@@ -56,8 +119,8 @@ function readFormSettings(): Settings {
     authTokenUrl: byId<HTMLInputElement>("authTokenUrl").value.trim(),
     oauthClientId: byId<HTMLInputElement>("oauthClientId").value.trim(),
     scopes,
-    sourceLanguageId: byId<HTMLInputElement>("sourceLanguageId").value.trim() || null,
-    targetLanguageId: byId<HTMLInputElement>("targetLanguageId").value.trim() || null,
+    sourceLanguageId: byId<HTMLSelectElement>("sourceLanguageId").value || null,
+    targetLanguageId: byId<HTMLSelectElement>("targetLanguageId").value || null,
     mouseButton: byId<HTMLSelectElement>("mouseButton").value as Settings["mouseButton"],
     modifiers: {
       alt: byId<HTMLInputElement>("modAlt").checked,
@@ -87,6 +150,21 @@ function createMessageSender(runtime: RuntimePort) {
 export function registerOptions(runtime: RuntimePort): void {
   const sendMessage = createMessageSender(runtime);
 
+  async function loadLanguages(
+    preferredSourceLanguageId: string | null,
+    preferredTargetLanguageId: string | null,
+  ): Promise<void> {
+    const response = await sendMessage<GetLanguagesData>({
+      type: "GET_LANGUAGES",
+    });
+
+    fillLanguageSelects(
+      response.result.languages,
+      response.result.sourceLanguage?.id ?? preferredSourceLanguageId,
+      response.result.targetLanguage?.id ?? preferredTargetLanguageId,
+    );
+  }
+
   async function loadSettings(): Promise<void> {
     const response = await sendMessage<GetSettingsData>({
       type: "GET_SETTINGS",
@@ -94,6 +172,20 @@ export function registerOptions(runtime: RuntimePort): void {
 
     currentSettings = response.settings;
     fillForm(currentSettings);
+    try {
+      await loadLanguages(
+        currentSettings.sourceLanguageId,
+        currentSettings.targetLanguageId,
+      );
+    } catch (error) {
+      fillLanguageSelects([], null, null);
+      setStatus(
+        error instanceof Error
+          ? `Settings loaded, but failed to load languages: ${error.message}`
+          : "Settings loaded, but failed to load languages.",
+        true,
+      );
+    }
   }
 
   async function saveSettings(event: Event): Promise<void> {
@@ -107,7 +199,22 @@ export function registerOptions(runtime: RuntimePort): void {
       });
 
       currentSettings = response.settings;
-      setStatus("Settings saved.");
+      fillForm(currentSettings);
+
+      try {
+        await loadLanguages(
+          currentSettings.sourceLanguageId,
+          currentSettings.targetLanguageId,
+        );
+        setStatus("Settings saved.");
+      } catch (error) {
+        setStatus(
+          error instanceof Error
+            ? `Settings saved, but failed to refresh languages: ${error.message}`
+            : "Settings saved, but failed to refresh languages.",
+          true,
+        );
+      }
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Save failed.", true);
     }

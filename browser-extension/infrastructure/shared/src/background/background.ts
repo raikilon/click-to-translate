@@ -95,6 +95,19 @@ export function registerBackground(adapter: BrowserAdapter): void {
         return toSuccessResponse({ result });
       }
 
+      case "GET_POPUP_STATE": {
+        const [session, settings] = await Promise.all([
+          root.authSessionStore.get(),
+          root.useCases.getSettings.execute(),
+        ]);
+
+        return toSuccessResponse({
+          loggedIn: !!session,
+          sourceLanguageId: settings.sourceLanguageId,
+          targetLanguageId: settings.targetLanguageId,
+        });
+      }
+
       case "HANDLE_TRIGGER": {
         return toSuccessResponse(await handleTriggerMessage(message));
       }
