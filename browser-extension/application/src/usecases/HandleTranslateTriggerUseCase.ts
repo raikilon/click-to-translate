@@ -10,8 +10,7 @@ import {
 } from "@domain";
 import type { ApiClient } from "../contracts/ApiClient";
 import type { Clock } from "../contracts/Clock";
-import type { PageInfo, PageProbe } from "../contracts/PageProbe";
-import type { RenderPayload, Renderer } from "../contracts/Renderer";
+import type { RenderPayload } from "../contracts/Renderer";
 import type { SettingsStore } from "../contracts/SettingsStore";
 import type { PostSegmentResponse } from "../model/ApiModels";
 import type { Settings } from "../model/Settings";
@@ -35,8 +34,7 @@ export interface HandleTranslateTriggerResult {
 }
 
 export interface HandleTranslateTriggerExecuteOptions {
-  snapshots?: Snapshots;
-  render?: boolean;
+  snapshots: Snapshots;
   fallbackText?: string;
 }
 
@@ -45,9 +43,7 @@ export class HandleTranslateTriggerUseCase {
 
   constructor(
     private readonly settingsStore: SettingsStore,
-    private readonly pageProbe: PageProbe,
     private readonly apiClient: ApiClient,
-    private readonly renderer: Renderer,
     private readonly clock: Clock,
     private readonly ensureAuthSession?: EnsureAuthSessionUseCase,
     strategyResolver?: StrategyResolver,
@@ -58,7 +54,7 @@ export class HandleTranslateTriggerUseCase {
 
   async execute(
     trigger: Trigger,
-    options: HandleTranslateTriggerExecuteOptions = {},
+    options: HandleTranslateTriggerExecuteOptions,
   ): Promise<HandleTranslateTriggerResult> {
     const settings = await this.settingsStore.get();
     if (!triggerMatchesSettings(trigger, settings)) {
@@ -68,7 +64,7 @@ export class HandleTranslateTriggerUseCase {
       };
     }
 
-    const snapshots = options.snapshots ?? (await this.captureSnapshots(trigger));
+    const snapshots = options.snapshots;
     const pageInfo = snapshots.pageInfo ?? { url: trigger.url };
 
     const strategy = this.strategyResolver.resolve(
@@ -120,10 +116,6 @@ export class HandleTranslateTriggerUseCase {
       translatedText,
       options.fallbackText,
     );
-    const shouldRender = options.render ?? true;
-    if (shouldRender) {
-      await this.renderer.render(instruction, renderPayload);
-    }
 
     if (!translatedText) {
       return {
@@ -141,22 +133,6 @@ export class HandleTranslateTriggerUseCase {
       response,
       instruction,
       renderPayload,
-    };
-  }
-
-  private async captureSnapshots(trigger: Trigger): Promise<Snapshots> {
-    const [pageInfo, selection, textAtPoint, subtitle] = await Promise.all([
-      this.pageProbe.getPageInfo(),
-      this.pageProbe.getSelectionSnapshot(trigger),
-      this.pageProbe.getTextAtPoint(trigger),
-      this.pageProbe.getSubtitleSnapshot(trigger),
-    ]);
-
-    return {
-      pageInfo,
-      selection,
-      textAtPoint,
-      subtitle,
     };
   }
 
@@ -199,7 +175,7 @@ function parseUrl(
 
 function buildSourceMetadata(
   metadataFromCapture: SourceMetadataDto | undefined,
-  pageInfo: PageInfo,
+  pageInfo: NonNullable<Snapshots["pageInfo"]>,
   fallbackUrl: string,
 ): SourceMetadataDto | undefined {
   const url = metadataFromCapture?.url ?? pageInfo.url ?? fallbackUrl;

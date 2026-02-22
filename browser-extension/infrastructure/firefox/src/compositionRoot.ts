@@ -6,49 +6,12 @@ import {
   LoginUseCase,
   LogoutUseCase,
   SaveSettingsUseCase,
-  type PageProbe,
-  type RenderPayload,
-  type Renderer,
 } from "@application";
-import type {
-  DisplayInstruction,
-  SelectionSnapshot,
-  SubtitleSnapshot,
-  TextAtPoint,
-  Trigger,
-} from "@domain";
 import { HttpApiClient } from "./impl/apiClient";
 import { FirefoxAuthFlow } from "./impl/authFlow";
 import { FirefoxAuthSessionStore } from "./impl/authSessionStore";
 import { SystemClock } from "./impl/clock";
 import { FirefoxSettingsStore } from "./impl/settingsStore";
-
-class NoopRenderer implements Renderer {
-  async render(
-    _instruction: DisplayInstruction,
-    _payload: RenderPayload,
-  ): Promise<void> {}
-
-  async dismiss(): Promise<void> {}
-}
-
-class NoopPageProbe implements PageProbe {
-  async getPageInfo(): Promise<{ url: string }> {
-    return { url: "" };
-  }
-
-  async getSelectionSnapshot(_trigger: Trigger): Promise<SelectionSnapshot | null> {
-    return null;
-  }
-
-  async getTextAtPoint(_trigger: Trigger): Promise<TextAtPoint | null> {
-    return null;
-  }
-
-  async getSubtitleSnapshot(_trigger: Trigger): Promise<SubtitleSnapshot | null> {
-    return null;
-  }
-}
 
 export interface CompositionRoot {
   settingsStore: FirefoxSettingsStore;
@@ -88,9 +51,7 @@ export function createCompositionRoot(): CompositionRoot {
 
   const handleTrigger = new HandleTranslateTriggerUseCase(
     settingsStore,
-    new NoopPageProbe(),
     apiClient,
-    new NoopRenderer(),
     clock,
     ensureAuthSession,
   );

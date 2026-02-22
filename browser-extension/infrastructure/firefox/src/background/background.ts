@@ -35,7 +35,6 @@ async function handleTriggerMessage(
 
   const triggerResult = await root.useCases.handleTrigger.execute(message.trigger, {
     snapshots: message.snapshots,
-    render: false,
     fallbackText: "Saved",
   });
 
