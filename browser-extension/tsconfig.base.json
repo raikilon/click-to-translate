@@ -8,7 +8,9 @@
       "@domain": ["domain/src/index.ts"],
       "@domain/*": ["domain/src/*"],
       "@application": ["application/src/index.ts"],
-      "@application/*": ["application/src/*"]
+      "@application/*": ["application/src/*"],
+      "@infra-shared": ["infrastructure/shared/src/index.ts"],
+      "@infra-shared/*": ["infrastructure/shared/src/*"]
     },
     "lib": ["ES2020", "DOM"],
     "strict": true,

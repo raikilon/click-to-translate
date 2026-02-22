@@ -1,99 +1,11 @@
-import type { Trigger } from "@domain";
-import type {
-  ErrorMessageResponse,
-  HandleTriggerResponse,
-} from "../background/messageTypes";
+import { registerContentScript } from "@infra-shared/content/contentScript";
+import { chromeAdapter } from "../platform/chromeAdapter";
 import { collectSnapshots } from "./probes/probeResolver";
 import { ContentRendererBridge } from "./render/rendererBridge";
 
-const renderer = new ContentRendererBridge();
-
-function toMouseButton(button: number): "left" | "middle" | "right" {
-  if (button === 1) {
-    return "middle";
-  }
-
-  if (button === 2) {
-    return "right";
-  }
-
-  return "left";
-}
-
-function toTrigger(event: MouseEvent): Trigger {
-  const selectedText = window.getSelection()?.toString().trim();
-
-  return {
-    url: window.location.href,
-    mouse: {
-      button: toMouseButton(event.button),
-      x: event.clientX,
-      y: event.clientY,
-    },
-    modifiers: {
-      alt: event.altKey,
-      ctrl: event.ctrlKey,
-      shift: event.shiftKey,
-      meta: event.metaKey,
-    },
-    selectedText: selectedText || undefined,
-    occurredAtMs: Date.now(),
-  };
-}
-
-async function sendHandleTrigger(
-  trigger: Trigger,
-): Promise<HandleTriggerResponse | ErrorMessageResponse> {
-  const snapshots = await collectSnapshots(trigger);
-
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(
-      {
-        type: "HANDLE_TRIGGER",
-        trigger,
-        snapshots,
-      },
-      (response?: HandleTriggerResponse | ErrorMessageResponse) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
-          return;
-        }
-
-        if (!response) {
-          reject(new Error("Background did not return a response."));
-          return;
-        }
-
-        resolve(response);
-      },
-    );
-  });
-}
-
-function isErrorResponse(
-  response: HandleTriggerResponse | ErrorMessageResponse,
-): response is ErrorMessageResponse {
-  return "ok" in response && response.ok === false;
-}
-
-window.addEventListener("click", (event: MouseEvent) => {
-  const trigger = toTrigger(event);
-
-  void sendHandleTrigger(trigger)
-    .then(async (response) => {
-      if (isErrorResponse(response)) {
-        return;
-      }
-
-      if (
-        response.status === "ok" &&
-        response.instruction &&
-        response.renderPayload
-      ) {
-        await renderer.render(response.instruction, response.renderPayload);
-      }
-    })
-    .catch(() => {
-      // Ignore transient messaging/runtime errors in content context.
-    });
+registerContentScript({
+  runtime: chromeAdapter.runtime,
+  renderer: new ContentRendererBridge(),
+  collectSnapshots,
+  nowMs: chromeAdapter.nowMs,
 });

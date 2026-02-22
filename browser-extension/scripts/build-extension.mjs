@@ -124,6 +124,7 @@ function tsPathAliasPlugin() {
   const aliasMap = new Map([
     ["@application", path.join(projectRoot, "application", "src")],
     ["@domain", path.join(projectRoot, "domain", "src")],
+    ["@infra-shared", path.join(projectRoot, "infrastructure", "shared", "src")],
   ]);
 
   return {
