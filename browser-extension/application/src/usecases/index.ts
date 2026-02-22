@@ -18,3 +18,4 @@ export { HandleTranslateTriggerUseCase } from "./HandleTranslateTriggerUseCase";
 export { LoginUseCase } from "./LoginUseCase";
 export { LogoutUseCase } from "./LogoutUseCase";
 export { SaveSettingsUseCase } from "./SaveSettingsUseCase";
+export { ShouldHandleTriggerUseCase } from "./ShouldHandleTriggerUseCase";

@@ -5,6 +5,7 @@ import { ContentRendererBridge } from "./render/rendererBridge";
 
 registerContentScript({
   runtime: chromeAdapter.runtime,
+  storage: chromeAdapter.storage,
   renderer: new ContentRendererBridge(),
   collectSnapshots,
   nowMs: chromeAdapter.nowMs,

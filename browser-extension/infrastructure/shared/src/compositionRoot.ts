@@ -6,6 +6,7 @@ import {
   LoginUseCase,
   LogoutUseCase,
   SaveSettingsUseCase,
+  ShouldHandleTriggerUseCase,
 } from "@application";
 import { HttpApiClient } from "./impl/apiClient";
 import { ExtensionAuthFlow } from "./impl/authFlow";
@@ -23,6 +24,7 @@ export interface CompositionRoot {
     login: LoginUseCase;
     logout: LogoutUseCase;
     loadLanguages: GetSelectableLanguagesUseCase;
+    shouldHandleTrigger: ShouldHandleTriggerUseCase;
     handleTrigger: HandleTranslateTriggerUseCase;
   };
 }
@@ -49,6 +51,7 @@ export function createCompositionRoot(adapter: BrowserAdapter): CompositionRoot 
     apiClient,
     ensureAuthSession,
   );
+  const shouldHandleTrigger = new ShouldHandleTriggerUseCase(settingsStore);
 
   const handleTrigger = new HandleTranslateTriggerUseCase(
     settingsStore,
@@ -66,6 +69,7 @@ export function createCompositionRoot(adapter: BrowserAdapter): CompositionRoot 
       login,
       logout,
       loadLanguages,
+      shouldHandleTrigger,
       handleTrigger,
     },
   };

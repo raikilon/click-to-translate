@@ -13,7 +13,6 @@ import type { Clock } from "../contracts/Clock";
 import type { RenderPayload } from "../contracts/Renderer";
 import type { SettingsStore } from "../contracts/SettingsStore";
 import type { PostSegmentResponse } from "../model/ApiModels";
-import type { Settings } from "../model/Settings";
 import type { EnsureAuthSessionUseCase } from "./EnsureAuthSessionUseCase";
 import { languageFromCode } from "./LanguageUtils";
 
@@ -57,13 +56,6 @@ export class HandleTranslateTriggerUseCase {
     options: HandleTranslateTriggerExecuteOptions,
   ): Promise<HandleTranslateTriggerResult> {
     const settings = await this.settingsStore.get();
-    if (!triggerMatchesSettings(trigger, settings)) {
-      return {
-        status: "ignored",
-        reason: "trigger_mismatch",
-      };
-    }
-
     const snapshots = options.snapshots;
     const pageInfo = snapshots.pageInfo ?? { url: trigger.url };
 
@@ -144,16 +136,6 @@ export class HandleTranslateTriggerUseCase {
     const session = await this.ensureAuthSession.execute({ interactive: false });
     return session?.accessToken ?? "";
   }
-}
-
-function triggerMatchesSettings(trigger: Trigger, settings: Settings): boolean {
-  return (
-    trigger.mouse.button === settings.mouseButton &&
-    trigger.modifiers.alt === settings.modifiers.alt &&
-    trigger.modifiers.ctrl === settings.modifiers.ctrl &&
-    trigger.modifiers.shift === settings.modifiers.shift &&
-    trigger.modifiers.meta === settings.modifiers.meta
-  );
 }
 
 function parseUrl(

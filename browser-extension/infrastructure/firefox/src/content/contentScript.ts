@@ -5,6 +5,7 @@ import { ContentRendererBridge } from "./render/rendererBridge";
 
 registerContentScript({
   runtime: firefoxAdapter.runtime,
+  storage: firefoxAdapter.storage,
   renderer: new ContentRendererBridge(),
   collectSnapshots,
   nowMs: firefoxAdapter.nowMs,

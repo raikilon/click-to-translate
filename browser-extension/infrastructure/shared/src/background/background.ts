@@ -37,6 +37,21 @@ export function registerBackground(adapter: BrowserAdapter): void {
   async function handleTriggerMessage(
     message: Extract<ExtensionRequestMessage, { type: "HANDLE_TRIGGER" }>,
   ): Promise<HandleTriggerData> {
+    const shouldHandleTrigger = await root.useCases.shouldHandleTrigger.execute(
+      message.trigger,
+    );
+
+    if (!shouldHandleTrigger) {
+      return {
+        status: "ignored",
+        reason: "trigger_mismatch",
+        triggerResult: {
+          status: "ignored",
+          reason: "trigger_mismatch",
+        },
+      };
+    }
+
     const triggerResult = await root.useCases.handleTrigger.execute(message.trigger, {
       snapshots: message.snapshots,
       fallbackText: "Saved",
