@@ -15,3 +15,4 @@ export type {
 export { DEFAULT_SETTINGS } from "./model/Settings";
 export type { AuthSession } from "./model/AuthSession";
 export type { PostSegmentResponse, ApiError } from "./model/ApiModels";
+export * from "./usecases";
