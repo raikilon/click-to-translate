@@ -1,160 +1,186 @@
 # Click-to-Translate Extension Architecture
 
-## Source basis
-This document is based on the requested planning files and implementation code:
-- `browser-extension/step1.md` to `browser-extension/step8.md`
-- Domain: `browser-extension/domain/src/*`
-- Application: `browser-extension/application/src/*`
-- Infrastructure: `browser-extension/infrastructure/chrome/src/*` and `browser-extension/infrastructure/firefox/src/*`
+This document describes the architecture as implemented now.
 
-Note: `browser-extension/step4.md` is currently identical to `browser-extension/step3.md`.
+## 1. Layering and dependencies
 
-## 1) Layer separation
+Dependency direction is strict:
 
-```mermaid
-flowchart LR
-  subgraph INFRA[Infrastructure Layer]
-    CH[Chrome Target]
-    FF[Firefox Target]
-    BG[Background Router]
-    CS[Content Script + Probes + Renderers]
-    UI[Popup + Options]
-  end
+1. `infrastructure -> application -> domain`
+2. `domain` does not import `application` or `infrastructure`
+3. `application` does not import `infrastructure`
 
-  subgraph APP[Application Layer]
-    UC[Use Cases]
-    CT[Contracts]
-    MOD[Application Models]
-  end
+Main folders:
 
-  subgraph DOM[Domain Layer]
-    DMO[Canonical DTOs]
-    STR[StrategyResolver + Strategies]
-  end
+1. `browser-extension/domain/src`
+2. `browser-extension/application/src`
+3. `browser-extension/infrastructure/shared/src`
+4. `browser-extension/infrastructure/chrome/src`
+5. `browser-extension/infrastructure/firefox/src`
 
-  INFRA --> APP
-  APP --> DOM
+## 2. Browser split
 
-  CH --> BG
-  CH --> CS
-  CH --> UI
-  FF --> BG
-  FF --> CS
-  FF --> UI
+The extension now uses a shared infrastructure core with thin browser-specific adapters.
 
-  BG --> UC
-  UI --> UC
-  CS --> BG
-  UC --> STR
-  UC --> DMO
+Shared core:
+
+1. `browser-extension/infrastructure/shared/src/background/background.ts`
+2. `browser-extension/infrastructure/shared/src/background/messageTypes.ts`
+3. `browser-extension/infrastructure/shared/src/compositionRoot.ts`
+4. `browser-extension/infrastructure/shared/src/content/contentScript.ts`
+5. `browser-extension/infrastructure/shared/src/impl/*`
+6. `browser-extension/infrastructure/shared/src/pages/options.ts`
+7. `browser-extension/infrastructure/shared/src/pages/popup.ts`
+
+Browser-specific wrappers:
+
+1. `browser-extension/infrastructure/chrome/src/background/background.ts`
+2. `browser-extension/infrastructure/firefox/src/background/background.ts`
+3. `browser-extension/infrastructure/chrome/src/pages/*/*.ts`
+4. `browser-extension/infrastructure/firefox/src/pages/*/*.ts`
+
+Browser-specific adapters:
+
+1. `browser-extension/infrastructure/chrome/src/platform/chromeAdapter.ts`
+2. `browser-extension/infrastructure/firefox/src/platform/firefoxAdapter.ts`
+
+These adapters implement `BrowserAdapter` (`runtime`, `storage`, `identity`, `nowMs`) from `browser-extension/infrastructure/shared/src/platform/BrowserAdapter.ts`.
+
+## 3. Runtime contexts
+
+The extension has four execution contexts:
+
+1. Background service worker:
+`browser-extension/infrastructure/shared/src/background/background.ts`
+2. Content script:
+`browser-extension/infrastructure/shared/src/content/contentScript.ts`
+3. Popup page:
+`browser-extension/infrastructure/shared/src/pages/popup.ts`
+4. Options page:
+`browser-extension/infrastructure/shared/src/pages/options.ts`
+
+## 4. Message contracts
+
+Requests are centralized in:
+`browser-extension/infrastructure/shared/src/background/messageTypes.ts`
+
+Request types:
+
+1. `GET_SETTINGS`
+2. `SAVE_SETTINGS`
+3. `LOGIN`
+4. `LOGOUT`
+5. `GET_LANGUAGES`
+6. `GET_POPUP_STATE`
+7. `HANDLE_TRIGGER`
+
+Envelope shape is standardized:
+
+```ts
+type MessageEnvelope<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: string; code?: string };
 ```
 
-## 2) How imports work
+`HANDLE_TRIGGER` still carries a domain-level status payload in `data`:
+`HandleTriggerData` with `status`, optional `reason`, optional `instruction`, optional `renderPayload`.
 
-```mermaid
-flowchart LR
-  TS[TypeScript Source] --> ALIAS[@domain / @application imports]
-  ALIAS --> TSCONFIG[tsconfig.base.json paths]
-  TSCONFIG --> ESBUILD[scripts/build-extension.mjs ts-path-alias plugin]
-  ESBUILD --> DISTCH[dist/chrome bundles]
-  ESBUILD --> DISTFF[dist/firefox bundles]
-```
+## 5. Core application composition
 
-Import rules implemented in code:
-- `@domain` resolves to `browser-extension/domain/src/index.ts`.
-- `@application` resolves to `browser-extension/application/src/index.ts`.
-- Domain does not import application or infrastructure.
-- Application imports domain types and strategies, but not infrastructure.
-- Infrastructure imports both domain and application contracts/use-cases and binds concrete implementations.
+Dependency wiring is in:
+`browser-extension/infrastructure/shared/src/compositionRoot.ts`
 
-Build/package:
-- Entry points are browser-specific infrastructure files: background, content script, options page, popup page.
-- `scripts/build-extension.mjs` bundles each entry point with esbuild and copies manifests/static assets to `dist/chrome` and `dist/firefox`.
+Constructed services:
 
-## 3) Runtime flow (click-to-translate)
+1. `ExtensionSettingsStore`
+2. `ExtensionAuthSessionStore`
+3. `SystemClock`
+4. `ExtensionAuthFlow`
+5. `HttpApiClient`
+6. `EnsureAuthSessionUseCase`
 
-```mermaid
-sequenceDiagram
-  participant U as User
-  participant CS as Content Script
-  participant PR as Probe Resolver
-  participant BG as Background
-  participant UC as HandleTranslateTriggerUseCase
-  participant SR as StrategyResolver
-  participant API as HttpApiClient
-  participant RD as ContentRendererBridge
+Use cases exposed:
 
-  U->>CS: Click on page
-  CS->>PR: collectSnapshots(trigger)
-  PR-->>CS: pageInfo + selection + textAtPoint + optional subtitle
-  CS->>BG: HANDLE_TRIGGER(trigger, snapshots)
-  BG->>UC: execute(trigger, snapshots, render=false)
-  UC->>SR: resolve(url, siteOverrides)
-  SR-->>UC: Strategy (generic/youtube/netflix)
-  UC->>API: postSegment(bundle)
-  API-->>UC: translation payload
-  UC-->>BG: instruction + renderPayload + status
-  BG-->>CS: HandleTriggerResponse
-  CS->>RD: render(instruction, payload)
-  RD-->>U: Tooltip or Video Overlay
-```
+1. `GetSettingsUseCase`
+2. `SaveSettingsUseCase`
+3. `LoginUseCase`
+4. `LogoutUseCase`
+5. `GetSelectableLanguagesUseCase`
+6. `ShouldHandleTriggerUseCase`
+7. `HandleTranslateTriggerUseCase`
 
-## 4) Class responsibilities
+## 6. Click-to-translate flow
 
-### Domain classes
-| Class | File | Responsibility |
-|---|---|---|
-| `StrategyResolver` | `browser-extension/domain/src/strategies/StrategyResolver.ts` | Chooses strategy by URL and optional override patterns, with fallback to generic. |
-| `GenericStrategy` | `browser-extension/domain/src/strategies/generic/GenericStrategy.ts` | Generic capture/display logic: word from selection/text-at-point, sentence from local context, tooltip display. |
-| `YouTubeStrategy` | `browser-extension/domain/src/strategies/youtube/YouTubeStrategy.ts` | YouTube-specific capture: subtitle sentence when available, source `YOUTUBE`, video overlay display. |
-| `NetflixStrategy` | `browser-extension/domain/src/strategies/netflix/NetflixStrategy.ts` | Netflix-specific capture with subtitle-first behavior and generic fallback; video overlay when subtitle exists. |
+1. Content script listens to click (`registerContentScript`).
+2. It maps DOM event to `Trigger`.
+3. It loads/caches trigger settings from extension storage.
+4. If trigger combo does not match, it exits before probe collection.
+5. If trigger matches, it collects `Snapshots` and sends `HANDLE_TRIGGER`.
+6. Background re-validates trigger via `ShouldHandleTriggerUseCase`.
+7. Background calls `HandleTranslateTriggerUseCase`.
+8. Use case resolves strategy (`generic` / `youtube` / `netflix`) from URL.
+9. Strategy computes capture (`word`, `sentence`, `source`, `anchor`).
+10. Use case builds `SegmentBundleDto` and calls `HttpApiClient.postSegment`.
+11. Use case builds `DisplayInstruction` + `RenderPayload`.
+12. Background returns envelope response.
+13. Content script renders tooltip/video overlay when response is renderable.
 
-### Application classes
-| Class | File | Responsibility |
-|---|---|---|
-| `EnsureAuthSessionUseCase` | `browser-extension/application/src/usecases/EnsureAuthSessionUseCase.ts` | Resolves usable auth session by reuse, refresh-token flow, or optional interactive login. |
-| `GetSelectableLanguagesUseCase` | `browser-extension/application/src/usecases/GetSelectableLanguagesUseCase.ts` | Loads languages from API and maps selected source/target languages from settings. |
-| `GetSettingsUseCase` | `browser-extension/application/src/usecases/GetSettingsUseCase.ts` | Reads effective settings from `SettingsStore`. |
-| `HandleTranslateTriggerUseCase` | `browser-extension/application/src/usecases/HandleTranslateTriggerUseCase.ts` | Main orchestration: hotkey check, snapshot capture/use provided snapshots, strategy execution, bundle creation, API post, and render instruction payload creation. |
-| `LoginUseCase` | `browser-extension/application/src/usecases/LoginUseCase.ts` | Starts interactive auth by delegating to `EnsureAuthSessionUseCase`. |
-| `LogoutUseCase` | `browser-extension/application/src/usecases/LogoutUseCase.ts` | Clears local session and optionally calls remote logout/revoke via `AuthFlow`. |
-| `SaveSettingsUseCase` | `browser-extension/application/src/usecases/SaveSettingsUseCase.ts` | Persists settings and returns normalized stored result. |
+## 7. Probe and strategy model
 
-### Infrastructure classes (Chrome and Firefox variants)
-| Class | File(s) | Responsibility |
-|---|---|---|
-| `ContentRendererBridge` | `browser-extension/infrastructure/chrome/src/content/render/rendererBridge.ts`, `browser-extension/infrastructure/firefox/src/content/render/rendererBridge.ts` | Implements application `Renderer` in content context; routes mode to tooltip/overlay/no-op. |
-| `TooltipRenderer` | `browser-extension/infrastructure/chrome/src/content/render/tooltipRenderer.ts`, `browser-extension/infrastructure/firefox/src/content/render/tooltipRenderer.ts` | Shadow-DOM tooltip UI with positioning and dismiss listeners. |
-| `VideoOverlayRenderer` | `browser-extension/infrastructure/chrome/src/content/render/videoOverlayRenderer.ts`, `browser-extension/infrastructure/firefox/src/content/render/videoOverlayRenderer.ts` | Overlay renderer for video sites, rect/point anchor positioning and dismiss logic. |
-| `ApiHttpError` | `browser-extension/infrastructure/chrome/src/impl/apiClient.ts`, `browser-extension/infrastructure/firefox/src/impl/apiClient.ts` | Typed HTTP error carrying status/code from backend responses. |
-| `HttpApiClient` | `browser-extension/infrastructure/chrome/src/impl/apiClient.ts`, `browser-extension/infrastructure/firefox/src/impl/apiClient.ts` | Concrete API adapter: languages fetch, segment post, refresh token. |
-| `SystemClock` | `browser-extension/infrastructure/chrome/src/impl/clock.ts`, `browser-extension/infrastructure/firefox/src/impl/clock.ts` | `Clock` implementation using `Date.now()`. |
-| `ChromeSettingsStore` | `browser-extension/infrastructure/chrome/src/impl/settingsStore.ts` | Settings persistence through `chrome.storage.local` with normalization/default merge. |
-| `FirefoxSettingsStore` | `browser-extension/infrastructure/firefox/src/impl/settingsStore.ts` | Settings persistence through `browser.storage.local` with normalization/default merge. |
-| `ChromeAuthSessionStore` | `browser-extension/infrastructure/chrome/src/impl/authSessionStore.ts` | Auth session persistence/validation in Chrome storage. |
-| `FirefoxAuthSessionStore` | `browser-extension/infrastructure/firefox/src/impl/authSessionStore.ts` | Auth session persistence/validation in Firefox storage. |
-| `ChromeAuthFlow` | `browser-extension/infrastructure/chrome/src/impl/authFlow.ts` | OAuth2 Authorization Code + PKCE via `chrome.identity.launchWebAuthFlow`. |
-| `FirefoxAuthFlow` | `browser-extension/infrastructure/firefox/src/impl/authFlow.ts` | OAuth2 Authorization Code + PKCE via `browser.identity` APIs. |
+Generic snapshots:
 
-## 5) Key non-class modules that complete the architecture
+1. `selection`
+2. `textAtPoint`
+3. `pageInfo`
 
-- Message routers:
-  - `browser-extension/infrastructure/chrome/src/background/background.ts`
-  - `browser-extension/infrastructure/firefox/src/background/background.ts`
-- Message DTO contracts:
-  - `browser-extension/infrastructure/chrome/src/background/messageTypes.ts`
-  - `browser-extension/infrastructure/firefox/src/background/messageTypes.ts`
-- Probe pipeline:
-  - `browser-extension/infrastructure/chrome/src/content/probes/probeResolver.ts`
-  - `browser-extension/infrastructure/firefox/src/content/probes/probeResolver.ts`
-  - plus generic/text-at-point/YouTube/Netflix probe modules in each target.
-- Composition roots (DI wiring):
-  - `browser-extension/infrastructure/chrome/src/compositionRoot.ts`
-  - `browser-extension/infrastructure/firefox/src/compositionRoot.ts`
+Subtitle snapshot logic:
 
-## 6) Browser split summary
+1. Provider-specific probe wrappers in:
+`browser-extension/infrastructure/*/src/content/probes/youtubeProbe.ts`
+`browser-extension/infrastructure/*/src/content/probes/netflixProbe.ts`
+2. Shared point-based engine:
+`browser-extension/infrastructure/shared/src/content/probes/pointSubtitleProbe.ts`
 
-Implementation is intentionally duplicated per browser target and differs mainly in platform API adapters:
-- Different APIs for runtime messaging and storage (`chrome.*` vs `browser.*`).
-- Different auth flow wrappers (`ChromeAuthFlow` vs `FirefoxAuthFlow`).
-- Shared domain/application behavior and near-identical probe/renderer logic.
+Domain strategies consume snapshots:
+
+1. `GenericStrategy`
+2. `YouTubeStrategy`
+3. `NetflixStrategy`
+
+`YouTubeStrategy` and `NetflixStrategy` currently require a subtitle snapshot; otherwise capture returns `null`.
+
+## 8. Language handling
+
+Centralized language normalization now lives in one module:
+`browser-extension/application/src/model/LanguageNormalization.ts`
+
+Used by:
+
+1. `GetSelectableLanguagesUseCase`
+2. `HandleTranslateTriggerUseCase`
+3. `HttpApiClient.getLanguages`
+
+Options language controls are backend-driven dropdowns in:
+
+1. `browser-extension/infrastructure/chrome/src/pages/options/options.html`
+2. `browser-extension/infrastructure/firefox/src/pages/options/options.html`
+3. `browser-extension/infrastructure/shared/src/pages/options.ts`
+
+## 9. Current strengths
+
+1. Shared infrastructure core across browsers reduced duplication.
+2. Trigger fast-fail in content script prevents unnecessary probe work on most clicks.
+3. Popup state now comes through a background command (`GET_POPUP_STATE`), not direct popup storage access.
+4. Message envelope is consistent (`ok` + `data/error`) across commands.
+5. Subtitle probe logic is centralized and reused.
+
+## 10. Remaining risks and simplification targets
+
+1. Language identity mismatch risk:
+Resolved by persisting `language.code` from options dropdown values while keeping backward matching for existing stored values.
+2. Message payload heterogeneity:
+Envelope is unified, but `HANDLE_TRIGGER` adds `status/reason` payload semantics not used elsewhere.
+3. Probe wrappers duplication:
+Chrome and Firefox subtitle probe wrappers are identical and can be moved to shared infra.
+4. Missing focused tests:
+No behavior tests around trigger handling, strategy capture rules, and language selection mapping.

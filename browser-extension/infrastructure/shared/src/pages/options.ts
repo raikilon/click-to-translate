@@ -2,7 +2,9 @@ import { DEFAULT_SETTINGS, type Settings } from "@application";
 import type { LanguageDto } from "@domain";
 import type {
   GetLanguagesData,
+  GetPopupStateData,
   GetSettingsData,
+  LoginData,
   MessageEnvelope,
   SaveSettingsData,
 } from "../background/messageTypes";
@@ -30,7 +32,10 @@ function normalizeLanguageId(value: string | null | undefined): string {
   return (value ?? "").trim().toLowerCase();
 }
 
-function pickLanguageId(languages: LanguageDto[], selectedId: string | null): string {
+function pickLanguageCode(
+  languages: LanguageDto[],
+  selectedId: string | null,
+): string {
   const normalizedSelectedId = normalizeLanguageId(selectedId);
   if (!normalizedSelectedId) {
     return "";
@@ -44,7 +49,7 @@ function pickLanguageId(languages: LanguageDto[], selectedId: string | null): st
     );
   });
 
-  return match?.id ?? "";
+  return match?.code ?? "";
 }
 
 function fillLanguageSelect(
@@ -62,12 +67,12 @@ function fillLanguageSelect(
 
   for (const language of availableLanguages) {
     const option = document.createElement("option");
-    option.value = language.id;
+    option.value = language.code;
     option.textContent = `${language.name} (${language.code})`;
     select.append(option);
   }
 
-  select.value = pickLanguageId(availableLanguages, selectedId);
+  select.value = pickLanguageCode(availableLanguages, selectedId);
 }
 
 function fillLanguageSelects(
@@ -105,6 +110,19 @@ function fillForm(settings: Settings): void {
 }
 
 function readFormSettings(): Settings {
+  function readLanguageSelection(
+    selectId: "sourceLanguageId" | "targetLanguageId",
+    currentValue: string | null,
+  ): string | null {
+    const selectedValue = byId<HTMLSelectElement>(selectId).value.trim();
+    if (selectedValue) {
+      return selectedValue;
+    }
+
+    // Keep previously saved value when language list is unavailable (for example, logged out).
+    return availableLanguages.length === 0 ? currentValue : null;
+  }
+
   const scopes = byId<HTMLInputElement>("scopes")
     .value.split(/[\s,]+/)
     .map((scope) => scope.trim())
@@ -119,8 +137,14 @@ function readFormSettings(): Settings {
     authTokenUrl: byId<HTMLInputElement>("authTokenUrl").value.trim(),
     oauthClientId: byId<HTMLInputElement>("oauthClientId").value.trim(),
     scopes,
-    sourceLanguageId: byId<HTMLSelectElement>("sourceLanguageId").value || null,
-    targetLanguageId: byId<HTMLSelectElement>("targetLanguageId").value || null,
+    sourceLanguageId: readLanguageSelection(
+      "sourceLanguageId",
+      currentSettings.sourceLanguageId,
+    ),
+    targetLanguageId: readLanguageSelection(
+      "targetLanguageId",
+      currentSettings.targetLanguageId,
+    ),
     mouseButton: byId<HTMLSelectElement>("mouseButton").value as Settings["mouseButton"],
     modifiers: {
       alt: byId<HTMLInputElement>("modAlt").checked,
@@ -150,19 +174,44 @@ function createMessageSender(runtime: RuntimePort) {
 export function registerOptions(runtime: RuntimePort): void {
   const sendMessage = createMessageSender(runtime);
 
+  async function ensureLoggedInForLanguageLoading(): Promise<void> {
+    const popupState = await sendMessage<GetPopupStateData>({
+      type: "GET_POPUP_STATE",
+    });
+
+    if (!popupState.loggedIn) {
+      throw new Error("Login required to load languages.");
+    }
+  }
+
   async function loadLanguages(
     preferredSourceLanguageId: string | null,
     preferredTargetLanguageId: string | null,
   ): Promise<void> {
+    await ensureLoggedInForLanguageLoading();
+
     const response = await sendMessage<GetLanguagesData>({
       type: "GET_LANGUAGES",
     });
 
     fillLanguageSelects(
       response.result.languages,
-      response.result.sourceLanguage?.id ?? preferredSourceLanguageId,
-      response.result.targetLanguage?.id ?? preferredTargetLanguageId,
+      response.result.sourceLanguage?.code ?? preferredSourceLanguageId,
+      response.result.targetLanguage?.code ?? preferredTargetLanguageId,
     );
+  }
+
+  async function loginForLanguages(): Promise<void> {
+    const response = await sendMessage<LoginData>({ type: "LOGIN" });
+    if (!response.session) {
+      throw new Error("Login did not return an active session.");
+    }
+
+    await loadLanguages(
+      currentSettings.sourceLanguageId,
+      currentSettings.targetLanguageId,
+    );
+    setStatus("Login successful. Languages loaded.");
   }
 
   async function loadSettings(): Promise<void> {
@@ -223,6 +272,13 @@ export function registerOptions(runtime: RuntimePort): void {
   const form = byId<HTMLFormElement>("optionsForm");
   form.addEventListener("submit", (event) => {
     void saveSettings(event);
+  });
+
+  const loginButton = byId<HTMLButtonElement>("optionsLoginButton");
+  loginButton.addEventListener("click", () => {
+    void loginForLanguages().catch((error: unknown) => {
+      setStatus(error instanceof Error ? error.message : "Login failed.", true);
+    });
   });
 
   void loadSettings().catch((error: unknown) => {

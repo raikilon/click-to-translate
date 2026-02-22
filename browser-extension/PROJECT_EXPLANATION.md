@@ -1,224 +1,186 @@
-# Click-to-Translate: Project Explanation for a Developer New to Browser Extensions
+# Click-to-Translate: Practical Explanation for a Developer New to Browser Extensions
 
-This file explains the browser extension part of the project in practical terms so you can start working on it confidently.
+This is the working mental model for this extension, based on the current code.
 
-## 1) What a browser extension is in this project
+## 1) What this extension does
 
-This extension listens for a click in the web page, captures text context near that click, sends it to the backend for translation/saving, and shows the result as a tooltip or video overlay.
+When the user performs a configured mouse + keyboard combo on a page:
 
-It runs in multiple extension contexts:
+1. The content script captures page context (clicked word + surrounding text/subtitle context).
+2. It sends that context to the background.
+3. Background runs application use cases.
+4. The backend is called to translate/store.
+5. The content script renders the result (tooltip or video overlay).
 
-1. `background` service worker:
-`infrastructure/chrome/src/background/background.ts` (and Firefox equivalent)
-This is the central coordinator. It handles messages and runs use cases.
-2. `content script`:
-`infrastructure/chrome/src/content/contentScript.ts`
-This runs inside each web page, can read DOM and click events, and can render UI in the page.
-3. `popup page`:
-`infrastructure/chrome/src/pages/popup/*`
-Small UI to login/logout and inspect languages.
-4. `options page`:
-`infrastructure/chrome/src/pages/options/*`
-UI for saving extension settings (API URL, auth config, trigger keys, etc).
+## 2) Extension contexts and why they exist
 
-## 2) Project architecture: why it is split this way
+Browser extensions are split into contexts with different permissions/lifecycles.
 
-The extension is intentionally layered:
+1. Background service worker:
+`browser-extension/infrastructure/shared/src/background/background.ts`
+Purpose: central orchestration, auth/session, settings, API calls.
+2. Content script:
+`browser-extension/infrastructure/shared/src/content/contentScript.ts`
+Purpose: listen to clicks, read DOM data, render in-page UI.
+3. Popup page:
+`browser-extension/infrastructure/shared/src/pages/popup.ts`
+Purpose: quick actions (login/logout, inspect state).
+4. Options page:
+`browser-extension/infrastructure/shared/src/pages/options.ts`
+Purpose: configure API/auth/trigger/languages.
 
-1. `domain/`
-Pure models + strategy logic. No browser APIs and no DOM types.
-2. `application/`
-Use cases and contracts (interfaces). Orchestrates business flow.
-3. `infrastructure/`
-Actual browser-specific code (`chrome.*` / `browser.*`), storage, messaging, DOM probes, renderers.
+Why this split is correct:
 
-Flow direction is one-way: `Infrastructure -> Application -> Domain`.
+1. DOM access belongs in content script.
+2. Privileged APIs and global orchestration belong in background.
+3. Popup/options should be thin command UIs.
 
-Why this exists:
+## 3) Architecture layers
 
-1. Keep business logic testable and stable.
-2. Keep browser differences (Chrome vs Firefox) mostly at the edges.
-3. Avoid leaking `chrome.*` or DOM objects into core logic.
+The code follows onion-style layering:
 
-## 3) Main classes/modules and what each does
+1. Domain (`browser-extension/domain/src`):
+Pure behavior (strategies, capture rules, display decisions, DTOs).
+2. Application (`browser-extension/application/src`):
+Use cases and contracts.
+3. Infrastructure (`browser-extension/infrastructure/*`):
+Browser APIs, storage, messaging, DOM probes, rendering, composition.
 
-## Domain layer (`browser-extension/domain/src`)
+Dependency direction: `infra -> application -> domain`.
 
-1. Canonical models:
-`model/SegmentBundle.ts`, `model/Language.ts`, `model/CaptureResult.ts`, `model/DisplayInstruction.ts`, etc.
-These define the "language" shared by the project.
-2. Strategy interface:
-`strategies/Strategy.ts`
-A strategy knows how to capture text and how to display result for a page type.
-3. Strategy resolver:
-`strategies/StrategyResolver.ts`
-Picks a strategy from URL and optional overrides.
-4. Concrete strategies:
-`GenericStrategy`, `YouTubeStrategy`, `NetflixStrategy`
-They define behavior for normal pages vs video pages.
+## 4) Browser-specific vs shared code
 
-## Application layer (`browser-extension/application/src`)
+Most logic is now shared in `infrastructure/shared`.
+Chrome and Firefox mostly differ by platform adapter:
 
-1. `HandleTranslateTriggerUseCase`
-Core use case for click translation. It checks trigger settings, resolves strategy, builds DTO, posts to API, prepares display instruction.
-2. `EnsureAuthSessionUseCase`
-Session lifecycle: reuse token, refresh token, optionally interactive login.
-3. `GetSelectableLanguagesUseCase`
-Loads available languages and maps current selected source/target.
-4. `GetSettingsUseCase` / `SaveSettingsUseCase`
-Read/write normalized settings.
-5. `LoginUseCase` / `LogoutUseCase`
-Auth actions for popup.
-6. Contracts:
-`ApiClient`, `AuthFlow`, `AuthSessionStore`, `SettingsStore`, `Renderer`, `Clock`, `PageProbe`.
-These are interfaces implemented by infrastructure.
+1. Chrome adapter:
+`browser-extension/infrastructure/chrome/src/platform/chromeAdapter.ts`
+2. Firefox adapter:
+`browser-extension/infrastructure/firefox/src/platform/firefoxAdapter.ts`
 
-## Infrastructure layer (`browser-extension/infrastructure/*/src`)
+Both implement:
+`browser-extension/infrastructure/shared/src/platform/BrowserAdapter.ts`
 
-1. `compositionRoot.ts`
-Dependency wiring. Creates stores, auth flow, api client, use cases.
-2. `background/background.ts`
-Message router. Receives commands from popup/options/content and executes the right use case.
-3. `background/messageTypes.ts`
-Message and response contracts between contexts.
-4. `content/contentScript.ts`
-Converts click to `Trigger`, collects snapshots, sends `HANDLE_TRIGGER`, then renders response.
-5. Probes (`content/probes/*`)
-Gather snapshots:
-selection text, text-at-point, subtitle snapshot (YouTube/Netflix), page info.
-6. Renderers (`content/render/*`)
-Render tooltip or video overlay inside page.
-7. Impl adapters (`impl/*`)
-`apiClient.ts`, `authFlow.ts`, `settingsStore.ts`, `authSessionStore.ts`, `clock.ts`, `pkce.ts`.
-These bind extension APIs to application contracts.
+This is what "unified adapter with thin wrappers" means in practice.
 
-## 4) How messaging works in this project
+## 5) How messages work
 
-Messaging is the communication channel between extension contexts.
+Requests and response contracts:
+`browser-extension/infrastructure/shared/src/background/messageTypes.ts`
 
-Key message types:
+Request examples:
 
 1. `GET_SETTINGS`
 2. `SAVE_SETTINGS`
-3. `LOGIN`
-4. `LOGOUT`
-5. `GET_LANGUAGES`
-6. `HANDLE_TRIGGER`
+3. `GET_LANGUAGES`
+4. `GET_POPUP_STATE`
+5. `HANDLE_TRIGGER`
 
-Where defined:
-`infrastructure/chrome/src/background/messageTypes.ts` and Firefox equivalent.
+All responses use one envelope:
 
-Why this is done:
+```ts
+{ ok: true, data: ... }
+{ ok: false, error: "...", code?: "..." }
+```
 
-1. Content script cannot own all privileged logic.
-2. Popup/options need shared centralized state/actions.
-3. Background provides one orchestration point and consistent behavior.
+`HANDLE_TRIGGER` includes extra status fields inside `data` because it represents a domain workflow result, not just CRUD.
 
-Chrome specific detail:
+## 6) Main classes and what they do
 
-Background listener uses callback style and returns `true` to keep async response channel open.
+Domain:
 
-Firefox specific detail:
+1. `StrategyResolver`:
+`browser-extension/domain/src/strategies/StrategyResolver.ts`
+Chooses strategy by URL and optional site overrides.
+2. `GenericStrategy`:
+General-page extraction/display behavior.
+3. `YouTubeStrategy` and `NetflixStrategy`:
+Video-specific capture/display behavior.
 
-Background listener returns a Promise directly.
+Application:
 
-## 5) End-to-end flow from classes (no diagram)
+1. `ShouldHandleTriggerUseCase`:
+`browser-extension/application/src/usecases/ShouldHandleTriggerUseCase.ts`
+Checks mouse/modifier combo match.
+2. `HandleTranslateTriggerUseCase`:
+`browser-extension/application/src/usecases/HandleTranslateTriggerUseCase.ts`
+Main orchestration for capture -> bundle -> API -> render payload.
+3. `EnsureAuthSessionUseCase`, `LoginUseCase`, `LogoutUseCase`:
+Auth/session lifecycle.
+4. `GetSelectableLanguagesUseCase`:
+Fetches languages and maps selected source/target.
+5. `GetSettingsUseCase`, `SaveSettingsUseCase`:
+Settings read/write.
 
-When user clicks on page:
+Infrastructure:
 
-1. `contentScript.ts` listens to click, builds `Trigger`.
-2. `probeResolver.ts` collects `Snapshots`:
-page info + selection + text at click + optional subtitles.
-3. Content sends `HANDLE_TRIGGER` to background.
-4. `background.ts` routes message to `HandleTranslateTriggerUseCase`.
-5. Use case loads settings and validates trigger vs configured mouse/modifier combo.
-6. Use case resolves strategy with `StrategyResolver`.
-7. Strategy computes `CaptureResult` (word/sentence/source/anchor).
-8. Use case resolves source/target language from settings.
-9. Use case optionally resolves auth session (`EnsureAuthSessionUseCase`).
-10. Use case sends segment bundle via `HttpApiClient.postSegment(...)`.
-11. Use case builds `DisplayInstruction` and `RenderPayload`.
-12. Background returns response to content.
-13. Content calls `ContentRendererBridge.render(...)`.
-14. Renderer shows tooltip or video overlay.
+1. `HttpApiClient`:
+`browser-extension/infrastructure/shared/src/impl/apiClient.ts`
+Maps HTTP and backend payloads.
+2. `ExtensionSettingsStore` and `ExtensionAuthSessionStore`:
+Storage persistence.
+3. `ExtensionAuthFlow`:
+OAuth + PKCE on top of browser identity APIs.
+4. `registerBackground`:
+Message router and use case dispatcher.
+5. `registerContentScript`:
+Click handling, pre-check trigger cache, snapshot collection, rendering.
 
-## 6) Why background/content split matters
+## 7) End-to-end flow from click to render
 
-1. Content script is close to the page DOM, so it should capture page data and render.
-2. Background is centralized and survives independent of page lifecycle, so it should orchestrate auth/settings/API actions.
-3. Popup/options are UI shells that send commands, not business logic owners.
+1. User clicks page.
+2. Content script converts click event to domain `Trigger`.
+3. Content script checks trigger match using cached settings from storage.
+4. If mismatch, stop immediately.
+5. If match, collect `Snapshots`:
+selection + text-at-point + page info + subtitle (for supported providers).
+6. Send `HANDLE_TRIGGER` to background.
+7. Background checks trigger again (`ShouldHandleTriggerUseCase`) as defense-in-depth.
+8. Background calls `HandleTranslateTriggerUseCase`.
+9. Strategy computes capture (`word`, `sentence`, `source`, `anchor`).
+10. Use case calls backend via `HttpApiClient.postSegment`.
+11. Use case returns display instruction and render payload.
+12. Content script renders tooltip or video overlay.
 
-This separation is standard extension architecture and is the right direction.
+## 8) What "background" means in this project
 
-## 7) What is wrong or not ideal today (standards + project objective)
+Background is the centralized, long-lived coordinator.
+It is not a UI and it does not read page DOM.
+It acts as the command bus for popup/options/content.
 
-Objective is simple ("click, translate, save"), but implementation has avoidable complexity.
+In this codebase, background owns:
 
-1. Chrome/Firefox duplication is high
-Most files are copied with tiny API differences.
-Impact: double maintenance, more bug risk.
-2. Messaging protocol is inconsistent
-Most responses use `{ ok: true/false }`, but trigger flow uses `{ status: ... }`.
-Impact: unnecessary branching and mental overhead.
-3. Popup reads auth session directly from storage
-`popup.ts` checks storage directly instead of using a single app contract path.
-Impact: split source of truth.
-4. Expensive probe work happens for every click before trigger filter
-Click is always captured and snapshot collection runs before quickly rejecting wrong key combination in background.
-Impact: avoidable overhead.
-5. Subtitle probes are very heuristic-heavy
-Large DOM scanning and scoring logic, especially Netflix probe.
-Impact: hard to maintain and performance-sensitive.
-6. Permissions are broad
-`<all_urls>` and broad host permissions are useful for MVP, but too wide for production hardening.
-7. Language normalization logic is duplicated
-Some normalization in application (`LanguageUtils`) and again in infra API client.
-Impact: drift risk.
-8. No behavior tests around core flow
-Typecheck passes, but there are no targeted tests for use-case/strategy behavior.
+1. Routing typed messages.
+2. Executing use cases.
+3. Session + settings access.
+4. Returning normalized success/error envelopes.
 
-## 8) Where overcomplication likely happened
+## 9) Current review findings (important)
 
-1. Over-optimizing architecture early for dual-browser support by copying entire infrastructure trees.
-2. Building very strong subtitle heuristics before a minimal reliable baseline existed.
-3. Mixing "transport response shape" styles (`ok` and `status`) during iterations.
-4. Allowing popup shortcuts (direct storage reads) for speed.
+1. Resolved: language selection now persists `language.code` from the combobox values.
+This matches translate flow expectations in:
+`browser-extension/application/src/usecases/HandleTranslateTriggerUseCase.ts`
 
-## 9) Practical simplification plan
+2. Resolved: options now has an inline login button for language loading:
+`browser-extension/infrastructure/chrome/src/pages/options/options.html`
+`browser-extension/infrastructure/firefox/src/pages/options/options.html`
+`browser-extension/infrastructure/shared/src/pages/options.ts`
 
-1. Unify browser adapter
-Create thin wrappers for `runtime`, `storage`, `identity`, then share one infra implementation for both browsers.
-2. Standardize message envelope
-Use one format for all responses, for example:
-`{ ok: boolean, data?: T, error?: string, code?: string }`.
-3. Fast fail in content script before probes
-Load trigger settings once (or cache) and skip heavy snapshot collection when combo does not match.
-4. Move popup session state to background command
-No direct storage reads from popup.
-5. Reduce probe scope
-Keep robust selectors, but reduce broad fallback scans and add guardrails/time limits.
-6. Centralize language normalization
-One module only.
-7. Add small targeted tests
-At least:
-`HandleTranslateTriggerUseCase`,
-`StrategyResolver`,
-`GenericStrategy/YouTubeStrategy/NetflixStrategy`.
+3. Resolved: unused `PageProbe` contract removed from application exports and source.
 
-## 10) Mental model you can use while developing
+## 10) Suggestions to simplify further
 
-If you change behavior:
+1. Rename settings fields to remove semantic confusion (`sourceLanguageId`/`targetLanguageId` currently contain codes).
+2. Move identical probe wrapper configs into shared infra factories to reduce Chrome/Firefox duplication.
+3. Add focused tests:
+`ShouldHandleTriggerUseCase`, `HandleTranslateTriggerUseCase`, strategy capture rules, language mapping.
 
-1. Domain: "How do we decide capture/display semantics?"
-2. Application: "How do we orchestrate settings/auth/api for this action?"
-3. Infrastructure: "How do we read browser/DOM APIs and map to domain types?"
+## 11) How to work safely in this project
 
-If a change leaks browser API types into application/domain, it is usually the wrong layer.
+When changing behavior, check layer boundaries first:
 
----
+1. Domain: capture/display semantics.
+2. Application: use-case orchestration and contracts.
+3. Infrastructure: browser API, DOM, transport details.
 
-If you want, next step can be a "developer onboarding checklist" file with the exact places to start for:
-1. changing click behavior,
-2. adding a new site strategy,
-3. changing auth,
-4. changing backend payload mapping.
+If browser/DOM APIs start leaking into application/domain, architecture is drifting.
