@@ -30,9 +30,9 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  apiBaseUrl: "http://localhost:8080",
-  languagesPath: "/api/translate/languages",
-  segmentsPath: "/api/translate",
+  apiBaseUrl: "",
+  languagesPath: "",
+  segmentsPath: "",
   authAuthorizeUrl: "",
   authTokenUrl: "",
   oauthClientId: "",

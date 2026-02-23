@@ -4,39 +4,61 @@ import type { StoragePort } from "../platform/BrowserAdapter";
 
 const SETTINGS_KEY = "settings";
 
-function normalizeSettings(candidate: unknown): Settings {
+function normalizeSettings(candidate: unknown, baseDefaults: Settings): Settings {
+  const baseSiteOverrides = Array.isArray(baseDefaults.siteOverrides)
+    ? [...baseDefaults.siteOverrides]
+    : baseDefaults.siteOverrides;
+
+  const defaultClone: Settings = {
+    ...baseDefaults,
+    scopes: [...baseDefaults.scopes],
+    modifiers: { ...baseDefaults.modifiers },
+    siteOverrides: baseSiteOverrides,
+  };
+
   if (!candidate || typeof candidate !== "object") {
-    return { ...DEFAULT_SETTINGS };
+    return defaultClone;
   }
 
   const value = candidate as Partial<Settings>;
+  const rawModifiers =
+    value.modifiers && typeof value.modifiers === "object"
+      ? value.modifiers
+      : undefined;
 
   return {
-    ...DEFAULT_SETTINGS,
+    ...defaultClone,
     ...value,
     scopes: Array.isArray(value.scopes)
       ? value.scopes.filter((scope): scope is string => typeof scope === "string")
-      : DEFAULT_SETTINGS.scopes,
+      : [...defaultClone.scopes],
     modifiers: {
-      ...DEFAULT_SETTINGS.modifiers,
-      ...value.modifiers,
+      ...defaultClone.modifiers,
+      ...rawModifiers,
     },
     siteOverrides: Array.isArray(value.siteOverrides)
-      ? value.siteOverrides
-      : DEFAULT_SETTINGS.siteOverrides,
+      ? [...value.siteOverrides]
+      : defaultClone.siteOverrides,
   };
 }
 
 export class ExtensionSettingsStore implements SettingsStore {
-  constructor(private readonly storage: StoragePort) {}
+  private readonly defaults: Settings;
+
+  constructor(
+    private readonly storage: StoragePort,
+    defaultSettings?: Partial<Settings>,
+  ) {
+    this.defaults = normalizeSettings(defaultSettings, DEFAULT_SETTINGS);
+  }
 
   async get(): Promise<Settings> {
     const rawSettings = await this.storage.get<unknown>(SETTINGS_KEY);
-    return normalizeSettings(rawSettings);
+    return normalizeSettings(rawSettings, this.defaults);
   }
 
   async save(settings: Settings): Promise<void> {
-    const normalized = normalizeSettings(settings);
+    const normalized = normalizeSettings(settings, this.defaults);
     await this.storage.set(SETTINGS_KEY, normalized);
   }
 }

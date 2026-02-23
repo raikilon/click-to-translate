@@ -91,7 +91,6 @@ async function copyInfrastructureAssets(infrastructureRoot, outputRoot) {
 }
 
 async function copyStaticSourceAssets(sourceRoot, outputSourceRoot) {
-  await fs.mkdir(outputSourceRoot, { recursive: true });
   await copyStaticFilesRecursive(sourceRoot, outputSourceRoot);
 }
 
@@ -103,7 +102,6 @@ async function copyStaticFilesRecursive(sourceDir, destinationDir) {
     const destinationPath = path.join(destinationDir, entry.name);
 
     if (entry.isDirectory()) {
-      await fs.mkdir(destinationPath, { recursive: true });
       await copyStaticFilesRecursive(sourcePath, destinationPath);
       continue;
     }
@@ -116,6 +114,7 @@ async function copyStaticFilesRecursive(sourceDir, destinationDir) {
       continue;
     }
 
+    await fs.mkdir(path.dirname(destinationPath), { recursive: true });
     await fs.copyFile(sourcePath, destinationPath);
   }
 }

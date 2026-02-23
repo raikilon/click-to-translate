@@ -8,6 +8,7 @@ import {
   SaveSettingsUseCase,
   ShouldHandleTriggerUseCase,
 } from "@application";
+import { INFRA_DEFAULT_SETTINGS } from "./config/defaultSettings";
 import { HttpApiClient } from "./impl/apiClient";
 import { ExtensionAuthFlow } from "./impl/authFlow";
 import { ExtensionAuthSessionStore } from "./impl/authSessionStore";
@@ -30,7 +31,10 @@ export interface CompositionRoot {
 }
 
 export function createCompositionRoot(adapter: BrowserAdapter): CompositionRoot {
-  const settingsStore = new ExtensionSettingsStore(adapter.storage);
+  const settingsStore = new ExtensionSettingsStore(
+    adapter.storage,
+    INFRA_DEFAULT_SETTINGS,
+  );
   const authSessionStore = new ExtensionAuthSessionStore(adapter.storage);
   const clock = new SystemClock(adapter.nowMs);
   const authFlow = new ExtensionAuthFlow(settingsStore, clock, adapter.identity);
