@@ -1,0 +1,64 @@
+{
+  "realm": "click-to-translate",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "clients": [
+    {
+      "clientId": "click-to-translate-extension",
+      "name": "Click to Translate Extension",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": false,
+      "redirectUris": [
+        "https://opjgbppjdccgdgidkpabmnmfohpjcjnk.chromiumapp.org/oauth2",
+        "https://click-to-translate@local.extensions.allizom.org/oauth2"
+      ],
+      "webOrigins": [
+        "https://opjgbppjdccgdgidkpabmnmfohpjcjnk.chromiumapp.org",
+        "https://click-to-translate@local.extensions.allizom.org"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "segment"
+      ],
+      "optionalClientScopes": [
+        "profile",
+        "email"
+      ]
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "segment",
+      "description": "Access to segment translation endpoints",
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "dev-user",
+      "enabled": true,
+      "firstName": "Dev",
+      "lastName": "User",
+      "email": "dev-user@local.test",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-pass",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

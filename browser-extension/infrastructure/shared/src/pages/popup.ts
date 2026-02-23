@@ -1,8 +1,12 @@
+import type { Settings } from "@application";
+import type { LanguageDto } from "@domain";
 import type {
+  GetSettingsData,
   GetLanguagesData,
   GetPopupStateData,
   LoginData,
   MessageEnvelope,
+  SaveSettingsData,
 } from "../background/messageTypes";
 import type { RuntimePort } from "../platform/BrowserAdapter";
 
@@ -25,6 +29,54 @@ function setStatus(message: string, isError = false): void {
   status.dataset.kind = isError ? "error" : "ok";
 }
 
+function normalizeLanguageId(value: string | null | undefined): string {
+  return (value ?? "").trim().toLowerCase();
+}
+
+function pickLanguageCode(
+  languages: LanguageDto[],
+  selectedId: string | null,
+): string {
+  const normalizedSelectedId = normalizeLanguageId(selectedId);
+  if (!normalizedSelectedId) {
+    return "";
+  }
+
+  const match = languages.find((language) => {
+    const normalizedId = normalizeLanguageId(language.id);
+    const normalizedCode = normalizeLanguageId(language.code);
+    return (
+      normalizedId === normalizedSelectedId || normalizedCode === normalizedSelectedId
+    );
+  });
+
+  return match?.code ?? "";
+}
+
+function fillLanguageSelect(
+  select: HTMLSelectElement,
+  placeholder: string,
+  languages: LanguageDto[],
+  selectedId: string | null,
+): void {
+  select.replaceChildren();
+
+  const placeholderOption = document.createElement("option");
+  placeholderOption.value = "";
+  placeholderOption.textContent = placeholder;
+  select.append(placeholderOption);
+
+  for (const language of languages) {
+    const option = document.createElement("option");
+    option.value = language.code;
+    option.textContent = `${language.name} (${language.code})`;
+    select.append(option);
+  }
+
+  select.value = pickLanguageCode(languages, selectedId);
+  select.disabled = languages.length === 0;
+}
+
 function createMessageSender(runtime: RuntimePort) {
   return async function sendMessage<TData>(message: unknown): Promise<TData> {
     const response = await runtime.sendMessage<MessageEnvelope<TData>>(message);
@@ -42,32 +94,85 @@ function createMessageSender(runtime: RuntimePort) {
 
 export function registerPopup(dependencies: PopupDependencies): void {
   const sendMessage = createMessageSender(dependencies.runtime);
+  const sessionLabel = byId<HTMLDivElement>("sessionState");
+  const loginButton = byId<HTMLButtonElement>("loginButton");
+  const logoutButton = byId<HTMLButtonElement>("logoutButton");
+  const languageSection = byId<HTMLElement>("languageSection");
+  const sourceSelect = byId<HTMLSelectElement>("sourceLanguageId");
+  const targetSelect = byId<HTMLSelectElement>("targetLanguageId");
+  let currentSettings: Settings | null = null;
+  let availableLanguages: LanguageDto[] = [];
+  let suppressAutoSave = false;
+
+  function applyAuthState(loggedIn: boolean): void {
+    sessionLabel.textContent = loggedIn ? "Session: Logged in" : "Session: Logged out";
+    loginButton.hidden = loggedIn;
+    logoutButton.hidden = !loggedIn;
+    languageSection.hidden = !loggedIn;
+  }
+
+  function applyLanguageSelections(
+    sourceLanguageId: string | null,
+    targetLanguageId: string | null,
+  ): void {
+    suppressAutoSave = true;
+    fillLanguageSelect(
+      sourceSelect,
+      "Select source language",
+      availableLanguages,
+      sourceLanguageId,
+    );
+    fillLanguageSelect(
+      targetSelect,
+      "Select target language",
+      availableLanguages,
+      targetLanguageId,
+    );
+    suppressAutoSave = false;
+  }
+
+  async function loadSettings(): Promise<void> {
+    const response = await sendMessage<GetSettingsData>({
+      type: "GET_SETTINGS",
+    });
+    currentSettings = response.settings;
+  }
+
+  async function loadLanguages(): Promise<void> {
+    const response = await sendMessage<GetLanguagesData>({
+      type: "GET_LANGUAGES",
+    });
+
+    availableLanguages = response.result.languages;
+    applyLanguageSelections(
+      response.result.sourceLanguage?.code ?? currentSettings?.sourceLanguageId ?? null,
+      response.result.targetLanguage?.code ?? currentSettings?.targetLanguageId ?? null,
+    );
+  }
 
   async function refreshPopupState(): Promise<void> {
     const popupState = await sendMessage<GetPopupStateData>({
       type: "GET_POPUP_STATE",
     });
 
-    const sessionLabel = byId<HTMLDivElement>("sessionState");
-    const languageLabel = byId<HTMLDivElement>("languageState");
+    applyAuthState(popupState.loggedIn);
+    if (!popupState.loggedIn) {
+      availableLanguages = [];
+      applyLanguageSelections(null, null);
+      return;
+    }
 
-    sessionLabel.textContent = popupState.loggedIn
-      ? "Session: Logged in"
-      : "Session: Logged out";
-
-    const source = popupState.sourceLanguageId ?? "?";
-    const target = popupState.targetLanguageId ?? "?";
-    languageLabel.textContent = `Languages: ${source} -> ${target}`;
+    await loadSettings();
+    await loadLanguages();
   }
 
   async function onLogin(): Promise<void> {
     const response = await sendMessage<LoginData>({ type: "LOGIN" });
-    if (response.session) {
-      setStatus("Login successful.");
-    } else {
-      setStatus("Login did not return an active session.", true);
+    if (!response.session) {
+      throw new Error("Login did not return an active session.");
     }
 
+    setStatus("Login successful.");
     await refreshPopupState();
   }
 
@@ -77,32 +182,51 @@ export function registerPopup(dependencies: PopupDependencies): void {
     await refreshPopupState();
   }
 
-  async function onGetLanguages(): Promise<void> {
-    const response = await sendMessage<GetLanguagesData>({
-      type: "GET_LANGUAGES",
-    });
-    const names = response.result.languages.map((language) => language.code).join(", ");
+  async function onLanguageSelectionChanged(): Promise<void> {
+    if (suppressAutoSave || !currentSettings) {
+      return;
+    }
 
-    byId<HTMLPreElement>("languagesOutput").textContent =
-      names || "No languages returned.";
-    setStatus("Languages loaded.");
+    const response = await sendMessage<SaveSettingsData>({
+      type: "SAVE_SETTINGS",
+      settings: {
+        ...currentSettings,
+        sourceLanguageId: sourceSelect.value.trim() || null,
+        targetLanguageId: targetSelect.value.trim() || null,
+      },
+    });
+
+    currentSettings = response.settings;
+    setStatus("Language preferences saved.");
   }
 
-  byId<HTMLButtonElement>("loginButton").addEventListener("click", () => {
+  loginButton.addEventListener("click", () => {
     void onLogin().catch((error: unknown) => {
       setStatus(error instanceof Error ? error.message : "Login failed.", true);
     });
   });
 
-  byId<HTMLButtonElement>("logoutButton").addEventListener("click", () => {
+  logoutButton.addEventListener("click", () => {
     void onLogout().catch((error: unknown) => {
       setStatus(error instanceof Error ? error.message : "Logout failed.", true);
     });
   });
 
-  byId<HTMLButtonElement>("languagesButton").addEventListener("click", () => {
-    void onGetLanguages().catch((error: unknown) => {
-      setStatus(error instanceof Error ? error.message : "Language request failed.", true);
+  sourceSelect.addEventListener("change", () => {
+    void onLanguageSelectionChanged().catch((error: unknown) => {
+      setStatus(
+        error instanceof Error ? error.message : "Failed to save source language.",
+        true,
+      );
+    });
+  });
+
+  targetSelect.addEventListener("change", () => {
+    void onLanguageSelectionChanged().catch((error: unknown) => {
+      setStatus(
+        error instanceof Error ? error.message : "Failed to save target language.",
+        true,
+      );
     });
   });
 
