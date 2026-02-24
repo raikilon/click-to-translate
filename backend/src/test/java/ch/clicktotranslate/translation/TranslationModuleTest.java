@@ -70,7 +70,8 @@ class TranslationModuleTest {
 
 		private final TextResult deepLResponse = org.mockito.Mockito.mock(TextResult.class);
 
-		private final TextToTranslateDto facadeRequest = new TextToTranslateDto(text, LanguageDto.DE, LanguageDto.EN);
+		private final TextToTranslateDto facadeRequest = new TextToTranslateDto(text, LanguageDto.DE, LanguageDto.EN,
+				null);
 
 		private final TextToTranslate controllerRequest = new TextToTranslate(text, "DE", "EN");
 

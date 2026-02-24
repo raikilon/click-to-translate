@@ -6,6 +6,7 @@ import org.springframework.context.event.EventListener;
 
 import ch.clicktotranslate.lemmatizer.application.SegmentBundleCreatedController;
 import ch.clicktotranslate.lemmatizer.application.TranslatedSegmentBundle;
+import org.springframework.modulith.events.ApplicationModuleListener;
 
 public class SpringSegmentBundleCreatedEventListener {
 
@@ -19,7 +20,7 @@ public class SpringSegmentBundleCreatedEventListener {
 		this.eventMapper = eventMapper;
 	}
 
-	@EventListener
+	@ApplicationModuleListener
 	@DomainEventHandler
 	public void onTranslatedSegmentBundle(SegmentBundleCreatedEvent event) {
 		TranslatedSegmentBundle segmentBundle = eventMapper.map(event);

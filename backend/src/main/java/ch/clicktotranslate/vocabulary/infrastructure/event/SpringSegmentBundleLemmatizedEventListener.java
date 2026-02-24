@@ -5,6 +5,7 @@ import ch.clicktotranslate.vocabulary.domain.SegmentBundle;
 import ch.clicktotranslate.vocabulary.application.RegisterSegmentBundle;
 import org.jmolecules.event.annotation.DomainEventHandler;
 import org.springframework.context.event.EventListener;
+import org.springframework.modulith.events.ApplicationModuleListener;
 
 public class SpringSegmentBundleLemmatizedEventListener {
 
@@ -18,7 +19,7 @@ public class SpringSegmentBundleLemmatizedEventListener {
 		this.registerSegmentBundle = registerSegmentBundle;
 	}
 
-	@EventListener
+	@ApplicationModuleListener
 	@DomainEventHandler
 	public void onTranslatedWord(SegmentBundleLemmatizedEvent segmentBundleLemmatizedEvent) {
 		SegmentBundle event = eventMapper.map(segmentBundleLemmatizedEvent);

@@ -9,10 +9,8 @@ import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntry
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataUsageRepository;
 import java.time.Instant;
 import java.util.List;
-import java.util.function.BiConsumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.modulith.test.ApplicationModuleTest;
@@ -20,7 +18,6 @@ import org.springframework.modulith.test.Scenario;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.support.TransactionOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -54,7 +51,7 @@ class VocabularyModuleTest {
 	void givenNewSegmentEvent_whenHandled_thenCreatesEntryWithUsage(Scenario scenario) {
 		TestContext context = new TestContext();
 
-		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+		scenario.publish(context.newSegmentEvent())
 			.andWaitForStateChange(context::entriesByUser, entries -> entries.size() == 1)
 			.andVerify(entries -> {
 				assertThat(entries).hasSize(1);
@@ -82,11 +79,11 @@ class VocabularyModuleTest {
 	void givenExistingSegmentWithNewUsage_whenHandled_thenAddsOnlyNewUsage(Scenario scenario) {
 		TestContext context = new TestContext();
 
-		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+		scenario.publish(context.newSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 1)
 			.andVerify(count -> assertThat(count).isEqualTo(1));
 
-		scenario.stimulate(context.publishEvent(context.newUsageForExistingSegmentEvent()))
+		scenario.publish(context.newUsageForExistingSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 2)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(2);
@@ -103,11 +100,11 @@ class VocabularyModuleTest {
 	void givenExistingSegmentAndExistingUsage_whenHandled_thenDoesNotCreateDuplicateUsage(Scenario scenario) {
 		TestContext context = new TestContext();
 
-		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+		scenario.publish(context.newSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 1)
 			.andVerify(count -> assertThat(count).isEqualTo(1));
 
-		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+		scenario.publish(context.newSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 1)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(1);
@@ -120,7 +117,7 @@ class VocabularyModuleTest {
 		TestContext context = new TestContext();
 		context.seedEntryWithStarredUsages(20);
 
-		scenario.stimulate(context.publishEvent(context.newUsageForExistingSegmentEvent()))
+		scenario.publish(context.newUsageForExistingSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 20)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(20);
@@ -236,11 +233,6 @@ class VocabularyModuleTest {
 			}
 
 			entryRepository.save(entry);
-		}
-
-		private BiConsumer<TransactionOperations, ApplicationEventPublisher> publishEvent(
-				SegmentBundleLemmatizedEvent event) {
-			return (tx, publisher) -> publisher.publishEvent(event);
 		}
 
 	}
