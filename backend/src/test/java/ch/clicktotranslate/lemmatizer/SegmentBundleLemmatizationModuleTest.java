@@ -66,7 +66,7 @@ class SegmentBundleLemmatizationModuleTest {
 
 		private final TextToTranslateDto translationRequest = new TextToTranslateDto(lemmatizedWord,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,
-				ch.clicktotranslate.translation.infrastructure.LanguageDto.EN);
+				ch.clicktotranslate.translation.infrastructure.LanguageDto.EN, sentence);
 
 		private final SegmentBundleLemmatizedEvent expectedEvent = new SegmentBundleLemmatizedEvent(userId,
 				lemmatizedWord, lemmatizedWordTranslation, sentence, sentenceTranslation, word, wordTranslation,

@@ -9,16 +9,9 @@ public class TextToTranslateDtoMapper {
 			return null;
 		}
 		return new TextToTranslate(request.text(), toLanguage(request.sourceLanguage()),
-				toLanguage(request.targetLanguage()));
+				toLanguage(request.targetLanguage()), request.context());
 	}
 
-	public TextToTranslateDto toDto(TextToTranslate request) {
-		if (request == null) {
-			return null;
-		}
-		return new TextToTranslateDto(request.text(), toLanguageDto(request.sourceLanguage()),
-				toLanguageDto(request.targetLanguage()));
-	}
 
 	private String toLanguage(LanguageDto language) {
 		if (language == null) {

@@ -19,7 +19,7 @@ public class DeepLTextTranslationProvider implements TextTranslationProvider {
 		Language sourceLanguage = toLanguage(request.sourceLanguage());
 		Language targetLanguage = toLanguage(request.targetLanguage());
 		return deepLTextTranslation.translate(request.text(), languageMapper.toDeepLCode(sourceLanguage),
-				languageMapper.toDeepLCode(targetLanguage));
+				languageMapper.toDeepLCode(targetLanguage), request.context());
 	}
 
 	@Override

@@ -14,9 +14,9 @@ public class TextTranslatorClient implements TextTranslator {
 	}
 
 	@Override
-	public String translate(String text, String sourceLanguage, String targetLanguage) {
+	public String translate(String text, String sourceLanguage, String targetLanguage, String context) {
 		TextToTranslateDto request = new TextToTranslateDto(text, LanguageDto.fromString(sourceLanguage),
-				LanguageDto.fromString(targetLanguage));
+				LanguageDto.fromString(targetLanguage), context);
 		return textTranslationFacade.translate(request);
 	}
 

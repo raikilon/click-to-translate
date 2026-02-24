@@ -101,11 +101,11 @@ class SegmentBundleTranslationModuleTest {
 
 		private final TextToTranslateDto wordTranslationRequest = new TextToTranslateDto(word,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,
-				ch.clicktotranslate.translation.infrastructure.LanguageDto.EN);
+				ch.clicktotranslate.translation.infrastructure.LanguageDto.EN, sentence);
 
 		private final TextToTranslateDto sentenceTranslationRequest = new TextToTranslateDto(sentence,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,
-				ch.clicktotranslate.translation.infrastructure.LanguageDto.EN);
+				ch.clicktotranslate.translation.infrastructure.LanguageDto.EN, null);
 
 		private final TranslatedSegmentDto expectedResponse = new TranslatedSegmentDto(word, sentence, translatedWord,
 				translatedSentence);

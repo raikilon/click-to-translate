@@ -16,10 +16,10 @@ public class SegmentTranslatorService {
 
 	public Segment translate(Segment segment) {
 		try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.awaitAll())) {
-			var translateWordTask = scope
-				.fork(() -> translateText(segment.word(), segment.sourceLanguage(), segment.targetLanguage()));
-			var translateSentenceTask = scope
-				.fork(() -> translateText(segment.sentence(), segment.sourceLanguage(), segment.targetLanguage()));
+			var translateWordTask = scope.fork(() -> translateText(segment.word(), segment.sourceLanguage(),
+					segment.targetLanguage(), segment.sentence()));
+			var translateSentenceTask = scope.fork(
+					() -> translateText(segment.sentence(), segment.sourceLanguage(), segment.targetLanguage(), null));
 
 			scope.join();
 
@@ -45,12 +45,12 @@ public class SegmentTranslatorService {
 		return "";
 	}
 
-	private String translateText(String text, String sourceLanguage, String targetLanguage) {
+	private String translateText(String text, String sourceLanguage, String targetLanguage, String context) {
 		if (text == null || text.isBlank()) {
 			return null;
 		}
 
-		String translatedText = textTranslator.translate(text, sourceLanguage, targetLanguage);
+		String translatedText = textTranslator.translate(text, sourceLanguage, targetLanguage, context);
 
 		if (translatedText == null || translatedText.isBlank()) {
 			throw new IllegalStateException("Translation service returned no result.");

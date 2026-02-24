@@ -3,6 +3,7 @@ package ch.clicktotranslate.translation.infrastructure;
 import com.deepl.api.DeepLClient;
 import com.deepl.api.DeepLException;
 import com.deepl.api.TextResult;
+import com.deepl.api.TextTranslationOptions;
 
 import ch.clicktotranslate.translation.application.DeepLTextTranslation;
 
@@ -18,12 +19,12 @@ public class DeepLTextTranslationClient implements DeepLTextTranslation {
 	}
 
 	@Override
-	public String translate(String text, String sourceLanguage, String targetLanguage) {
+	public String translate(String text, String sourceLanguage, String targetLanguage, String context) {
 		String translatedText = null;
 
 		try {
 			if (text != null && !text.isBlank()) {
-				TextResult textResult = client.translateText(text, sourceLanguage, targetLanguage);
+				TextResult textResult = translateText(text, sourceLanguage, targetLanguage, context);
 				translatedText = textResult.getText();
 			}
 		}
@@ -33,6 +34,16 @@ public class DeepLTextTranslationClient implements DeepLTextTranslation {
 		}
 
 		return translatedText;
+	}
+
+	private TextResult translateText(String text, String sourceLanguage, String targetLanguage, String context)
+			throws DeepLException, InterruptedException {
+		if (context == null || context.isBlank()) {
+			return client.translateText(text, sourceLanguage, targetLanguage);
+		}
+
+		TextTranslationOptions options = new TextTranslationOptions().setContext(context);
+		return client.translateText(text, sourceLanguage, targetLanguage, options);
 	}
 
 }
