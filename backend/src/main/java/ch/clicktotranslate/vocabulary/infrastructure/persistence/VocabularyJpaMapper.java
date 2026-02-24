@@ -1,11 +1,11 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
+import ch.clicktotranslate.auth.UserId;
 import ch.clicktotranslate.vocabulary.application.PageRequest;
 import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Term;
 import ch.clicktotranslate.vocabulary.domain.TextSpan;
 import ch.clicktotranslate.vocabulary.domain.Usage;
-import ch.clicktotranslate.vocabulary.domain.UserId;
 import ch.clicktotranslate.vocabulary.domain.Entry;
 import java.util.Collection;
 import java.util.Comparator;

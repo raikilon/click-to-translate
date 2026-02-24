@@ -1,5 +1,7 @@
 package ch.clicktotranslate.vocabulary;
 
+import ch.clicktotranslate.auth.UserProvider;
+import ch.clicktotranslate.auth.UserId;
 import ch.clicktotranslate.lemmatizer.domain.SegmentBundleLemmatizedEvent;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaEntryEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaUsageEntity;
@@ -15,10 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.modulith.test.Scenario;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.support.TransactionOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @ApplicationModuleTest
 @TestPropertySource(
@@ -33,9 +38,16 @@ class VocabularyModuleTest {
 	@Autowired
 	private SpringDataUsageRepository usageRepository;
 
+	@MockitoBean
+	private JwtDecoder jwtDecoder;
+
+	@MockitoBean
+	private UserProvider userProvider;
+
 	@BeforeEach
 	void cleanDatabase() {
 		entryRepository.deleteAll();
+		given(userProvider.currentUserId()).willReturn(UserId.of("user-1"));
 	}
 
 	@Test

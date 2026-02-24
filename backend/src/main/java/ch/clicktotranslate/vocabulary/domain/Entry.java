@@ -1,5 +1,6 @@
 package ch.clicktotranslate.vocabulary.domain;
 
+import ch.clicktotranslate.auth.UserId;
 import java.util.List;
 import java.time.Instant;
 import java.util.ArrayList;

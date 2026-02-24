@@ -1,7 +1,5 @@
-package ch.clicktotranslate.vocabulary.infrastructure.security;
+package ch.clicktotranslate.auth;
 
-import ch.clicktotranslate.vocabulary.application.UserProvider;
-import ch.clicktotranslate.vocabulary.domain.UserId;
 import java.util.Map;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

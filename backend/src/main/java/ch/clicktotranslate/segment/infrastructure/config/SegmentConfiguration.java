@@ -8,6 +8,8 @@ import ch.clicktotranslate.segment.application.SegmentBundleMapper;
 import ch.clicktotranslate.segment.application.SegmentBundleTranslationController;
 import ch.clicktotranslate.segment.application.EventPublisher;
 import ch.clicktotranslate.segment.application.SegmentBundleCreatedEventMapper;
+import ch.clicktotranslate.segment.application.TranslateSegmentBundle;
+import ch.clicktotranslate.auth.UserProvider;
 import ch.clicktotranslate.segment.infrastructure.TextTranslatorClient;
 import ch.clicktotranslate.segment.application.SegmentTranslatorService;
 import ch.clicktotranslate.segment.application.TextTranslator;
@@ -29,11 +31,8 @@ public class SegmentConfiguration {
 	}
 
 	@Bean
-	public SegmentBundleTranslationController translateWordController(SegmentTranslatorService segmentTranslatorService,
-			EventPublisher eventPublisher, SegmentBundleCreatedEventMapper eventFactory,
-			SegmentBundleMapper segmentBundleMapper) {
-		return new SegmentBundleTranslationController(segmentTranslatorService, eventPublisher, eventFactory,
-				segmentBundleMapper);
+	public SegmentBundleTranslationController translateWordController(TranslateSegmentBundle translateSegmentBundle) {
+		return new SegmentBundleTranslationController(translateSegmentBundle);
 	}
 
 	@Bean
@@ -49,6 +48,14 @@ public class SegmentConfiguration {
 	@Bean
 	public SegmentBundleCreatedEventMapper translatedWordEventFactory() {
 		return new SegmentBundleCreatedEventMapper();
+	}
+
+	@Bean
+	public TranslateSegmentBundle translateSegmentBundleUseCase(SegmentTranslatorService segmentTranslatorService,
+			EventPublisher eventPublisher, SegmentBundleCreatedEventMapper eventFactory,
+			SegmentBundleMapper segmentBundleMapper, UserProvider userProvider) {
+		return new TranslateSegmentBundle(segmentTranslatorService, eventPublisher, eventFactory, segmentBundleMapper,
+				userProvider);
 	}
 
 	@Bean

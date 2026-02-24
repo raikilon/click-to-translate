@@ -5,12 +5,15 @@ import ch.clicktotranslate.segment.infrastructure.LanguageDto;
 import ch.clicktotranslate.segment.infrastructure.SegmentBundleDto;
 import ch.clicktotranslate.segment.infrastructure.SegmentBundleTranslationRestController;
 import ch.clicktotranslate.segment.infrastructure.TranslatedSegmentDto;
+import ch.clicktotranslate.auth.UserProvider;
+import ch.clicktotranslate.auth.UserId;
 import ch.clicktotranslate.translation.infrastructure.TextToTranslateDto;
 import ch.clicktotranslate.translation.infrastructure.TextTranslationFacade;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.modulith.test.Scenario;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Instant;
@@ -28,11 +31,18 @@ class SegmentBundleTranslationModuleTest {
 	@MockitoBean
 	private TextTranslationFacade textTranslationFacade;
 
+	@MockitoBean
+	private UserProvider userProvider;
+
+	@MockitoBean
+	private JwtDecoder jwtDecoder;
+
 	@Test
 	void givenSegmentBundle_whenTranslate_thenReturnsTranslationPublishesEventAndCallsTranslationModuleTwice(
 			Scenario scenario) {
 		TestContext context = new TestContext();
 		context.givenTextTranslations();
+		context.givenUser();
 
 		scenario.stimulate(() -> underTest.translate(context.segmentBundle))
 			.andWaitForEventOfType(SegmentBundleCreatedEvent.class)
@@ -57,6 +67,8 @@ class SegmentBundleTranslationModuleTest {
 		private final String translatedWord = "House";
 
 		private final String translatedSentence = "The house is big.";
+
+		private final String requestUserId = "ignored-user";
 
 		private final String userId = "user-1";
 
@@ -84,8 +96,8 @@ class SegmentBundleTranslationModuleTest {
 		private final SegmentBundleDto.SourceMetadataDto sourceMetadata = new SegmentBundleDto.GenericSourceMetadataDto(
 				sourceUrl, sourceDomain, selectionOffset, paragraphIndex);
 
-		private final SegmentBundleDto segmentBundle = new SegmentBundleDto(userId, word, sentence, sourceLanguage,
-				targetLanguage, source, sourceMetadata, occurredAt);
+		private final SegmentBundleDto segmentBundle = new SegmentBundleDto(requestUserId, word, sentence,
+				sourceLanguage, targetLanguage, source, sourceMetadata, occurredAt);
 
 		private final TextToTranslateDto wordTranslationRequest = new TextToTranslateDto(word,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,
@@ -108,6 +120,10 @@ class SegmentBundleTranslationModuleTest {
 		private void givenTextTranslations() {
 			given(textTranslationFacade.translate(wordTranslationRequest)).willReturn(translatedWord);
 			given(textTranslationFacade.translate(sentenceTranslationRequest)).willReturn(translatedSentence);
+		}
+
+		private void givenUser() {
+			given(userProvider.currentUserId()).willReturn(UserId.of(userId));
 		}
 
 		private void verifyTranslationCalls() {

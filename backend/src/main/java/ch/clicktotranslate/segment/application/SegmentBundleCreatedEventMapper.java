@@ -5,8 +5,8 @@ import ch.clicktotranslate.segment.domain.SegmentBundleCreatedEvent;
 
 public class SegmentBundleCreatedEventMapper {
 
-	public SegmentBundleCreatedEvent map(SegmentBundle request, Segment translatedSegment) {
-		return new SegmentBundleCreatedEvent("test", request.word(), request.sentence(),
+	public SegmentBundleCreatedEvent map(String userId, SegmentBundle request, Segment translatedSegment) {
+		return new SegmentBundleCreatedEvent(userId, request.word(), request.sentence(),
 				translatedSegment.translatedWord(), translatedSegment.translatedSentence(), request.sourceLanguage(),
 				request.targetLanguage(), mapSource(request.source()), mapSourceMetadata(request.sourceMetadata()),
 				request.occurredAt());

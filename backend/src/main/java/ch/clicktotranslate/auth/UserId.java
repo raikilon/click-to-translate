@@ -1,4 +1,4 @@
-package ch.clicktotranslate.vocabulary.domain;
+package ch.clicktotranslate.auth;
 
 import org.jmolecules.ddd.types.ValueObject;
 

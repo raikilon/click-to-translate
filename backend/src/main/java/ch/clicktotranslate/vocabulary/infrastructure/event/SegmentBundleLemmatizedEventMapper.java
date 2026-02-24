@@ -1,8 +1,8 @@
 package ch.clicktotranslate.vocabulary.infrastructure.event;
 
+import ch.clicktotranslate.auth.UserId;
 import ch.clicktotranslate.lemmatizer.domain.SegmentBundleLemmatizedEvent;
 import ch.clicktotranslate.vocabulary.domain.SegmentBundle;
-import ch.clicktotranslate.vocabulary.domain.UserId;
 
 public class SegmentBundleLemmatizedEventMapper {
 

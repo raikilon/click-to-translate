@@ -1,13 +1,11 @@
 package ch.clicktotranslate.vocabulary.infrastructure.config;
 
 import ch.clicktotranslate.vocabulary.application.RegisterSegmentBundle;
-import ch.clicktotranslate.vocabulary.application.UserProvider;
 import ch.clicktotranslate.vocabulary.infrastructure.event.SegmentBundleLemmatizedEventMapper;
 import ch.clicktotranslate.vocabulary.infrastructure.event.SpringSegmentBundleLemmatizedEventListener;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaVocabularyRepository;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataUsageRepository;
-import ch.clicktotranslate.vocabulary.infrastructure.security.SpringSecurityUserProvider;
 import ch.clicktotranslate.vocabulary.infrastructure.web.PageRequestDtoMapper;
 import ch.clicktotranslate.vocabulary.infrastructure.web.UsageDtoMapper;
 import ch.clicktotranslate.vocabulary.infrastructure.web.VocabularyDtoMapper;
@@ -32,11 +30,6 @@ public class VocabularyInfrastructureConfiguration {
 	public SpringSegmentBundleLemmatizedEventListener springSegmentBundleLemmatizedEventListener(
 			SegmentBundleLemmatizedEventMapper eventMapper, RegisterSegmentBundle registerSegmentBundle) {
 		return new SpringSegmentBundleLemmatizedEventListener(eventMapper, registerSegmentBundle);
-	}
-
-	@Bean
-	public UserProvider userProvider() {
-		return new SpringSecurityUserProvider();
 	}
 
 	@Bean
