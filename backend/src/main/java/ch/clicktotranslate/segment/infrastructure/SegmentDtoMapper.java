@@ -11,9 +11,9 @@ public class SegmentDtoMapper {
 	}
 
 	public SegmentBundle toDomain(SegmentBundleDto request) {
-		return new SegmentBundle(request.userId(), request.word(), request.sentence(),
-				toLanguageCode(request.sourceLanguage()), toLanguageCode(request.targetLanguage()),
-				mapSource(request.source()), mapSourceMetadata(request.sourceMetadata()), request.occurredAt());
+		return new SegmentBundle(request.word(), request.sentence(), toLanguageCode(request.sourceLanguage()),
+				toLanguageCode(request.targetLanguage()), mapSource(request.source()),
+				mapSourceMetadata(request.sourceMetadata()), request.occurredAt());
 	}
 
 	private SegmentBundle.Source mapSource(SegmentBundleDto.SourceDto source) {

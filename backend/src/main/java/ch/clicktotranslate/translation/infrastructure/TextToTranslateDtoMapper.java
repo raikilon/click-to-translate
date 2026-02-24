@@ -12,7 +12,6 @@ public class TextToTranslateDtoMapper {
 				toLanguage(request.targetLanguage()), request.context());
 	}
 
-
 	private String toLanguage(LanguageDto language) {
 		if (language == null) {
 			return null;

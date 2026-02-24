@@ -2,8 +2,8 @@ package ch.clicktotranslate.segment.application;
 
 import java.time.Instant;
 
-public record SegmentBundle(String userId, String word, String sentence, String sourceLanguage, String targetLanguage,
-		Source source, SourceMetadata sourceMetadata, Instant occurredAt) {
+public record SegmentBundle(String word, String sentence, String sourceLanguage, String targetLanguage, Source source,
+		SourceMetadata sourceMetadata, Instant occurredAt) {
 	public record Source(String type, String id, String title) {
 	}
 

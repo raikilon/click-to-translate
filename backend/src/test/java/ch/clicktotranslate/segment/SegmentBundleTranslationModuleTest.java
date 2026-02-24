@@ -68,8 +68,6 @@ class SegmentBundleTranslationModuleTest {
 
 		private final String translatedSentence = "The house is big.";
 
-		private final String requestUserId = "ignored-user";
-
 		private final String userId = "user-1";
 
 		private final LanguageDto sourceLanguage = LanguageDto.DE;
@@ -96,8 +94,8 @@ class SegmentBundleTranslationModuleTest {
 		private final SegmentBundleDto.SourceMetadataDto sourceMetadata = new SegmentBundleDto.GenericSourceMetadataDto(
 				sourceUrl, sourceDomain, selectionOffset, paragraphIndex);
 
-		private final SegmentBundleDto segmentBundle = new SegmentBundleDto(requestUserId, word, sentence,
-				sourceLanguage, targetLanguage, source, sourceMetadata, occurredAt);
+		private final SegmentBundleDto segmentBundle = new SegmentBundleDto(word, sentence, sourceLanguage,
+				targetLanguage, source, sourceMetadata, occurredAt);
 
 		private final TextToTranslateDto wordTranslationRequest = new TextToTranslateDto(word,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,

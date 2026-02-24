@@ -23,7 +23,7 @@ class DeepLTextTranslationClientTest {
 		TestContext context = new TestContext();
 		context.givenTranslationSucceeds();
 
-		String result = context.underTest.translate(context.text, context.sourceLanguage, context.targetLanguage);
+		String result = context.underTest.translate(context.text, context.sourceLanguage, context.targetLanguage, null);
 
 		assertThat(result).isEqualTo(context.translatedText);
 		context.verifyTranslationCalled();
@@ -52,7 +52,7 @@ class DeepLTextTranslationClientTest {
 		context.givenTranslationThrowsDeepLException();
 
 		assertThatThrownBy(
-				() -> context.underTest.translate(context.text, context.sourceLanguage, context.targetLanguage))
+				() -> context.underTest.translate(context.text, context.sourceLanguage, context.targetLanguage, null))
 			.isInstanceOf(IllegalStateException.class)
 			.hasMessage("DeepL translation failed.")
 			.hasCauseInstanceOf(DeepLException.class);

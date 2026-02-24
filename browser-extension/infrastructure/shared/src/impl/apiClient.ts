@@ -58,7 +58,6 @@ function sourceMetadataToBackend(metadata?: SourceMetadataDto): unknown {
 
 function segmentBundleToBackend(bundle: SegmentBundleDto): unknown {
   return {
-    userId: null,
     word: bundle.word,
     sentence: bundle.sentence,
     sourceLanguage: bundle.sourceLanguage.code || bundle.sourceLanguage.id,
