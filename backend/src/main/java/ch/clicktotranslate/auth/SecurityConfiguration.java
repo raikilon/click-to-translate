@@ -1,6 +1,7 @@
 package ch.clicktotranslate.auth;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +12,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -55,7 +55,8 @@ public class SecurityConfiguration {
 
 		JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 		converter.setJwtGrantedAuthoritiesConverter(jwt -> Stream
-			.concat(scopeAuthoritiesConverter.convert(jwt).stream(), keycloakRolesConverter.convert(jwt).stream())
+			.concat(scopeAuthoritiesConverter.convert(jwt).stream(),
+					Objects.requireNonNull(keycloakRolesConverter.convert(jwt)).stream())
 			.collect(Collectors.toUnmodifiableSet()));
 		return converter;
 	}

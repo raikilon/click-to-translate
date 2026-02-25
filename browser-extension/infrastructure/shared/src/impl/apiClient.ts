@@ -169,34 +169,21 @@ export class HttpApiClient implements ApiClient {
 
     if (typeof payload === "string") {
       return {
-        translationText: payload,
+        translatedWord: payload,
       };
     }
 
     if (!payload || typeof payload !== "object") {
       return {
-        translationText: undefined,
+        translatedWord: undefined,
       };
     }
 
     const typedPayload = payload as Partial<PostSegmentResponse>;
     return {
-      translationText:
-        typeof typedPayload.translationText === "string"
-          ? typedPayload.translationText
-          : undefined,
-      segmentId:
-        typeof typedPayload.segmentId === "string" ? typedPayload.segmentId : undefined,
-      word: typeof typedPayload.word === "string" ? typedPayload.word : undefined,
-      sentence:
-        typeof typedPayload.sentence === "string" ? typedPayload.sentence : undefined,
       translatedWord:
         typeof typedPayload.translatedWord === "string"
           ? typedPayload.translatedWord
-          : undefined,
-      translatedSentence:
-        typeof typedPayload.translatedSentence === "string"
-          ? typedPayload.translatedSentence
           : undefined,
     };
   }

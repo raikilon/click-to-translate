@@ -105,8 +105,7 @@ class SegmentBundleTranslationModuleTest {
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.EN, null);
 
-		private final TranslatedSegmentDto expectedResponse = new TranslatedSegmentDto(word, sentence, translatedWord,
-				translatedSentence);
+		private final TranslatedSegmentDto expectedResponse = new TranslatedSegmentDto(translatedWord);
 
 		private final SegmentBundleCreatedEvent expectedEvent = new SegmentBundleCreatedEvent(userId, word, sentence,
 				translatedWord, translatedSentence, sourceLanguage.name(), targetLanguage.name(),

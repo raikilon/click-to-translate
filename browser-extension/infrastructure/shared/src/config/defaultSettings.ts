@@ -9,5 +9,5 @@ export const INFRA_DEFAULT_SETTINGS: Partial<Settings> = {
   authTokenUrl:
     "http://localhost:8081/realms/click-to-translate/protocol/openid-connect/token",
   oauthClientId: "click-to-translate-extension",
-  scopes: ["openid", "segment"],
+  scopes: ["openid", "segment", "translate"],
 };

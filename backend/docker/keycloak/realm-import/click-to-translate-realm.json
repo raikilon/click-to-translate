@@ -27,13 +27,45 @@
         "pkce.code.challenge.method": "S256"
       },
       "defaultClientScopes": [
+        "basic",
         "web-origins",
         "segment",
-        "roles"
+        "roles",
+        "translate"
       ],
       "optionalClientScopes": [
         "profile",
         "email"
+      ],
+      "protocolMappers": [
+        {
+          "name": "subject (sub)",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "id",
+            "claim.name": "sub",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "client roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "resource_access.${client_id}.roles",
+            "jsonType.label": "String"
+          }
+        }
       ]
     }
   ],
@@ -41,6 +73,11 @@
     {
       "name": "segment",
       "description": "Access to segment translation endpoints",
+      "protocol": "openid-connect"
+    },
+    {
+      "name": "translate",
+      "description": "Access to translation endpoints",
       "protocol": "openid-connect"
     }
   ],
@@ -68,6 +105,7 @@
   },
   "users": [
     {
+      "id": "2f4ce8f2-6ce4-40f7-b273-5af7ca15b2e4",
       "username": "dev-user",
       "enabled": true,
       "firstName": "Dev",
@@ -89,6 +127,7 @@
       }
     },
     {
+      "id": "91680d4d-a1a0-4d71-8a0f-98c9e3d3c867",
       "username": "dev-premium",
       "enabled": true,
       "firstName": "Dev",

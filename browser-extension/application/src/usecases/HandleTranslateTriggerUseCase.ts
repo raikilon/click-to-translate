@@ -178,19 +178,9 @@ function buildSourceMetadata(
 }
 
 function pickTranslatedText(response: PostSegmentResponse): string | null {
-  const translatedSentence = response.translatedSentence?.trim();
-  if (translatedSentence) {
-    return translatedSentence;
-  }
-
   const translatedWord = response.translatedWord?.trim();
   if (translatedWord) {
     return translatedWord;
-  }
-
-  const translatedText = response.translationText?.trim();
-  if (translatedText) {
-    return translatedText;
   }
 
   return null;
@@ -212,10 +202,8 @@ function buildRenderPayload(
 }
 
 function buildPlaceholderText(
-  response: PostSegmentResponse,
+  _response: PostSegmentResponse,
   fallbackText?: string,
 ): string {
-  const normalizedFallback = fallbackText?.trim() ? fallbackText.trim() : "Saved";
-  const segmentId = response.segmentId?.trim();
-  return segmentId ? `${normalizedFallback} (#${segmentId})` : normalizedFallback;
+  return fallbackText?.trim() ? fallbackText.trim() : "Saved";
 }

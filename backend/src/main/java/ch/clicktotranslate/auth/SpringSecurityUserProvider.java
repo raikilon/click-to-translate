@@ -2,24 +2,22 @@ package ch.clicktotranslate.auth;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 public class SpringSecurityUserProvider implements UserProvider {
 
-	@Override
 	public UserId currentUserId() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null || !authentication.isAuthenticated()) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth == null || !auth.isAuthenticated()) {
 			throw new IllegalStateException("Authenticated user is required");
 		}
-		String name = authentication.getName();
-		if (isUsable(name)) {
-			return UserId.of(name);
-		}
-		throw new IllegalStateException("Authenticated user identifier is missing");
-	}
 
-	private boolean isUsable(String value) {
-		return value != null && !value.isBlank();
+		String userId = auth.getName();
+		if (userId == null || userId.isBlank() || "anonymousUser".equals(userId)) {
+			throw new IllegalStateException("Authenticated user identifier is missing");
+		}
+
+		return UserId.of(userId);
 	}
 
 }

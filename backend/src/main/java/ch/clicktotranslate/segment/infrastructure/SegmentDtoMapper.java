@@ -6,8 +6,7 @@ import ch.clicktotranslate.segment.domain.Segment;
 public class SegmentDtoMapper {
 
 	public TranslatedSegmentDto toDto(Segment response) {
-		return new TranslatedSegmentDto(response.word(), response.sentence(), response.translatedWord(),
-				response.translatedSentence());
+		return new TranslatedSegmentDto(response.translatedWord());
 	}
 
 	public SegmentBundle toDomain(SegmentBundleDto request) {
