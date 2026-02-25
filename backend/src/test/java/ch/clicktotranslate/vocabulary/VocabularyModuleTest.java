@@ -60,6 +60,9 @@ class VocabularyModuleTest {
 				assertThat(entry.getUserId()).isEqualTo(context.userId());
 				assertThat(entry.getLanguage()).isEqualTo(context.sourceLanguage());
 				assertThat(entry.getTerm()).isEqualTo(context.normalizedTerm());
+				assertThat(entry.getTranslations())
+					.extracting(translation -> translation.getLanguage() + ":" + translation.getTerm())
+					.containsExactlyInAnyOrder(context.targetLanguage() + ":" + context.normalizedTermTranslation());
 
 				List<JpaUsageEntity> usages = context.usages();
 				assertThat(usages).hasSize(1);
@@ -137,9 +140,13 @@ class VocabularyModuleTest {
 
 		private final String termTranslation = "house";
 
+		private final String secondTermTranslation = "maison";
+
 		private final String sourceLanguage = "DE";
 
 		private final String targetLanguage = "EN";
+
+		private final String secondTargetLanguage = "FR";
 
 		private final String firstSentence = "Das Haus ist gross.";
 
@@ -185,6 +192,18 @@ class VocabularyModuleTest {
 			return secondSentenceTranslation;
 		}
 
+		private String normalizedTermTranslation() {
+			return termTranslation.toLowerCase();
+		}
+
+		private String normalizedSecondTermTranslation() {
+			return secondTermTranslation.toLowerCase();
+		}
+
+		private String secondTargetLanguage() {
+			return secondTargetLanguage;
+		}
+
 		private SegmentBundleLemmatizedEvent newSegmentEvent() {
 			return new SegmentBundleLemmatizedEvent(userId, term, termTranslation, firstSentence,
 					firstSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
@@ -193,6 +212,11 @@ class VocabularyModuleTest {
 		private SegmentBundleLemmatizedEvent newUsageForExistingSegmentEvent() {
 			return new SegmentBundleLemmatizedEvent(userId, term, termTranslation, secondSentence,
 					secondSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
+		}
+
+		private SegmentBundleLemmatizedEvent newUsageWithDifferentTargetLanguageEvent() {
+			return new SegmentBundleLemmatizedEvent(userId, term, secondTermTranslation, secondSentence,
+					secondSentenceTranslation, word, wordTranslation, sourceLanguage, secondTargetLanguage, occurredAt);
 		}
 
 		private List<JpaEntryEntity> entriesByUser() {
