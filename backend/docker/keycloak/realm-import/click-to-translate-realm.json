@@ -28,7 +28,8 @@
       },
       "defaultClientScopes": [
         "web-origins",
-        "segment"
+        "segment",
+        "roles"
       ],
       "optionalClientScopes": [
         "profile",
@@ -43,6 +44,28 @@
       "protocol": "openid-connect"
     }
   ],
+  "roles": {
+    "client": {
+      "click-to-translate-extension": [
+        {
+          "name": "normal",
+          "description": "Basic tier user"
+        },
+        {
+          "name": "premium",
+          "description": "Premium tier user",
+          "composite": true,
+          "composites": {
+            "client": {
+              "click-to-translate-extension": [
+                "normal"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
   "users": [
     {
       "username": "dev-user",
@@ -58,7 +81,33 @@
           "value": "dev-pass",
           "temporary": false
         }
-      ]
+      ],
+      "clientRoles": {
+        "click-to-translate-extension": [
+          "normal"
+        ]
+      }
+    },
+    {
+      "username": "dev-premium",
+      "enabled": true,
+      "firstName": "Dev",
+      "lastName": "Premium",
+      "email": "dev-premium@local.test",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-pass",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "click-to-translate-extension": [
+          "premium"
+        ]
+      }
     }
   ]
 }
