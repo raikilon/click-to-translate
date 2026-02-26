@@ -1,0 +1,9 @@
+target
+.idea
+.git
+.github
+.http
+
+docker
+
+.mvn/wrapper/maven-wrapper.jar

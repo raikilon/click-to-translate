@@ -8,8 +8,11 @@
     "typecheck:firefox": "tsc -p infrastructure/firefox/tsconfig.json",
     "typecheck": "npm run typecheck:chrome && npm run typecheck:firefox",
     "build:chrome": "node scripts/build-extension.mjs chrome",
+    "build:chrome:dev": "node scripts/build-extension.mjs chrome --profile=dev",
     "build:firefox": "node scripts/build-extension.mjs firefox",
+    "build:firefox:dev": "node scripts/build-extension.mjs firefox --profile=dev",
     "build": "node scripts/build-extension.mjs all",
+    "build:dev": "node scripts/build-extension.mjs all --profile=dev",
     "test": "npm run typecheck"
   },
   "keywords": [],

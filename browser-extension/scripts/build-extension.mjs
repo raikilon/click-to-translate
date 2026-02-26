@@ -16,6 +16,10 @@ const extensionEntryPoints = [
 ];
 
 const targetArg = process.argv[2] ?? "all";
+const profileArg = process.argv.find((argument) =>
+  argument.startsWith("--profile="),
+);
+const profile = profileArg ? profileArg.split("=", 2)[1] : "prod";
 
 if (targetArg === "clean") {
   await fs.rm(distRoot, { recursive: true, force: true });
@@ -33,11 +37,15 @@ for (const target of targets) {
   }
 }
 
-for (const target of targets) {
-  await buildTarget(target);
+if (!["prod", "dev"].includes(profile)) {
+  throw new Error(`Unsupported profile "${profile}". Use: prod | dev`);
 }
 
-async function buildTarget(target) {
+for (const target of targets) {
+  await buildTarget(target, profile);
+}
+
+async function buildTarget(target, profileName) {
   const infrastructureRoot = path.join(projectRoot, "infrastructure", target);
   const sourceRoot = path.join(infrastructureRoot, "src");
   const outputRoot = path.join(distRoot, target);
@@ -62,10 +70,15 @@ async function buildTarget(target) {
     platform: "browser",
     target: "es2020",
     logLevel: "info",
+    define: {
+      __EXT_PROFILE__: JSON.stringify(profileName),
+    },
     plugins: [tsPathAliasPlugin()],
   });
 
-  console.log(`Built ${target} extension in ${path.relative(projectRoot, outputRoot)}`);
+  console.log(
+    `Built ${target} extension (${profileName}) in ${path.relative(projectRoot, outputRoot)}`,
+  );
 }
 
 async function copyInfrastructureAssets(infrastructureRoot, outputRoot) {

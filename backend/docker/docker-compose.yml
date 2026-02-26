@@ -25,7 +25,7 @@ services:
     ports:
       - "8081:8080"
     volumes:
-      - ./docker/keycloak/realm-import:/opt/keycloak/data/import:ro
+      - ./keycloak/realm-import:/opt/keycloak/data/import:ro
 
 volumes:
   click_to_translate_pgdata:

@@ -1,6 +1,19 @@
 spring:
   application:
     name: Translation service
+  datasource:
+    url: replace-this-in-profile
+    username: replace-this-in-profile
+    password: replace-this-in-profile
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: replace-this-in-profile
 deepl:
-  auth-key: ${DEEPL_AUTH_KEY}
+  auth-key: replace-this-in-profile
 
