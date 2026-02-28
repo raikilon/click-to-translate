@@ -18,27 +18,7 @@ const youtubeSubtitleProfile: SubtitleSiteProfile = {
     return url.includes("youtube.com/watch") || url.includes("youtu.be/");
   },
 };
-
-const netflixSubtitleProfile: SubtitleSiteProfile = {
-  subtitleSelectors: [
-    '[class*="player-timedtext"]',
-    '[class*="timedtext"]',
-    '[class*="subtitle"]',
-    '[class*="subtitles"]',
-    '[class*="caption"]',
-    '[data-uia*="timedtext"]',
-    '[data-uia*="subtitle"]',
-    '[aria-live]',
-  ],
-  matches(url: string): boolean {
-    return url.includes("netflix.com/watch");
-  },
-};
-
-const subtitleSiteProfiles: readonly SubtitleSiteProfile[] = [
-  youtubeSubtitleProfile,
-  netflixSubtitleProfile,
-];
+const subtitleSiteProfiles: readonly SubtitleSiteProfile[] = [youtubeSubtitleProfile];
 
 export function resolveSubtitleSiteProfile(
   url: string,
