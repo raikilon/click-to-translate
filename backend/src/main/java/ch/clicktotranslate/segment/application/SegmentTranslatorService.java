@@ -23,26 +23,22 @@ public class SegmentTranslatorService {
 
 			scope.join();
 
-			String translatedWord = this.resultOrEmpty(translateWordTask);
-			String translatedSentence = this.resultOrEmpty(translateSentenceTask);
-
-			segment.setTranslations(translatedWord, translatedSentence);
-			return segment;
+			String translatedWord = this.resultOrNull(translateWordTask);
+			String translatedSentence = this.resultOrNull(translateSentenceTask);
+			return segment.withTranslations(translatedWord, translatedSentence);
 
 		}
 		catch (InterruptedException e) {
-			segment.setTranslations("", "");
+			Thread.currentThread().interrupt();
+			throw new IllegalStateException("Translation interrupted.", e);
 		}
-
-		return segment;
 	}
 
-	private String resultOrEmpty(StructuredTaskScope.Subtask<String> task) {
+	private String resultOrNull(StructuredTaskScope.Subtask<String> task) {
 		if (task.state() == StructuredTaskScope.Subtask.State.SUCCESS) {
 			return task.get();
 		}
-
-		return "";
+		return null;
 	}
 
 	private String translateText(String text, String sourceLanguage, String targetLanguage, String context) {

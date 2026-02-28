@@ -14,6 +14,7 @@ Runtime config is read in `src/entrypoints/background/config/runtimeConfig.ts` a
 
 - `WXT_API_BASE_URL`
 - `WXT_TRANSLATE_PATH`
+- `WXT_TRANSLATE_LANGUAGES_PATH` (optional, defaults to `/api/translate/languages`)
 - `WXT_AUTH_AUTHORIZE_URL`
 - `WXT_AUTH_TOKEN_URL`
 - `WXT_OAUTH_CLIENT_ID`
@@ -28,6 +29,7 @@ Example:
 ```env
 WXT_API_BASE_URL=http://localhost:8080
 WXT_TRANSLATE_PATH=/api/translate
+WXT_TRANSLATE_LANGUAGES_PATH=/api/translate/languages
 WXT_AUTH_AUTHORIZE_URL=http://localhost:8081/realms/click-to-translate/protocol/openid-connect/auth
 WXT_AUTH_TOKEN_URL=http://localhost:8081/realms/click-to-translate/protocol/openid-connect/token
 WXT_OAUTH_CLIENT_ID=click-to-translate-extension
@@ -76,3 +78,20 @@ npm run zip:firefox
 npm run compile
 ```
 
+## Compile with Development Env
+Use this when you want a build that reads `.env.development` (without running watch mode):
+
+```bash
+npx wxt build --mode development
+```
+
+## OAuth Redirect URI (Important for Rebuilds)
+If your extension ID changes (for example after rebuilding/reloading in a different profile), login will fail until Keycloak client redirect settings are updated.
+
+Required values for client `click-to-translate-extension`:
+- Valid Redirect URI: `https://<EXTENSION_ID>.chromiumapp.org/oauth2`
+- Web Origin: `https://<EXTENSION_ID>.chromiumapp.org`
+
+Example:
+- `https://ahampkhmocphbkchaheolahhcfcbeabn.chromiumapp.org/oauth2`
+- `https://ahampkhmocphbkchaheolahhcfcbeabn.chromiumapp.org`

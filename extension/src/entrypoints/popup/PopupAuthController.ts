@@ -1,45 +1,18 @@
 import type { BackgroundClient } from "../shared/messaging/client";
-import type { PopupView } from "./PopupView";
+import type { AuthState } from "@application";
 
 export class PopupAuthController {
-  constructor(
-    private readonly client: BackgroundClient,
-    private readonly view: PopupView,
-  ) {}
+  constructor(private readonly client: BackgroundClient) {}
 
-  async refreshAuthState(): Promise<void> {
-    const authState = await this.client.getAuthState();
-    this.view.renderSessionStateAndToggleAuthButtons(authState.isLoggedIn);
+  getAuthState(): Promise<AuthState> {
+    return this.client.getAuthState();
   }
 
-  onLoginButtonClick(): void {
-    void this.loginAndRender().catch(this.onLoginFailed.bind(this));
+  login(): Promise<AuthState> {
+    return this.client.login();
   }
 
-  onLogoutButtonClick(): void {
-    void this.logoutAndRender().catch(this.onLogoutFailed.bind(this));
-  }
-
-  private async loginAndRender(): Promise<void> {
-    const state = await this.client.login();
-    this.view.renderSessionStateAndToggleAuthButtons(state.isLoggedIn);
-    this.view.setStatus(
-      state.isLoggedIn ? "Login successful." : "Login failed.",
-      !state.isLoggedIn,
-    );
-  }
-
-  private async logoutAndRender(): Promise<void> {
+  async logout(): Promise<void> {
     await this.client.logout();
-    this.view.renderSessionStateAndToggleAuthButtons(false);
-    this.view.setStatus("Logged out.");
-  }
-
-  private onLoginFailed(error: unknown): void {
-    this.view.setStatus(error instanceof Error ? error.message : "Login failed.", true);
-  }
-
-  private onLogoutFailed(error: unknown): void {
-    this.view.setStatus(error instanceof Error ? error.message : "Logout failed.", true);
   }
 }

@@ -28,8 +28,11 @@ public class DeepLTextTranslationClient implements DeepLTextTranslation {
 				translatedText = textResult.getText();
 			}
 		}
-		catch (DeepLException | InterruptedException exception) {
+		catch (InterruptedException exception) {
 			Thread.currentThread().interrupt();
+			throw new IllegalStateException("DeepL translation failed.", exception);
+		}
+		catch (DeepLException exception) {
 			throw new IllegalStateException("DeepL translation failed.", exception);
 		}
 

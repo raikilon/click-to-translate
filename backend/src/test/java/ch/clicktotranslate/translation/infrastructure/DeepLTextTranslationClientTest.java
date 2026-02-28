@@ -46,7 +46,7 @@ class DeepLTextTranslationClientTest {
 	}
 
 	@Test
-	void givenTranslationThrowsDeepLException_whenTranslate_thenThrowsIllegalStateExceptionAndInterruptsThread()
+	void givenTranslationThrowsDeepLException_whenTranslate_thenThrowsIllegalStateExceptionWithoutInterruptingThread()
 			throws Exception {
 		TestContext context = new TestContext();
 		context.givenTranslationThrowsDeepLException();
@@ -56,6 +56,23 @@ class DeepLTextTranslationClientTest {
 			.isInstanceOf(IllegalStateException.class)
 			.hasMessage("DeepL translation failed.")
 			.hasCauseInstanceOf(DeepLException.class);
+
+		assertThat(Thread.currentThread().isInterrupted()).isFalse();
+		context.verifyTranslationCalled();
+		verifyNoMoreInteractions(context.client);
+	}
+
+	@Test
+	void givenTranslationThrowsInterruptedException_whenTranslate_thenThrowsIllegalStateExceptionAndInterruptsThread()
+			throws Exception {
+		TestContext context = new TestContext();
+		context.givenTranslationThrowsInterruptedException();
+
+		assertThatThrownBy(
+				() -> context.underTest.translate(context.text, context.sourceLanguage, context.targetLanguage, null))
+			.isInstanceOf(IllegalStateException.class)
+			.hasMessage("DeepL translation failed.")
+			.hasCauseInstanceOf(InterruptedException.class);
 
 		assertThat(Thread.currentThread().isInterrupted()).isTrue();
 		Thread.interrupted();
@@ -98,6 +115,11 @@ class DeepLTextTranslationClientTest {
 		private void givenTranslationThrowsDeepLException() throws DeepLException, InterruptedException {
 			given(client.translateText(text, sourceLanguage, targetLanguage))
 				.willThrow(new DeepLException("translation failed"));
+		}
+
+		private void givenTranslationThrowsInterruptedException() throws DeepLException, InterruptedException {
+			given(client.translateText(text, sourceLanguage, targetLanguage))
+				.willThrow(new InterruptedException("translation interrupted"));
 		}
 
 		private void verifyTranslationCalled() throws DeepLException, InterruptedException {

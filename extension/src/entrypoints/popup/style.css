@@ -8,6 +8,10 @@ body {
   margin: 0;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .popup {
   width: 320px;
   padding: 14px;
@@ -31,7 +35,8 @@ h1 {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -45,6 +50,14 @@ button {
 }
 
 input {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #111827;
+}
+
+select {
   padding: 8px;
   border: 1px solid #d1d5db;
   border-radius: 6px;

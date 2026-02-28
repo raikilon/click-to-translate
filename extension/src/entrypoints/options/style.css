@@ -9,6 +9,10 @@ body {
   padding: 20px;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .container {
   max-width: 760px;
   margin: 0 auto;

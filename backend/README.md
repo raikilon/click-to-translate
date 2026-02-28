@@ -49,6 +49,16 @@ docker run --rm -p 8080:8080 `
   click-to-translate:backend
 ```
 
+## Keycloak Redirect URIs for Extension Login
+If the browser extension ID changes, Keycloak OAuth redirects must be updated.
+
+For client `click-to-translate-extension`, set:
+- Valid Redirect URI: `https://<EXTENSION_ID>.chromiumapp.org/oauth2`
+- Web Origin: `https://<EXTENSION_ID>.chromiumapp.org`
+
+If you use the realm import file, update:
+- `backend/docker/keycloak/realm-import/click-to-translate-realm.json`
+
 ## Run Dev from Command Line (Compose for Dependencies Only)
 
 Use Spring config import to load `.env` directly (works on macOS/Linux/Windows).

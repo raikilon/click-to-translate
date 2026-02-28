@@ -1,8 +1,4 @@
-import type {
-  LanguagePrefs,
-  TriggerMouseButton,
-  TriggerPrefs,
-} from "@domain";
+import type { TriggerMouseButton, TriggerPrefs } from "@domain";
 
 type OptionsStatusKind = "error" | "ok";
 
@@ -16,29 +12,6 @@ export class OptionsView {
     const kind: OptionsStatusKind = isError ? "error" : "ok";
     status.textContent = message;
     status.dataset.kind = kind;
-  }
-
-  readLanguagePrefsFromForm(): LanguagePrefs {
-    const sourceLanguageId = this.byId<HTMLInputElement>("sourceLanguageId").value;
-    const targetLanguageId = this.byId<HTMLInputElement>("targetLanguageId").value;
-
-    return {
-      sourceLanguageId: sourceLanguageId || undefined,
-      targetLanguageId: targetLanguageId || undefined,
-    };
-  }
-
-  fillLanguagePrefsForm(prefs: LanguagePrefs): void {
-    const sourceLanguageInput = this.byId<HTMLInputElement>("sourceLanguageId");
-    const targetLanguageInput = this.byId<HTMLInputElement>("targetLanguageId");
-
-    if (prefs.sourceLanguageId !== undefined) {
-      sourceLanguageInput.value = prefs.sourceLanguageId;
-    }
-
-    if (prefs.targetLanguageId !== undefined) {
-      targetLanguageInput.value = prefs.targetLanguageId;
-    }
   }
 
   readTriggerPrefsFromForm(): TriggerPrefs {

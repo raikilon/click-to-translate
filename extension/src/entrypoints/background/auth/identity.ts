@@ -1,7 +1,3 @@
-/**
- * File role: Wraps browser.identity APIs behind a small port used by auth flow.
- * Why this shape: Identity behavior varies across extension contexts, so this isolates browser API specifics.
- */
 export interface IdentityPort {
   launchWebAuthFlow(url: string, interactive?: boolean): Promise<string>;
   getRedirectUrl(path?: string): string;

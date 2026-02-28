@@ -16,11 +16,11 @@
       "serviceAccountsEnabled": false,
       "fullScopeAllowed": false,
       "redirectUris": [
-        "https://opjgbppjdccgdgidkpabmnmfohpjcjnk.chromiumapp.org/oauth2",
+        "https://ahampkhmocphbkchaheolahhcfcbeabn.chromiumapp.org/oauth2",
         "https://click-to-translate@local.extensions.allizom.org/oauth2"
       ],
       "webOrigins": [
-        "https://opjgbppjdccgdgidkpabmnmfohpjcjnk.chromiumapp.org",
+        "https://ahampkhmocphbkchaheolahhcfcbeabn.chromiumapp.org",
         "https://click-to-translate@local.extensions.allizom.org"
       ],
       "attributes": {

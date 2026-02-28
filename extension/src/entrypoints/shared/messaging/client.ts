@@ -9,6 +9,7 @@ export interface BackgroundClient {
   translateAtPoint(
     capture: BackgroundPayload<"translateAtPoint">["capture"],
   ): Promise<BackgroundResponse<"translateAtPoint">>;
+  getTranslationLanguages(): Promise<BackgroundResponse<"getTranslationLanguages">>;
   login(): Promise<BackgroundResponse<"login">>;
   logout(): Promise<BackgroundResponse<"logout">>;
   getAuthState(): Promise<BackgroundResponse<"getAuthState">>;
@@ -21,6 +22,10 @@ class MessagingBackgroundClient implements BackgroundClient {
     return sendBackgroundMessage(SERVICES.translateAtPoint, {
       capture,
     });
+  }
+
+  getTranslationLanguages(): Promise<BackgroundResponse<"getTranslationLanguages">> {
+    return sendBackgroundMessage(SERVICES.getTranslationLanguages, {});
   }
 
   login(): Promise<BackgroundResponse<"login">> {

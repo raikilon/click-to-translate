@@ -10,6 +10,37 @@ interface TranslateApiResponse {
 }
 
 export class TranslationApi {
+  async listLanguages(accessToken: string): Promise<string[]> {
+    const languagesUrl = this.buildUrl(
+      runtimeConfig.apiBaseUrl,
+      runtimeConfig.translateLanguagesPath,
+    );
+
+    const response = await fetch(languagesUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const payload = this.parseJsonSafely(await response.text());
+    if (!response.ok) {
+      throw new Error(
+        this.parseErrorMessage(payload, "Translation languages request failed."),
+      );
+    }
+
+    if (!Array.isArray(payload)) {
+      return [];
+    }
+
+    return payload
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.trim())
+      .filter(Boolean);
+  }
+
   async translate(
     accessToken: string,
     request: TranslationRequest,

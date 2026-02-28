@@ -1,6 +1,7 @@
 interface RuntimeConfig {
   apiBaseUrl: string;
   translatePath: string;
+  translateLanguagesPath: string;
   authAuthorizeUrl: string;
   authTokenUrl: string;
   oauthClientId: string;
@@ -12,6 +13,8 @@ export class RuntimeConfigFactory {
     return {
       apiBaseUrl: this.readRequiredEnvString("WXT_API_BASE_URL"),
       translatePath: this.readRequiredEnvString("WXT_TRANSLATE_PATH"),
+      translateLanguagesPath:
+        this.readEnvString("WXT_TRANSLATE_LANGUAGES_PATH") ?? "/api/translate/languages",
       authAuthorizeUrl: this.readRequiredEnvString("WXT_AUTH_AUTHORIZE_URL"),
       authTokenUrl: this.readRequiredEnvString("WXT_AUTH_TOKEN_URL"),
       oauthClientId: this.readRequiredEnvString("WXT_OAUTH_CLIENT_ID"),

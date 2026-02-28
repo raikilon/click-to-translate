@@ -1,4 +1,5 @@
 import {
+  type LanguagePrefsStore,
   TranslateClickUseCase,
 } from "@application";
 import {
@@ -9,13 +10,17 @@ import {
 import { onBackgroundMessage, SERVICES } from "../shared/messaging/services";
 import { TranslationApi } from "./api/TranslationApi";
 import { AuthSessionManager } from "./auth/AuthSessionManager";
+import { AuthRequiredError } from "./auth/AuthErrors";
 import { TranslationGateway } from "./TranslationGateway";
-import { LanguagePrefsStoreWxt } from "./storage/LanguagePrefsStoreWxt";
+import { languagePrefsStorageItem } from "./storage/items";
 
 export class Background {
   register(): void {
     const authSessionManager = new AuthSessionManager();
-    const languagePrefsStore = new LanguagePrefsStoreWxt();
+    const languagePrefsStore: LanguagePrefsStore = {
+      get: () => languagePrefsStorageItem.getValue(),
+      set: (prefs) => languagePrefsStorageItem.setValue(prefs),
+    };
     const translationApi = new TranslationApi();
     const translationGateway = new TranslationGateway(
       translationApi,
@@ -41,10 +46,19 @@ export class Background {
       return authSessionManager.getAuthState();
     });
 
+    onBackgroundMessage(SERVICES.getTranslationLanguages, async () => {
+      const accessToken = await authSessionManager.getAccessToken(false);
+      if (!accessToken) {
+        throw new AuthRequiredError();
+      }
+
+      return translationApi.listLanguages(accessToken);
+    });
+
     onBackgroundMessage(SERVICES.translateAtPoint, async (message) => {
+      let capturedClick: CapturedClick;
       try {
-        const capturedClick = CapturedClick.hydrate(message.data.capture);
-        return translateClick.execute(capturedClick);
+        capturedClick = CapturedClick.hydrate(message.data.capture);
       } catch (error) {
         if (error instanceof DomainValidationError) {
           return {
@@ -60,6 +74,8 @@ export class Background {
           anchor: message.data.capture.anchor,
         };
       }
+
+      return translateClick.execute(capturedClick);
     });
   }
 }

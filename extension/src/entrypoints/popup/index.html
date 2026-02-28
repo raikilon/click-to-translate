@@ -14,21 +14,26 @@
     <div class="actions">
       <button id="loginButton" type="button">Login</button>
       <button id="logoutButton" type="button" class="secondary">Logout</button>
-      <a href="options.html" target="_blank" class="link-button secondary">
+      <a
+        id="optionsLink"
+        href="options.html"
+        target="_blank"
+        class="link-button secondary"
+        hidden
+      >
         Options
       </a>
     </div>
 
-    <section class="language-section">
+    <section id="languageSection" class="language-section" hidden>
       <label class="field">
-        Source Language ID
-        <input id="sourceLanguageId" type="text" placeholder="e.g. en" />
+        Source Language
+        <select id="sourceLanguageId"></select>
       </label>
       <label class="field">
-        Target Language ID
-        <input id="targetLanguageId" type="text" placeholder="e.g. es" />
+        Target Language
+        <select id="targetLanguageId"></select>
       </label>
-      <button id="savePrefsButton" type="button">Save Language Preferences</button>
     </section>
 
     <div id="status" role="status" aria-live="polite"></div>
