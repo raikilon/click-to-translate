@@ -18,7 +18,10 @@ type RenderableTranslateClickResult = TranslateClickResult & {
 };
 
 export class ContentScript {
+  private static readonly CLICK_COOLDOWN_MS = 500;
+
   private readonly triggerPrefs: ContentTriggerPrefs;
+  private clickDisabledUntilMs = 0;
 
   constructor(private readonly dependencies: ContentScriptDependencies) {
     this.triggerPrefs = new ContentTriggerPrefs();
@@ -34,6 +37,11 @@ export class ContentScript {
       return;
     }
 
+    const now = Date.now();
+    if (now < this.clickDisabledUntilMs) {
+      return;
+    }
+
     const capturedClick = this.dependencies.pointCapture.capture({
       x: event.clientX,
       y: event.clientY,
@@ -43,6 +51,7 @@ export class ContentScript {
       return;
     }
 
+    this.clickDisabledUntilMs = now + ContentScript.CLICK_COOLDOWN_MS;
     void this.dependencies.client
       .translateAtPoint(capturedClick)
       .then(this.onTranslateAtPointResolved.bind(this))
