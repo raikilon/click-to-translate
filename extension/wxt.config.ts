@@ -23,8 +23,7 @@ export default defineConfig({
       "96": "icon/96.png",
       "128": "icon/128.png",
     },
-    permissions: ["storage", "identity"],
-    host_permissions: ["http://*/*", "https://*/*"],
+    permissions: ["storage", "identity", "activeTab"],
     browser_specific_settings:
       browser === "firefox"
         ? {
