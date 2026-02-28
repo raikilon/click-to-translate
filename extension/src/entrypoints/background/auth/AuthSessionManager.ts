@@ -2,6 +2,7 @@ import type { AuthState, AuthStateProvider } from "@application";
 import { runtimeConfig } from "../config/runtimeConfig";
 import { AuthRequiredError, AuthSessionExpiredError } from "./AuthErrors";
 import { extensionIdentity } from "./identity";
+import { authLogoutStorageItem } from "../storage/items";
 
 export interface AuthSession {
   accessToken: string;
@@ -60,6 +61,8 @@ export class AuthSessionManager implements AuthStateProvider {
       return { isLoggedIn: false };
     }
 
+    await authLogoutStorageItem.setValue(false);
+
     return {
       isLoggedIn: true,
       expiresAtMs: session.expiresAtMs,
@@ -68,6 +71,7 @@ export class AuthSessionManager implements AuthStateProvider {
 
   async logout(): Promise<void> {
     this.session = null;
+    await authLogoutStorageItem.setValue(true);
   }
 
   async getAccessToken(interactive = false): Promise<string | null> {
@@ -80,6 +84,12 @@ export class AuthSessionManager implements AuthStateProvider {
   }
 
   private async ensureSession(interactive: boolean): Promise<AuthSession | null> {
+    const isLoggedOut = await authLogoutStorageItem.getValue();
+    if (!interactive && isLoggedOut) {
+      this.session = null;
+      return null;
+    }
+
     if (this.session && this.isSessionUsable(this.session)) {
       return this.session;
     }

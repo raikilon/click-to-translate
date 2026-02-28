@@ -15,3 +15,8 @@ export const triggerPrefsStorageItem =
   storage.defineItem<TriggerPrefs>("local:triggerPrefs", {
     fallback: DEFAULT_TRIGGER_PREFS,
   });
+
+export const authLogoutStorageItem =
+  storage.defineItem<boolean>("local:authLogout", {
+    fallback: false,
+  });
