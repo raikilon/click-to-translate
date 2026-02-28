@@ -1,0 +1,14 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@domain": ["src/domain/index.ts"],
+      "@domain/*": ["src/domain/*"],
+      "@application": ["src/application/index.ts"],
+      "@application/*": ["src/application/*"],
+      "@infra/*": ["src/infrastructure/*"]
+    }
+  }
+}

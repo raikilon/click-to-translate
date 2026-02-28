@@ -133,8 +133,7 @@ class SegmentToVocabularyIntegrationTest {
 		private final String targetLanguage = "EN";
 
 		private final SegmentBundleDto segmentBundle = new SegmentBundleDto(word, sentence, LanguageDto.DE,
-				LanguageDto.EN, new SegmentBundleDto.SourceDto("page", "42", "Readme"),
-				new SegmentBundleDto.GenericSourceMetadataDto("https://example.com", "example.com", 3, 1), occurredAt);
+				LanguageDto.EN, occurredAt);
 
 		private final TextToTranslateDto segmentWordTranslationRequest = new TextToTranslateDto(word,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,

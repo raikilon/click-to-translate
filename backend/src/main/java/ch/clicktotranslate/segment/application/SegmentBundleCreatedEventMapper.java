@@ -8,32 +8,7 @@ public class SegmentBundleCreatedEventMapper {
 	public SegmentBundleCreatedEvent map(String userId, SegmentBundle request, Segment translatedSegment) {
 		return new SegmentBundleCreatedEvent(userId, request.word(), request.sentence(),
 				translatedSegment.translatedWord(), translatedSegment.translatedSentence(), request.sourceLanguage(),
-				request.targetLanguage(), mapSource(request.source()), mapSourceMetadata(request.sourceMetadata()),
-				request.occurredAt());
-	}
-
-	private SegmentBundleCreatedEvent.Source mapSource(SegmentBundle.Source source) {
-		if (source == null) {
-			return null;
-		}
-
-		return new SegmentBundleCreatedEvent.Source(source.type(), source.id(), source.title());
-	}
-
-	private SegmentBundleCreatedEvent.SourceMetadata mapSourceMetadata(SegmentBundle.SourceMetadata sourceMetadata) {
-		switch (sourceMetadata) {
-			case SegmentBundle.GenericSourceMetadata generic -> {
-				return new SegmentBundleCreatedEvent.GenericSourceMetadata(generic.url(), generic.domain(),
-						generic.selectionOffset(), generic.paragraphIndex());
-			}
-			case SegmentBundle.YoutubeSourceMetadata youtube -> {
-				return new SegmentBundleCreatedEvent.YoutubeSourceMetadata(youtube.url(), youtube.domain(),
-						youtube.videoId(), youtube.timestampSeconds());
-			}
-			default -> {
-				return null;
-			}
-		}
+				request.targetLanguage(), request.occurredAt());
 	}
 
 }

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Click to Translate - Options</title>
+  <meta name="manifest.type" content="options" />
+</head>
+<body>
+  <main class="container">
+    <h1>Click to Translate Options</h1>
+
+    <form id="optionsForm">
+      <section>
+        <h2>Language Preferences</h2>
+        <label>
+          Source Language ID
+          <input id="sourceLanguageId" type="text" placeholder="e.g. en" />
+        </label>
+        <label>
+          Target Language ID
+          <input id="targetLanguageId" type="text" placeholder="e.g. es" />
+        </label>
+      </section>
+
+      <section>
+        <h2>Trigger Preferences</h2>
+        <label>
+          Mouse Button
+          <select id="mouseButton">
+            <option value="left">Left</option>
+            <option value="middle">Middle</option>
+            <option value="right">Right</option>
+          </select>
+        </label>
+
+        <div class="modifier-group">
+          <label class="modifier-option"><input id="modAlt" type="checkbox" /> Alt</label>
+          <label class="modifier-option"><input id="modCtrl" type="checkbox" /> Ctrl</label>
+          <label class="modifier-option"><input id="modShift" type="checkbox" /> Shift</label>
+          <label class="modifier-option"><input id="modMeta" type="checkbox" /> Meta</label>
+        </div>
+      </section>
+
+      <button type="submit">Save</button>
+      <div id="status" role="status" aria-live="polite"></div>
+    </form>
+  </main>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

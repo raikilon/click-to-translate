@@ -74,28 +74,8 @@ class SegmentBundleTranslationModuleTest {
 
 		private final LanguageDto targetLanguage = LanguageDto.EN;
 
-		private final String sourceType = "page";
-
-		private final String sourceId = "42";
-
-		private final String sourceTitle = "Readme";
-
-		private final String sourceUrl = "https://example.com";
-
-		private final String sourceDomain = "example.com";
-
-		private final Integer selectionOffset = 3;
-
-		private final Integer paragraphIndex = 1;
-
-		private final SegmentBundleDto.SourceDto source = new SegmentBundleDto.SourceDto(sourceType, sourceId,
-				sourceTitle);
-
-		private final SegmentBundleDto.SourceMetadataDto sourceMetadata = new SegmentBundleDto.GenericSourceMetadataDto(
-				sourceUrl, sourceDomain, selectionOffset, paragraphIndex);
-
 		private final SegmentBundleDto segmentBundle = new SegmentBundleDto(word, sentence, sourceLanguage,
-				targetLanguage, source, sourceMetadata, occurredAt);
+				targetLanguage, occurredAt);
 
 		private final TextToTranslateDto wordTranslationRequest = new TextToTranslateDto(word,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,
@@ -108,11 +88,7 @@ class SegmentBundleTranslationModuleTest {
 		private final TranslatedSegmentDto expectedResponse = new TranslatedSegmentDto(translatedWord);
 
 		private final SegmentBundleCreatedEvent expectedEvent = new SegmentBundleCreatedEvent(userId, word, sentence,
-				translatedWord, translatedSentence, sourceLanguage.name(), targetLanguage.name(),
-				new SegmentBundleCreatedEvent.Source(sourceType, sourceId, sourceTitle),
-				new SegmentBundleCreatedEvent.GenericSourceMetadata(sourceUrl, sourceDomain, selectionOffset,
-						paragraphIndex),
-				occurredAt);
+				translatedWord, translatedSentence, sourceLanguage.name(), targetLanguage.name(), occurredAt);
 
 		private void givenTextTranslations() {
 			given(textTranslationFacade.translate(wordTranslationRequest)).willReturn(translatedWord);

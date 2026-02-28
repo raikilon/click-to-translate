@@ -59,10 +59,7 @@ class SegmentBundleLemmatizationModuleTest {
 		private final String lemmatizedWordTranslation = "House";
 
 		private final SegmentBundleCreatedEvent segmentBundleCreatedEvent = new SegmentBundleCreatedEvent(userId, word,
-				sentence, wordTranslation, sentenceTranslation, sourceLanguage, targetLanguage,
-				new SegmentBundleCreatedEvent.Source("page", "42", "Readme"),
-				new SegmentBundleCreatedEvent.GenericSourceMetadata("https://example.com", "example.com", 3, 1),
-				occurredAt);
+				sentence, wordTranslation, sentenceTranslation, sourceLanguage, targetLanguage, occurredAt);
 
 		private final TextToTranslateDto translationRequest = new TextToTranslateDto(lemmatizedWord,
 				ch.clicktotranslate.translation.infrastructure.LanguageDto.DE,
