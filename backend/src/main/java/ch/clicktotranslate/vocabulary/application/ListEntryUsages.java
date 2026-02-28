@@ -1,7 +1,8 @@
 package ch.clicktotranslate.vocabulary.application;
 
+import ch.clicktotranslate.auth.UserProvider;
+import ch.clicktotranslate.auth.UserId;
 import ch.clicktotranslate.vocabulary.domain.Usage;
-import ch.clicktotranslate.vocabulary.domain.UserId;
 import ch.clicktotranslate.vocabulary.domain.Entry;
 import org.jmolecules.ddd.annotation.Service;
 

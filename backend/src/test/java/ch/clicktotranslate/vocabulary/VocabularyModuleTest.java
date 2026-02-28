@@ -1,5 +1,7 @@
 package ch.clicktotranslate.vocabulary;
 
+import ch.clicktotranslate.auth.UserProvider;
+import ch.clicktotranslate.auth.UserId;
 import ch.clicktotranslate.lemmatizer.domain.SegmentBundleLemmatizedEvent;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaEntryEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaUsageEntity;
@@ -7,18 +9,18 @@ import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntry
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataUsageRepository;
 import java.time.Instant;
 import java.util.List;
-import java.util.function.BiConsumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.modulith.test.Scenario;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @ApplicationModuleTest
 @TestPropertySource(
@@ -33,16 +35,23 @@ class VocabularyModuleTest {
 	@Autowired
 	private SpringDataUsageRepository usageRepository;
 
+	@MockitoBean
+	private JwtDecoder jwtDecoder;
+
+	@MockitoBean
+	private UserProvider userProvider;
+
 	@BeforeEach
 	void cleanDatabase() {
 		entryRepository.deleteAll();
+		given(userProvider.currentUserId()).willReturn(UserId.of("user-1"));
 	}
 
 	@Test
 	void givenNewSegmentEvent_whenHandled_thenCreatesEntryWithUsage(Scenario scenario) {
 		TestContext context = new TestContext();
 
-		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+		scenario.publish(context.newSegmentEvent())
 			.andWaitForStateChange(context::entriesByUser, entries -> entries.size() == 1)
 			.andVerify(entries -> {
 				assertThat(entries).hasSize(1);
@@ -51,6 +60,9 @@ class VocabularyModuleTest {
 				assertThat(entry.getUserId()).isEqualTo(context.userId());
 				assertThat(entry.getLanguage()).isEqualTo(context.sourceLanguage());
 				assertThat(entry.getTerm()).isEqualTo(context.normalizedTerm());
+				assertThat(entry.getTranslations())
+					.extracting(translation -> translation.getLanguage() + ":" + translation.getTerm())
+					.containsExactlyInAnyOrder(context.targetLanguage() + ":" + context.normalizedTermTranslation());
 
 				List<JpaUsageEntity> usages = context.usages();
 				assertThat(usages).hasSize(1);
@@ -70,11 +82,11 @@ class VocabularyModuleTest {
 	void givenExistingSegmentWithNewUsage_whenHandled_thenAddsOnlyNewUsage(Scenario scenario) {
 		TestContext context = new TestContext();
 
-		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+		scenario.publish(context.newSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 1)
 			.andVerify(count -> assertThat(count).isEqualTo(1));
 
-		scenario.stimulate(context.publishEvent(context.newUsageForExistingSegmentEvent()))
+		scenario.publish(context.newUsageForExistingSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 2)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(2);
@@ -91,11 +103,11 @@ class VocabularyModuleTest {
 	void givenExistingSegmentAndExistingUsage_whenHandled_thenDoesNotCreateDuplicateUsage(Scenario scenario) {
 		TestContext context = new TestContext();
 
-		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+		scenario.publish(context.newSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 1)
 			.andVerify(count -> assertThat(count).isEqualTo(1));
 
-		scenario.stimulate(context.publishEvent(context.newSegmentEvent()))
+		scenario.publish(context.newSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 1)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(1);
@@ -108,7 +120,7 @@ class VocabularyModuleTest {
 		TestContext context = new TestContext();
 		context.seedEntryWithStarredUsages(20);
 
-		scenario.stimulate(context.publishEvent(context.newUsageForExistingSegmentEvent()))
+		scenario.publish(context.newUsageForExistingSegmentEvent())
 			.andWaitForStateChange(context::usageCount, count -> count == 20)
 			.andVerify(count -> {
 				assertThat(count).isEqualTo(20);
@@ -128,9 +140,13 @@ class VocabularyModuleTest {
 
 		private final String termTranslation = "house";
 
+		private final String secondTermTranslation = "maison";
+
 		private final String sourceLanguage = "DE";
 
 		private final String targetLanguage = "EN";
+
+		private final String secondTargetLanguage = "FR";
 
 		private final String firstSentence = "Das Haus ist gross.";
 
@@ -176,6 +192,18 @@ class VocabularyModuleTest {
 			return secondSentenceTranslation;
 		}
 
+		private String normalizedTermTranslation() {
+			return termTranslation.toLowerCase();
+		}
+
+		private String normalizedSecondTermTranslation() {
+			return secondTermTranslation.toLowerCase();
+		}
+
+		private String secondTargetLanguage() {
+			return secondTargetLanguage;
+		}
+
 		private SegmentBundleLemmatizedEvent newSegmentEvent() {
 			return new SegmentBundleLemmatizedEvent(userId, term, termTranslation, firstSentence,
 					firstSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
@@ -184,6 +212,11 @@ class VocabularyModuleTest {
 		private SegmentBundleLemmatizedEvent newUsageForExistingSegmentEvent() {
 			return new SegmentBundleLemmatizedEvent(userId, term, termTranslation, secondSentence,
 					secondSentenceTranslation, word, wordTranslation, sourceLanguage, targetLanguage, occurredAt);
+		}
+
+		private SegmentBundleLemmatizedEvent newUsageWithDifferentTargetLanguageEvent() {
+			return new SegmentBundleLemmatizedEvent(userId, term, secondTermTranslation, secondSentence,
+					secondSentenceTranslation, word, wordTranslation, sourceLanguage, secondTargetLanguage, occurredAt);
 		}
 
 		private List<JpaEntryEntity> entriesByUser() {
@@ -224,11 +257,6 @@ class VocabularyModuleTest {
 			}
 
 			entryRepository.save(entry);
-		}
-
-		private BiConsumer<TransactionOperations, ApplicationEventPublisher> publishEvent(
-				SegmentBundleLemmatizedEvent event) {
-			return (tx, publisher) -> publisher.publishEvent(event);
 		}
 
 	}

@@ -42,17 +42,19 @@ class DeepLTextTranslationProviderTest {
 
 		private final String targetLanguageCode = "en";
 
-		private final TextToTranslate request = new TextToTranslate(word, sourceLanguage, targetLanguage);
+		private final String context = "Das Haus ist alt.";
+
+		private final TextToTranslate request = new TextToTranslate(word, sourceLanguage, targetLanguage, context);
 
 		private final String expectedTranslation = "House";
 
 		private void givenTranslationSucceeds() {
-			given(deepLTextTranslation.translate(word, sourceLanguageCode, targetLanguageCode))
+			given(deepLTextTranslation.translate(word, sourceLanguageCode, targetLanguageCode, context))
 				.willReturn(expectedTranslation);
 		}
 
 		private void verifyTranslationCalled() {
-			verify(deepLTextTranslation).translate(word, sourceLanguageCode, targetLanguageCode);
+			verify(deepLTextTranslation).translate(word, sourceLanguageCode, targetLanguageCode, context);
 		}
 
 	}

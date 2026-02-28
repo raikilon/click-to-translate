@@ -1,5 +1,6 @@
 package ch.clicktotranslate.vocabulary.domain;
 
+import ch.clicktotranslate.auth.UserId;
 import java.util.List;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -100,10 +101,22 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 		translations.add(newTranslation);
 	}
 
+	public boolean addTranslation(Language language, String term) {
+		Language requiredLanguage = requireLanguage(language);
+		if (translations.stream().anyMatch(translation -> translation.language() == requiredLanguage)) {
+			return false;
+		}
+		translations.add(new Term(requiredLanguage, requireTermValue(term)));
+		return true;
+	}
+
 	public boolean addUsage(Usage usage) {
 		Usage requiredUsage = requireUsage(usage);
 		if (requiredUsage.id() != null) {
 			usages.removeIf(existing -> Objects.equals(existing.id(), requiredUsage.id()));
+		}
+		if (usages.stream().anyMatch(existing -> isSameUsage(existing, requiredUsage))) {
+			return false;
 		}
 		if (usages.size() >= MAX_USAGES) {
 			int removableIndex = findOldestNonStarredUsageIndex();
@@ -222,6 +235,10 @@ public class Entry implements AggregateRoot<Entry, Entry.Id> {
 			}
 		}
 		return oldest;
+	}
+
+	private static boolean isSameUsage(Usage existing, Usage candidate) {
+		return existing.sentence().equals(candidate.sentence()) && existing.language().equals(candidate.language());
 	}
 
 	public record Id(Long value) implements Identifier, ValueObject {

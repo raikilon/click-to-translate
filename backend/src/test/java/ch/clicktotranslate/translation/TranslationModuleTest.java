@@ -11,6 +11,7 @@ import ch.clicktotranslate.translation.infrastructure.TextTranslationFacade;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.modulith.test.ApplicationModuleTest;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +30,9 @@ class TranslationModuleTest {
 
 	@MockitoBean
 	private DeepLClient deepLClient;
+
+	@MockitoBean
+	private JwtDecoder jwtDecoder;
 
 	@Test
 	void givenTextToTranslateDto_whenTranslateViaFacade_thenReturnsTranslationAndCallsProviderOnce()
@@ -66,7 +70,8 @@ class TranslationModuleTest {
 
 		private final TextResult deepLResponse = org.mockito.Mockito.mock(TextResult.class);
 
-		private final TextToTranslateDto facadeRequest = new TextToTranslateDto(text, LanguageDto.DE, LanguageDto.EN);
+		private final TextToTranslateDto facadeRequest = new TextToTranslateDto(text, LanguageDto.DE, LanguageDto.EN,
+				null);
 
 		private final TextToTranslate controllerRequest = new TextToTranslate(text, "DE", "EN");
 

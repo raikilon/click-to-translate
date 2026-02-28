@@ -22,7 +22,7 @@ public class WordLemmatizer {
 	public void lemmatize(TranslatedSegmentBundle segmentBundle) {
 		String lemmatizedWord = lemmatizer.lemmatize(segmentBundle.word());
 		String lemmatizedWordTranslation = translateText(lemmatizedWord, segmentBundle.sourceLanguage(),
-				segmentBundle.targetLanguage());
+				segmentBundle.targetLanguage(), segmentBundle.sentence());
 
 		SegmentBundleLemmatizedEvent event = new SegmentBundleLemmatizedEvent(segmentBundle.userId(), lemmatizedWord,
 				lemmatizedWordTranslation, segmentBundle.sentence(), segmentBundle.sentenceTranslation(),
@@ -32,12 +32,12 @@ public class WordLemmatizer {
 		this.publisher.publish(event);
 	}
 
-	private String translateText(String text, String sourceLanguage, String targetLanguage) {
+	private String translateText(String text, String sourceLanguage, String targetLanguage, String context) {
 		if (text == null || text.isBlank()) {
 			return null;
 		}
 
-		String translatedText = textTranslator.translate(text, sourceLanguage, targetLanguage);
+		String translatedText = textTranslator.translate(text, sourceLanguage, targetLanguage, context);
 
 		if (translatedText == null || translatedText.isBlank()) {
 			throw new IllegalStateException("Translation service returned no result.");

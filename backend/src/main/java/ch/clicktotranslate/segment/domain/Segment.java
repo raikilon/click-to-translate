@@ -13,27 +13,36 @@ public final class Segment {
 
 	private final String targetLanguage;
 
-	private String translatedWord;
+	private final String translatedWord;
 
-	private String translatedSentence;
+	private final String translatedSentence;
 
 	public Segment(String word, String sentence, String sourceLanguage, String targetLanguage) {
+		this(word, sentence, sourceLanguage, targetLanguage, null, null);
+	}
+
+	private Segment(String word, String sentence, String sourceLanguage, String targetLanguage, String translatedWord,
+			String translatedSentence) {
 		if (isMissing(word) || isMissing(sourceLanguage) || isMissing(targetLanguage)) {
+			throw new IllegalArgumentException("Invalid segment parameters.");
+		}
+		if (translatedWord != null && isMissing(translatedWord)) {
 			throw new IllegalArgumentException("Invalid segment parameters.");
 		}
 		this.word = word;
 		this.sentence = sentence;
 		this.sourceLanguage = sourceLanguage;
 		this.targetLanguage = targetLanguage;
+		this.translatedWord = translatedWord;
+		this.translatedSentence = translatedSentence;
 	}
 
-	public void setTranslations(String word, String sentence) {
+	public Segment withTranslations(String word, String sentence) {
 		if (isMissing(word)) {
-			throw new IllegalArgumentException("Invalid segment parameters.");
+			throw new IllegalStateException("Segment translation failed.");
 		}
 
-		this.translatedWord = word;
-		this.translatedSentence = sentence;
+		return new Segment(this.word, this.sentence, this.sourceLanguage, this.targetLanguage, word, sentence);
 	}
 
 	private static boolean isMissing(String s) {

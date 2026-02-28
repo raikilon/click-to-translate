@@ -12,6 +12,8 @@ import java.util.Set;
 
 @Getter
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(name = "uk_entry_user_language_term",
+		columnNames = { "user_id", "language", "term" }))
 @EntityListeners(AuditingEntityListener.class)
 public class JpaEntryEntity {
 
@@ -19,7 +21,7 @@ public class JpaEntryEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
+	@Column(name = "user_id", nullable = false)
 	private String userId;
 
 	@Column(nullable = false)

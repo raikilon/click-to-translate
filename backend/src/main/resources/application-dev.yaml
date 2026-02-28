@@ -3,7 +3,14 @@ spring:
     url: jdbc:postgresql://localhost:5432/click_to_translate
     username: click_to_translate
     password: click_to_translate
-    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/click-to-translate
 logging:
   level:
     org.springframework.modulith: DEBUG

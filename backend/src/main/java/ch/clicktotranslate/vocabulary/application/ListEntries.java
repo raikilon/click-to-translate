@@ -1,5 +1,6 @@
 package ch.clicktotranslate.vocabulary.application;
 
+import ch.clicktotranslate.auth.UserProvider;
 import ch.clicktotranslate.vocabulary.domain.Entry;
 
 public class ListEntries {

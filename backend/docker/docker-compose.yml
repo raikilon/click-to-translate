@@ -12,5 +12,20 @@ services:
     volumes:
       - click_to_translate_pgdata:/var/lib/postgresql
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1
+    container_name: click-to-translate-keycloak
+    restart: unless-stopped
+    command:
+      - start-dev
+      - --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./keycloak/realm-import:/opt/keycloak/data/import:ro
+
 volumes:
   click_to_translate_pgdata:

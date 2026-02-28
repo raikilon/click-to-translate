@@ -28,9 +28,9 @@ public class Usage implements Entity<Entry, Usage.Id> {
 			Language language, boolean starred, Instant lastEdit, Instant createdAt) {
 		this.id = id;
 		this.sentence = requireSentence(sentence);
-		this.sentenceSpan = requireSpan(sentenceSpan, this.sentence, "sentence");
+		this.sentenceSpan = requireSpan(sentenceSpan, "sentence");
 		this.translation = requireTranslation(translation);
-		this.translationSpan = requireSpan(translationSpan, this.translation, "translation");
+		this.translationSpan = translationSpan;
 		this.language = requireLanguage(language);
 		this.starred = starred;
 		if (lastEdit == null) {
@@ -43,10 +43,9 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		this.createdAt = createdAt;
 	}
 
-	public Usage(String sentence, String sentenceFragment, String translation, String translationSpan,
-			Language language) {
-		this(null, sentence, TextSpan.find(sentence, sentenceFragment), translation,
-				TextSpan.find(translation, translationSpan), language, false, Instant.now(), Instant.now());
+	public Usage(String sentence, String word, String translation, String wordTranslation, Language language) {
+		this(null, sentence, TextSpan.find(sentence, word), translation,
+				findTranslationSpan(translation, wordTranslation), language, false, Instant.now(), Instant.now());
 	}
 
 	public Usage(Id id, String sentence, TextSpan sentenceSpan, String translation, TextSpan translationSpan,
@@ -120,14 +119,20 @@ public class Usage implements Entity<Entry, Usage.Id> {
 		return value;
 	}
 
-	private static TextSpan requireSpan(TextSpan span, String text, String name) {
+	private static TextSpan requireSpan(TextSpan span, String name) {
 		if (span == null) {
 			throw new IllegalArgumentException(name + " span must not be null");
 		}
-		if (span.end() > text.length()) {
-			throw new IllegalArgumentException(name + " span out of bounds");
-		}
 		return span;
+	}
+
+	private static TextSpan findTranslationSpan(String translation, String wordTranslation) {
+		try {
+			return TextSpan.find(translation, wordTranslation);
+		}
+		catch (IllegalArgumentException ignored) {
+			return null;
+		}
 	}
 
 	public record Id(Long value) implements Identifier {

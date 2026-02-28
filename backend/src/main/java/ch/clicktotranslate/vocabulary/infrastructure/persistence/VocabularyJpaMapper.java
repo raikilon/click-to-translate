@@ -1,11 +1,11 @@
 package ch.clicktotranslate.vocabulary.infrastructure.persistence;
 
+import ch.clicktotranslate.auth.UserId;
 import ch.clicktotranslate.vocabulary.application.PageRequest;
 import ch.clicktotranslate.vocabulary.domain.Language;
 import ch.clicktotranslate.vocabulary.domain.Term;
 import ch.clicktotranslate.vocabulary.domain.TextSpan;
 import ch.clicktotranslate.vocabulary.domain.Usage;
-import ch.clicktotranslate.vocabulary.domain.UserId;
 import ch.clicktotranslate.vocabulary.domain.Entry;
 import java.util.Collection;
 import java.util.Comparator;
@@ -39,8 +39,8 @@ class VocabularyJpaMapper {
 		usageEntity.setSentenceStart(usage.sentenceSpan().start());
 		usageEntity.setSentenceEnd(usage.sentenceSpan().end());
 		usageEntity.setTranslation(usage.translation());
-		usageEntity.setTranslationStart(usage.translationSpan().start());
-		usageEntity.setTranslationEnd(usage.translationSpan().end());
+		usageEntity.setTranslationStart(usage.translationSpan() == null ? null : usage.translationSpan().start());
+		usageEntity.setTranslationEnd(usage.translationSpan() == null ? null : usage.translationSpan().end());
 		usageEntity.setLanguage(usage.language().name());
 		usageEntity.setStarred(usage.starred());
 		return usageEntity;
@@ -54,10 +54,11 @@ class VocabularyJpaMapper {
 	}
 
 	Usage toDomainUsage(JpaUsageEntity entity) {
+		TextSpan translationSpan = entity.getTranslationStart() == null || entity.getTranslationEnd() == null ? null
+				: new TextSpan(entity.getTranslationStart(), entity.getTranslationEnd());
 		return new Usage(Usage.Id.of(entity.getId()), entity.getSentence(),
 				new TextSpan(entity.getSentenceStart(), entity.getSentenceEnd()), entity.getTranslation(),
-				new TextSpan(entity.getTranslationStart(), entity.getTranslationEnd()),
-				Language.valueOf(entity.getLanguage()), entity.isStarred(), entity.getLastEdit(),
+				translationSpan, Language.valueOf(entity.getLanguage()), entity.isStarred(), entity.getLastEdit(),
 				entity.getCreatedAt());
 	}
 

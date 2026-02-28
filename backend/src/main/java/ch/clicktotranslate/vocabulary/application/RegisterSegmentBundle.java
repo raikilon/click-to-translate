@@ -19,6 +19,7 @@ public class RegisterSegmentBundle {
 
 	public void execute(SegmentBundle event) {
 		Term term = new Term(event.sourceLanguage(), event.term());
+		Term translation = new Term(event.targetLanguage(), event.termTranslation());
 		Usage usage = new Usage(event.sentence(), event.word(), event.sentenceTranslation(), event.wordTranslation(),
 				event.targetLanguage());
 
@@ -26,20 +27,16 @@ public class RegisterSegmentBundle {
 
 		if (existingEntry.isEmpty()) {
 			Entry newEntry = Entry.createNew(event.userId(), term);
+			newEntry.addTranslation(translation.language(), translation.term());
 			newEntry.addUsage(usage);
 			vocabularyRepository.saveEntry(newEntry);
 			return;
 		}
 
 		Entry entry = existingEntry.get();
-		boolean usageAlreadyExists = entry.usages()
-			.stream()
-			.anyMatch(existing -> existing.sentence().equals(usage.sentence())
-					&& existing.language().equals(usage.language()));
-		if (usageAlreadyExists) {
-			return;
-		}
-		if (entry.addUsage(usage)) {
+		boolean translationAdded = entry.addTranslation(translation.language(), translation.term());
+		boolean usageAdded = entry.addUsage(usage);
+		if (translationAdded || usageAdded) {
 			vocabularyRepository.saveEntry(entry);
 		}
 	}

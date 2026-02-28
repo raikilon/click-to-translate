@@ -1,5 +1,7 @@
 package ch.clicktotranslate.vocabulary.domain;
 
+import ch.clicktotranslate.auth.UserId;
+
 public record SegmentBundle(UserId userId, String term, String word, String sentence, String termTranslation,
 		String wordTranslation, String sentenceTranslation, Language sourceLanguage, Language targetLanguage) {
 

@@ -6,6 +6,7 @@ import org.springframework.context.event.EventListener;
 
 import ch.clicktotranslate.lemmatizer.application.SegmentBundleCreatedController;
 import ch.clicktotranslate.lemmatizer.application.TranslatedSegmentBundle;
+import org.springframework.scheduling.annotation.Async;
 
 public class SpringSegmentBundleCreatedEventListener {
 
@@ -19,6 +20,7 @@ public class SpringSegmentBundleCreatedEventListener {
 		this.eventMapper = eventMapper;
 	}
 
+	@Async
 	@EventListener
 	@DomainEventHandler
 	public void onTranslatedSegmentBundle(SegmentBundleCreatedEvent event) {

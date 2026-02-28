@@ -33,10 +33,10 @@ public class JpaUsageEntity {
 	@Column(nullable = false)
 	private String translation;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private Integer translationStart;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private Integer translationEnd;
 
 	@Column(nullable = false)

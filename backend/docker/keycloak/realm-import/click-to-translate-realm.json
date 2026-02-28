@@ -1,0 +1,152 @@
+{
+  "realm": "click-to-translate",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "clients": [
+    {
+      "clientId": "click-to-translate-extension",
+      "name": "Click to Translate Extension",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": false,
+      "redirectUris": [
+        "https://ahampkhmocphbkchaheolahhcfcbeabn.chromiumapp.org/oauth2",
+        "https://click-to-translate@local.extensions.allizom.org/oauth2"
+      ],
+      "webOrigins": [
+        "https://ahampkhmocphbkchaheolahhcfcbeabn.chromiumapp.org",
+        "https://click-to-translate@local.extensions.allizom.org"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "defaultClientScopes": [
+        "basic",
+        "web-origins",
+        "segment",
+        "roles",
+        "translate"
+      ],
+      "optionalClientScopes": [
+        "profile",
+        "email"
+      ],
+      "protocolMappers": [
+        {
+          "name": "subject (sub)",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "id",
+            "claim.name": "sub",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "client roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "resource_access.${client_id}.roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "segment",
+      "description": "Access to segment translation endpoints",
+      "protocol": "openid-connect"
+    },
+    {
+      "name": "translate",
+      "description": "Access to translation endpoints",
+      "protocol": "openid-connect"
+    }
+  ],
+  "roles": {
+    "client": {
+      "click-to-translate-extension": [
+        {
+          "name": "normal",
+          "description": "Basic tier user"
+        },
+        {
+          "name": "premium",
+          "description": "Premium tier user",
+          "composite": true,
+          "composites": {
+            "client": {
+              "click-to-translate-extension": [
+                "normal"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "users": [
+    {
+      "id": "2f4ce8f2-6ce4-40f7-b273-5af7ca15b2e4",
+      "username": "dev-user",
+      "enabled": true,
+      "firstName": "Dev",
+      "lastName": "User",
+      "email": "dev-user@local.test",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-pass",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "click-to-translate-extension": [
+          "normal"
+        ]
+      }
+    },
+    {
+      "id": "91680d4d-a1a0-4d71-8a0f-98c9e3d3c867",
+      "username": "dev-premium",
+      "enabled": true,
+      "firstName": "Dev",
+      "lastName": "Premium",
+      "email": "dev-premium@local.test",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-pass",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "click-to-translate-extension": [
+          "premium"
+        ]
+      }
+    }
+  ]
+}
