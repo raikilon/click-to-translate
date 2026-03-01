@@ -1,5 +1,8 @@
 import { OptionsPrefsController } from "./OptionsPrefsController";
 import { OptionsView } from "./OptionsView";
+import { GetTriggerPrefsUseCase } from "@/content/lookup/application/GetTriggerPrefsUseCase";
+import { SaveTriggerPrefsUseCase } from "@/content/lookup/application/SaveTriggerPrefsUseCase";
+import { LookupTriggerPrefsRepository } from "@/content/lookup/infrastructure/LookupTriggerPrefsRepository";
 
 export class OptionsPage {
   private readonly view: OptionsView;
@@ -7,7 +10,12 @@ export class OptionsPage {
 
   constructor() {
     this.view = new OptionsView();
-    this.prefsController = new OptionsPrefsController(this.view);
+    const triggerPrefsRepository = new LookupTriggerPrefsRepository();
+    this.prefsController = new OptionsPrefsController(
+      this.view,
+      new GetTriggerPrefsUseCase(triggerPrefsRepository),
+      new SaveTriggerPrefsUseCase(triggerPrefsRepository),
+    );
   }
 
   register(): void {
@@ -29,3 +37,8 @@ export class OptionsPage {
     );
   }
 }
+
+
+
+
+

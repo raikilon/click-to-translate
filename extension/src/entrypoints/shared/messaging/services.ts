@@ -1,12 +1,12 @@
 import { defineExtensionMessaging } from "@webext-core/messaging";
 import type {
   AuthState,
-  TranslateClickResult,
-} from "@application";
-import type { CapturedClick } from "@domain";
+} from "@/content/authentication/domain/AuthState";
+import type { TranslateRequest } from "./contracts/TranslateRequest";
+import type { TranslateResponse } from "./contracts/TranslateResponse";
 
 export const SERVICES = {
-  translateAtPoint: "translateAtPoint",
+  translateWord: "translateWord",
   getTranslationLanguages: "getTranslationLanguages",
   login: "login",
   logout: "logout",
@@ -14,9 +14,9 @@ export const SERVICES = {
 } as const;
 
 export interface BackgroundProtocol {
-  [SERVICES.translateAtPoint]: (payload: {
-    capture: CapturedClick;
-  }) => TranslateClickResult;
+  [SERVICES.translateWord]: (payload: {
+    request: TranslateRequest;
+  }) => TranslateResponse;
   [SERVICES.getTranslationLanguages]: (_: Record<string, never>) => string[];
   [SERVICES.login]: (_: Record<string, never>) => AuthState;
   [SERVICES.logout]: (_: Record<string, never>) => Record<string, never>;
@@ -33,3 +33,8 @@ const messaging = defineExtensionMessaging<BackgroundProtocol>();
 
 export const sendBackgroundMessage = messaging.sendMessage;
 export const onBackgroundMessage = messaging.onMessage;
+
+
+
+
+

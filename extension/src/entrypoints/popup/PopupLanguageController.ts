@@ -1,4 +1,4 @@
-import type { LanguagePrefs } from "@domain";
+import type { LanguagePrefs } from "@/content/translation/domain/LanguagePrefs";
 import type { BackgroundClient } from "../shared/messaging/client";
 import { PopupPrefsController } from "./PopupPrefsController";
 
@@ -20,3 +20,8 @@ export class PopupLanguageController {
     await this.prefsController.setLanguagePrefs(prefs);
   }
 }
+
+
+
+
+

@@ -1,5 +1,8 @@
 import type { BackgroundClient } from "../shared/messaging/client";
-import type { LanguagePrefs } from "@domain";
+import type { LanguagePrefs } from "@/content/translation/domain/LanguagePrefs";
+import { GetLanguagePrefsUseCase } from "@/content/translation/application/GetLanguagePrefsUseCase";
+import { SaveLanguagePrefsUseCase } from "@/content/translation/application/SaveLanguagePrefsUseCase";
+import { LanguagePrefsRepository } from "@/content/translation/infrastructure/LanguagePrefsRepository";
 import { PopupAuthController } from "./PopupAuthController";
 import { PopupLanguageController } from "./PopupLanguageController";
 import { PopupPrefsController } from "./PopupPrefsController";
@@ -20,7 +23,11 @@ export class PopupPage {
 
   constructor(dependencies: PopupDependencies) {
     this.view = new PopupView();
-    const prefsController = new PopupPrefsController();
+    const languagePrefsRepository = new LanguagePrefsRepository();
+    const prefsController = new PopupPrefsController(
+      new GetLanguagePrefsUseCase(languagePrefsRepository),
+      new SaveLanguagePrefsUseCase(languagePrefsRepository),
+    );
     this.authController = new PopupAuthController(dependencies.client);
     this.languageController = new PopupLanguageController(
       dependencies.client,
@@ -106,3 +113,8 @@ export class PopupPage {
     );
   }
 }
+
+
+
+
+

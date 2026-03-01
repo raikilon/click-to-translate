@@ -1,4 +1,4 @@
-import type { TriggerMouseButton, TriggerPrefs } from "@domain";
+import type { TriggerMouseButton, TriggerPrefs } from "@/content/lookup/domain/TriggerPrefs";
 
 type OptionsStatusKind = "error" | "ok";
 
@@ -43,3 +43,8 @@ export class OptionsView {
     return element as T;
   }
 }
+
+
+
+
+

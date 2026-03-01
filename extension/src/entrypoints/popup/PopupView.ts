@@ -1,4 +1,4 @@
-import type { LanguagePrefs } from "@domain";
+import type { LanguagePrefs } from "@/content/translation/domain/LanguagePrefs";
 
 export type PopupStatusKind = "error" | "ok";
 
@@ -97,3 +97,8 @@ export class PopupView {
     return element as T;
   }
 }
+
+
+
+
+

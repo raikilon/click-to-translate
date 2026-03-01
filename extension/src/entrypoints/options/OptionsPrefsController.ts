@@ -1,13 +1,16 @@
-import {
-  triggerPrefsStorageItem,
-} from "../background/storage/items";
+import { GetTriggerPrefsUseCase } from "@/content/lookup/application/GetTriggerPrefsUseCase";
+import { SaveTriggerPrefsUseCase } from "@/content/lookup/application/SaveTriggerPrefsUseCase";
 import type { OptionsView } from "./OptionsView";
 
 export class OptionsPrefsController {
-  constructor(private readonly view: OptionsView) {}
+  constructor(
+    private readonly view: OptionsView,
+    private readonly getTriggerPrefsUseCase: GetTriggerPrefsUseCase,
+    private readonly saveTriggerPrefsUseCase: SaveTriggerPrefsUseCase,
+  ) {}
 
   async refreshOptionsPrefs(): Promise<void> {
-    const triggerPrefs = await triggerPrefsStorageItem.getValue();
+    const triggerPrefs = await this.getTriggerPrefsUseCase.execute();
     this.view.fillTriggerPrefsForm(triggerPrefs);
   }
 
@@ -18,7 +21,7 @@ export class OptionsPrefsController {
 
   private async saveOptionsPrefs(): Promise<void> {
     const triggerPrefs = this.view.readTriggerPrefsFromForm();
-    await triggerPrefsStorageItem.setValue(triggerPrefs);
+    await this.saveTriggerPrefsUseCase.execute(triggerPrefs);
     this.view.fillTriggerPrefsForm(triggerPrefs);
     this.view.setStatus("Preferences saved.");
   }
@@ -27,3 +30,8 @@ export class OptionsPrefsController {
     this.view.setStatus(error instanceof Error ? error.message : "Save failed.", true);
   }
 }
+
+
+
+
+
