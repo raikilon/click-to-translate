@@ -1,5 +1,7 @@
 import { GetTriggerPrefsUseCase } from "@/content/lookup/application/GetTriggerPrefsUseCase";
 import { SaveTriggerPrefsUseCase } from "@/content/lookup/application/SaveTriggerPrefsUseCase";
+import { GetHighlightStyleUseCase } from "@/content/popup/application/GetHighlightStyleUseCase";
+import { SaveHighlightStyleUseCase } from "@/content/popup/application/SaveHighlightStyleUseCase";
 import type { OptionsView } from "./OptionsView";
 
 export class OptionsPrefsController {
@@ -7,11 +9,15 @@ export class OptionsPrefsController {
     private readonly view: OptionsView,
     private readonly getTriggerPrefsUseCase: GetTriggerPrefsUseCase,
     private readonly saveTriggerPrefsUseCase: SaveTriggerPrefsUseCase,
+    private readonly getHighlightStyleUseCase: GetHighlightStyleUseCase,
+    private readonly saveHighlightStyleUseCase: SaveHighlightStyleUseCase,
   ) {}
 
   async refreshOptionsPrefs(): Promise<void> {
     const triggerPrefs = await this.getTriggerPrefsUseCase.execute();
+    const highlightStyleId = await this.getHighlightStyleUseCase.execute();
     this.view.fillTriggerPrefsForm(triggerPrefs);
+    this.view.fillHighlightStyleIdForm(highlightStyleId);
   }
 
   onOptionsFormSubmit(event: Event): void {
@@ -21,8 +27,11 @@ export class OptionsPrefsController {
 
   private async saveOptionsPrefs(): Promise<void> {
     const triggerPrefs = this.view.readTriggerPrefsFromForm();
+    const highlightStyleId = this.view.readHighlightStyleIdFromForm();
     await this.saveTriggerPrefsUseCase.execute(triggerPrefs);
+    await this.saveHighlightStyleUseCase.execute(highlightStyleId);
     this.view.fillTriggerPrefsForm(triggerPrefs);
+    this.view.fillHighlightStyleIdForm(highlightStyleId);
     this.view.setStatus("Preferences saved.");
   }
 

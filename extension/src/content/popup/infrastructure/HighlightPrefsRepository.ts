@@ -5,4 +5,8 @@ export class HighlightPrefsRepository implements IHighlightPrefsRepository {
   async getHighlightStyleId(): Promise<string> {
     return highlightStyleIdStorageItem.getValue();
   }
+
+  async saveHighlightStyleId(styleId: string): Promise<void> {
+    await highlightStyleIdStorageItem.setValue(styleId);
+  }
 }

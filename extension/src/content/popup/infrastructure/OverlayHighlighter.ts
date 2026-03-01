@@ -26,6 +26,7 @@ export class OverlayHighlighter implements IHighlighter {
     this.host.style.height = `${Math.max(1, Math.round(rect.height))}px`;
     this.host.style.background = style.background;
     this.host.style.outline = style.outline;
+    this.host.style.borderBottom = style.borderBottom;
   }
 
   clear(): void {
@@ -74,17 +75,19 @@ export class OverlayHighlighter implements IHighlighter {
     return rect;
   }
 
-  private resolveStyle(styleId: string): { background: string; outline: string } {
-    if (styleId === "solid") {
+  private resolveStyle(styleId: string): { background: string; outline: string; borderBottom: string } {
+    if (styleId === "background" || styleId === "solid") {
       return {
         background: "rgba(245, 158, 11, 0.35)",
         outline: "1px solid rgba(245, 158, 11, 0.85)",
+        borderBottom: "none",
       };
     }
 
     return {
-      background: "rgba(59, 130, 246, 0.22)",
-      outline: "1px solid rgba(59, 130, 246, 0.8)",
+      background: "transparent",
+      outline: "none",
+      borderBottom: "2px solid rgba(59, 130, 246, 0.9)",
     };
   }
 }

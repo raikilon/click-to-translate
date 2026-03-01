@@ -105,7 +105,7 @@ export class AuthSessionManager
     const hadSession = this.session !== null;
     this.session = null;
 
-    const silentSession = await this.tryLoginByAuthorizationCode(false);
+    const silentSession = isLoggedOut ? null : await this.tryLoginByAuthorizationCode(false);
     if (silentSession) {
       this.session = silentSession;
       return silentSession;
@@ -119,7 +119,7 @@ export class AuthSessionManager
       return null;
     }
 
-    const interactiveSession = await this.tryLoginByAuthorizationCode(true);
+    const interactiveSession = await this.tryLoginByAuthorizationCode(true, isLoggedOut);
     if (!interactiveSession) {
       throw new AuthRequiredError();
     }
@@ -132,7 +132,10 @@ export class AuthSessionManager
     return session.expiresAtMs - AuthSessionManager.EXPIRY_SKEW_MS > Date.now();
   }
 
-  private async loginByAuthorizationCode(interactive: boolean): Promise<AuthSession> {
+  private async loginByAuthorizationCode(
+    interactive: boolean,
+    forcePrompt = false,
+  ): Promise<AuthSession> {
     this.validateAuthConfig();
 
     const codeVerifier = this.generateRandomBase64Url(48);
@@ -148,6 +151,10 @@ export class AuthSessionManager
     authorizeUrl.searchParams.set("state", state);
     authorizeUrl.searchParams.set("code_challenge", codeChallenge);
     authorizeUrl.searchParams.set("code_challenge_method", "S256");
+    if (interactive && forcePrompt) {
+      authorizeUrl.searchParams.set("prompt", "login");
+      authorizeUrl.searchParams.set("max_age", "0");
+    }
     if (authRuntimeConfig.scopes.length > 0) {
       authorizeUrl.searchParams.set("scope", authRuntimeConfig.scopes.join(" "));
     }
@@ -174,9 +181,10 @@ export class AuthSessionManager
 
   private async tryLoginByAuthorizationCode(
     interactive: boolean,
+    forcePrompt = false,
   ): Promise<AuthSession | null> {
     try {
-      return await this.loginByAuthorizationCode(interactive);
+      return await this.loginByAuthorizationCode(interactive, forcePrompt);
     } catch (error) {
       if (!interactive && this.isSilentAuthUnavailableError(error)) {
         return null;
@@ -391,8 +399,3 @@ export class AuthSessionManager
     };
   }
 }
-
-
-
-
-
