@@ -19,6 +19,7 @@ import { DomWordLocator } from "@/content/content-capture/infrastructure/DomWord
 import { CompositeContextLocator } from "@/content/content-capture/infrastructure/CompositeContextLocator";
 import { CompositeWordLocator } from "@/content/content-capture/infrastructure/CompositeWordLocator";
 import { SubtitleContextLocator } from "@/content/content-capture/infrastructure/SubtitleContextLocator";
+import { NetflixSubtitleWordLocator } from "@/content/content-capture/infrastructure/NetflixSubtitleWordLocator";
 import { BackgroundTranslationClient } from "@/content/translation/infrastructure/BackgroundTranslationClient";
 import { TranslateWordUseCase } from "@/content/translation/application/TranslateWordUseCase";
 import { BrowserPrefsRepository } from "@/content/lookup/infrastructure/BrowserPrefsRepository";
@@ -44,6 +45,7 @@ export class ContentCompositionRoot {
     const contextExtractor = new FixedWindowContextExtractor();
 
     const domWordLocator = new DomWordLocator(caretResolver, wordBoundaryFinder, rectMeasurer);
+    const netflixSubtitleWordLocator = new NetflixSubtitleWordLocator(wordBoundaryFinder);
     const domContextLocator = new DomContextLocator(contextExtractor);
 
     const subtitleBuffer = new SubtitleBuffer();
@@ -58,7 +60,10 @@ export class ContentCompositionRoot {
     const stopContentCaptureUseCase = new StopContentCaptureUseCase(contentCaptureRuntime);
     const subtitleContextLocator = new SubtitleContextLocator(subtitleBuffer);
 
-    const wordLocator = new CompositeWordLocator([domWordLocator]);
+    const wordLocator = new CompositeWordLocator([
+      domWordLocator,
+      netflixSubtitleWordLocator,
+    ]);
     const contextLocator = new CompositeContextLocator([
       subtitleContextLocator,
       domContextLocator,

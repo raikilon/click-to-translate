@@ -1,9 +1,12 @@
 import { SubtitleEvent } from "@/content/content-capture/domain/SubtitleEvent";
 import type { ISubtitleWatcher } from "./ISubtitleWatcher";
 
+const NETFLIX_SUBTITLE_SELECTOR = ".player-timedtext .player-timedtext-text-container";
+
 export class NetflixSubtitleWatcher implements ISubtitleWatcher {
   private observer: MutationObserver | undefined;
   private onEvent: ((event: SubtitleEvent) => void) | undefined;
+  private lastText = "";
 
   start(onEvent: (event: SubtitleEvent) => void): void {
     this.onEvent = onEvent;
@@ -33,6 +36,7 @@ export class NetflixSubtitleWatcher implements ISubtitleWatcher {
     this.observer?.disconnect();
     this.observer = undefined;
     this.onEvent = undefined;
+    this.lastText = "";
   }
 
   private matchesUrl(url: string): boolean {
@@ -40,11 +44,8 @@ export class NetflixSubtitleWatcher implements ISubtitleWatcher {
   }
 
   private captureVisible(): void {
-    const selectors = this.selectors();
-    for (const selector of selectors) {
-      for (const element of document.querySelectorAll(selector)) {
-        this.captureElement(element);
-      }
+    for (const element of document.querySelectorAll(NETFLIX_SUBTITLE_SELECTOR)) {
+      this.captureElement(element);
     }
   }
 
@@ -60,17 +61,14 @@ export class NetflixSubtitleWatcher implements ISubtitleWatcher {
   }
 
   private captureTree(element: Element): void {
-    const selectors = this.selectors();
     const elements = new Set<Element>();
 
-    for (const selector of selectors) {
-      if (element.matches(selector)) {
-        elements.add(element);
-      }
+    if (element.matches(NETFLIX_SUBTITLE_SELECTOR)) {
+      elements.add(element);
+    }
 
-      for (const found of element.querySelectorAll(selector)) {
-        elements.add(found);
-      }
+    for (const found of element.querySelectorAll(NETFLIX_SUBTITLE_SELECTOR)) {
+      elements.add(found);
     }
 
     for (const found of elements) {
@@ -79,25 +77,27 @@ export class NetflixSubtitleWatcher implements ISubtitleWatcher {
   }
 
   private captureElement(element: Element): void {
-    if (!(element instanceof HTMLElement) || !this.onEvent) {
+    if (!(element instanceof HTMLElement) || !this.onEvent || !this.isVisible(element)) {
       return;
     }
 
     const text = (element.innerText || element.textContent || "").replace(/\s+/g, " ").trim();
-    if (!text) {
+    if (!text || text === this.lastText) {
       return;
     }
 
+    this.lastText = text;
     this.onEvent(new SubtitleEvent(text, Date.now()));
   }
 
-  private selectors(): readonly string[] {
-    return [
-      ".player-timedtext",
-      ".player-timedtext-text-container",
-      ".player-timedtext-text-container span",
-      '[data-uia="subtitle-text"]',
-    ];
+  private isVisible(element: HTMLElement): boolean {
+    const style = window.getComputedStyle(element);
+    if (style.display === "none" || style.visibility === "hidden") {
+      return false;
+    }
+
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
   }
 }
 

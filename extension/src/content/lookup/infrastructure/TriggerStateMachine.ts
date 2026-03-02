@@ -79,6 +79,8 @@ export class TriggerStateMachine {
       return;
     }
 
+    this.consumeClick(event);
+
     const contextMatch = this.captureContextForWordUseCase.execute(this.capturedWord);
     if (!contextMatch) {
       this.clearTranslationPopupUseCase.execute();
@@ -138,6 +140,12 @@ export class TriggerStateMachine {
     this.mouseIdleGate.disarm();
     this.clearHighlightUseCase.execute();
     this.clearTranslationPopupUseCase.execute();
+  }
+
+  private consumeClick(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
   }
 }
 
