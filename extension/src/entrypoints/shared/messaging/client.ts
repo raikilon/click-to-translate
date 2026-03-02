@@ -6,9 +6,9 @@ import {
 } from "./services";
 
 export interface BackgroundClient {
-  translateAtPoint(
-    capture: BackgroundPayload<"translateAtPoint">["capture"],
-  ): Promise<BackgroundResponse<"translateAtPoint">>;
+  translateWord(
+    request: BackgroundPayload<"translateWord">["request"],
+  ): Promise<BackgroundResponse<"translateWord">>;
   getTranslationLanguages(): Promise<BackgroundResponse<"getTranslationLanguages">>;
   login(): Promise<BackgroundResponse<"login">>;
   logout(): Promise<BackgroundResponse<"logout">>;
@@ -16,11 +16,11 @@ export interface BackgroundClient {
 }
 
 class MessagingBackgroundClient implements BackgroundClient {
-  translateAtPoint(
-    capture: BackgroundPayload<"translateAtPoint">["capture"],
-  ): Promise<BackgroundResponse<"translateAtPoint">> {
-    return sendBackgroundMessage(SERVICES.translateAtPoint, {
-      capture,
+  translateWord(
+    request: BackgroundPayload<"translateWord">["request"],
+  ): Promise<BackgroundResponse<"translateWord">> {
+    return sendBackgroundMessage(SERVICES.translateWord, {
+      request,
     });
   }
 
@@ -46,3 +46,8 @@ export class BackgroundClientFactory {
     return new MessagingBackgroundClient();
   }
 }
+
+
+
+
+

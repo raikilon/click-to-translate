@@ -1,4 +1,4 @@
-import type { TriggerMouseButton, TriggerPrefs } from "@domain";
+import type { TriggerMouseButton, TriggerPrefs } from "@/content/lookup/domain/TriggerPrefs";
 
 type OptionsStatusKind = "error" | "ok";
 
@@ -34,6 +34,16 @@ export class OptionsView {
     this.byId<HTMLInputElement>("modMeta").checked = prefs.modifiers.meta;
   }
 
+  readHighlightStyleIdFromForm(): string {
+    return this.byId<HTMLSelectElement>("highlightStyleId").value;
+  }
+
+  fillHighlightStyleIdForm(styleId: string): void {
+    const input = this.byId<HTMLSelectElement>("highlightStyleId");
+    const normalized = styleId === "solid" ? "background" : styleId === "default" ? "underline" : styleId;
+    input.value = normalized === "background" ? "background" : "underline";
+  }
+
   private byId<T extends HTMLElement>(id: string): T {
     const element = document.getElementById(id);
     if (!element) {
@@ -43,3 +53,8 @@ export class OptionsView {
     return element as T;
   }
 }
+
+
+
+
+

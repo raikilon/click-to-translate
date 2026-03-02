@@ -1,15 +1,9 @@
-/**
- * File role: Configures WXT build + manifest generation for MV3 targets.
- * Why this shape: WXT-specific settings live here so browser differences stay in config, not scattered in feature code.
- */
 import { defineConfig } from "wxt";
 
 export default defineConfig({
   srcDir: "src",
   manifestVersion: 3,
   alias: {
-    "@domain": "src/domain",
-    "@application": "src/application",
     "@infra": "src/infrastructure",
   },
   manifest: ({ browser }) => ({

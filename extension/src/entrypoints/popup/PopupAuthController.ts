@@ -1,5 +1,5 @@
 import type { BackgroundClient } from "../shared/messaging/client";
-import type { AuthState } from "@application";
+import type { AuthState } from "@/content/authentication/domain/AuthState";
 
 export class PopupAuthController {
   constructor(private readonly client: BackgroundClient) {}
@@ -16,3 +16,8 @@ export class PopupAuthController {
     await this.client.logout();
   }
 }
+
+
+
+
+
