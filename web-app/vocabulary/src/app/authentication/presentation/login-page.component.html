@@ -1,0 +1,27 @@
+<main class="min-h-screen bg-gradient-to-br from-slate-100 via-teal-50 to-cyan-100 px-4 py-8">
+  <section
+    class="mx-auto mt-12 w-full max-w-md rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-lg"
+  >
+    <p class="font-['Space_Grotesk'] text-2xl font-semibold text-slate-900">
+      Vocabulary Login
+    </p>
+    <p class="mt-2 font-['DM_Sans'] text-sm text-slate-600">
+      Sign in to access your vocabulary, languages, and preferences.
+    </p>
+
+    @if (errorMessage()) {
+      <p class="mt-4 rounded-lg bg-rose-100 px-3 py-2 font-['DM_Sans'] text-sm text-rose-700">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    <button
+      type="button"
+      class="mt-6 w-full rounded-lg bg-slate-900 px-4 py-3 font-['DM_Sans'] text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-500"
+      [disabled]="loading()"
+      (click)="login()"
+    >
+      {{ loading() ? 'Redirecting...' : 'Login with Keycloak' }}
+    </button>
+  </section>
+</main>

@@ -68,6 +68,40 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "click-to-translate-web-app",
+      "name": "Click to Translate Web App",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": false,
+      "redirectUris": [
+        "http://localhost:4200/auth/callback",
+        "http://127.0.0.1:4200/auth/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:4200",
+        "http://127.0.0.1:4200"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "defaultClientScopes": [
+        "basic",
+        "web-origins",
+        "roles",
+        "translate",
+        "vocabulary"
+      ],
+      "optionalClientScopes": [
+        "profile",
+        "email"
+      ]
     }
   ],
   "clientScopes": [
