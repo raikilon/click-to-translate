@@ -13,5 +13,5 @@ export const authRuntimeConfig: AuthRuntimeConfig = {
   tokenEndpoint:
     'http://localhost:8081/realms/click-to-translate/protocol/openid-connect/token',
   redirectUri: `${window.location.origin}/auth/callback`,
-  scopes: ['openid', 'profile', 'translate', 'vocabulary']
+  scopes: ['openid', 'translate', 'vocabulary']
 };
