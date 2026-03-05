@@ -1,13 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { httpResource } from '@angular/common/http';
 import { Component, computed, input, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { HighlightSegmentModel } from '../../domain/highlight-segment.model';
-import { emptyPageModel } from '../../domain/page.model';
+import { HighlightSegmenter } from '../../domain/highlight-segmenter';
 import { UsageModel } from '../../domain/usage.model';
+import { UsageOrdering } from '../../domain/usage-ordering';
 import { VocabularyEntryModel } from '../../domain/vocabulary-entry.model';
-import { SpanHighlighterService } from '../../application/highlight/span-highlighter.service';
-import { VocabularyFacade } from '../../application/vocabulary.facade';
 
 @Component({
   selector: 'app-entry-row',
@@ -27,29 +25,18 @@ export class EntryRowComponent {
   protected readonly translationLanguages = computed(() =>
     this.entry().translations.map((translation) => translation.language.toUpperCase())
   );
-
-  protected readonly previewUsagesResource = httpResource(() => {
-    if (!this.expanded()) {
-      return undefined;
-    }
-
-    return this.vocabularyFacade.buildUsagePreviewRequest(this.entry().entryId);
-  }, {
-    defaultValue: emptyPageModel<UsageModel>(),
-    parse: (payload: unknown) => this.vocabularyFacade.parseUsagesPage(payload)
-  });
+  protected readonly previewUsages = computed(() =>
+    this.usageOrdering.sortByPriority(this.entry().usages).slice(0, 3)
+  );
 
   constructor(
     private readonly router: Router,
-    private readonly vocabularyFacade: VocabularyFacade,
-    private readonly spanHighlighterService: SpanHighlighterService
+    private readonly highlightSegmenter: HighlightSegmenter,
+    private readonly usageOrdering: UsageOrdering
   ) {}
 
   toggleExpanded(): void {
     this.expanded.update((value) => !value);
-    if (this.expanded()) {
-      this.previewUsagesResource.reload();
-    }
   }
 
   openDetails(event: Event): void {
@@ -63,7 +50,7 @@ export class EntryRowComponent {
   }
 
   sentenceSegments(usage: UsageModel): HighlightSegmentModel[] {
-    return this.spanHighlighterService.buildBySpan(
+    return this.highlightSegmenter.splitBySpan(
       usage.sentence,
       usage.sentenceStart,
       usage.sentenceEnd
@@ -71,7 +58,7 @@ export class EntryRowComponent {
   }
 
   translationSegments(usage: UsageModel): HighlightSegmentModel[] {
-    return this.spanHighlighterService.buildBySpan(
+    return this.highlightSegmenter.splitBySpan(
       usage.translation,
       usage.translationStart,
       usage.translationEnd

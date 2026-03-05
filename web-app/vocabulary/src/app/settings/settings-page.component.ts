@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthSessionService } from '../../authentication/application/auth-session.service';
-import { HighlightPreferenceService } from '../../authentication/application/highlight-preference.service';
-import { HighlightMode } from '../../authentication/domain/highlight-mode';
+import { AuthSessionService } from '../authentication/application/auth-session.service';
+import { HighlightPreferenceService } from './preferences/highlight-preference.service';
+import { HighlightMode } from './preferences/highlight-mode';
 
 @Component({
   selector: 'app-settings-page',

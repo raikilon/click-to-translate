@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { HighlightMode } from '../domain/highlight-mode';
+import { HighlightMode } from './highlight-mode';
 
 @Injectable({ providedIn: 'root' })
 export class HighlightPreferenceService {

@@ -16,14 +16,10 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 
 	private final SpringDataEntryRepository entryRepository;
 
-	private final SpringDataUsageRepository usageRepository;
-
 	private final VocabularyJpaMapper mapper;
 
-	public JpaVocabularyRepository(SpringDataEntryRepository entryRepository,
-			SpringDataUsageRepository usageRepository) {
+	public JpaVocabularyRepository(SpringDataEntryRepository entryRepository) {
 		this.entryRepository = entryRepository;
-		this.usageRepository = usageRepository;
 		this.mapper = new VocabularyJpaMapper();
 	}
 
@@ -72,19 +68,6 @@ public class JpaVocabularyRepository implements VocabularyRepository, EntryQuery
 	@Override
 	public boolean existsEntryById(UserId userId, Entry.Id entryId) {
 		return entryRepository.existsByIdAndUserId(entryId.value(), userId.value());
-	}
-
-	@Override
-	public PageResult<ch.clicktotranslate.vocabulary.domain.Usage> findUsagesByEntry(UserId userId, Entry.Id entryId,
-			PageRequest pageRequest) {
-		Page<JpaUsageEntity> page = usageRepository.findByEntryIdAndEntryUserId(entryId.value(), userId.value(),
-				mapper.toSpringPageable(pageRequest));
-		List<ch.clicktotranslate.vocabulary.domain.Usage> items = page.getContent()
-			.stream()
-			.map(mapper::toDomainUsage)
-			.toList();
-		return new PageResult<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
-				page.hasNext());
 	}
 
 	@Override

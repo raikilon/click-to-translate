@@ -1,20 +1,19 @@
 import { Routes } from '@angular/router';
+import { AuthCallbackPageComponent } from './authentication/presentation/auth-callback-page.component';
 import { authGuard } from './authentication/presentation/auth.guard';
+import { LoginPageComponent } from './authentication/presentation/login-page.component';
+import { SettingsPageComponent } from './settings/settings-page.component';
+import { EntryDetailsPageComponent } from './vocabulary/presentation/details/entry-details-page.component';
+import { VocabularyHomePageComponent } from './vocabulary/presentation/home/vocabulary-home-page.component';
 
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () =>
-      import('./authentication/presentation/login-page.component').then(
-        (module) => module.LoginPageComponent
-      )
+    component: LoginPageComponent
   },
   {
     path: 'auth/callback',
-    loadComponent: () =>
-      import('./authentication/presentation/auth-callback-page.component').then(
-        (module) => module.AuthCallbackPageComponent
-      )
+    component: AuthCallbackPageComponent
   },
   {
     path: '',
@@ -22,24 +21,15 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () =>
-          import('./vocabulary/presentation/home/vocabulary-home-page.component').then(
-            (module) => module.VocabularyHomePageComponent
-          )
+        component: VocabularyHomePageComponent
       },
       {
         path: 'entries/:entryId',
-        loadComponent: () =>
-          import('./vocabulary/presentation/details/entry-details-page.component').then(
-            (module) => module.EntryDetailsPageComponent
-          )
+        component: EntryDetailsPageComponent
       },
       {
         path: 'settings',
-        loadComponent: () =>
-          import('./settings/presentation/settings-page.component').then(
-            (module) => module.SettingsPageComponent
-          )
+        component: SettingsPageComponent
       }
     ]
   },

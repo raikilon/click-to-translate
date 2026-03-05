@@ -1,3 +1,5 @@
+import { environment } from '../../../environments/environment';
+
 export interface AuthRuntimeConfig {
   clientId: string;
   authorizationEndpoint: string;
@@ -6,12 +8,12 @@ export interface AuthRuntimeConfig {
   scopes: readonly string[];
 }
 
+const authIssuer = `${environment.auth.keycloakBaseUrl}/realms/${environment.auth.realm}`;
+
 export const authRuntimeConfig: AuthRuntimeConfig = {
-  clientId: 'click-to-translate-web-app',
-  authorizationEndpoint:
-    'http://localhost:8081/realms/click-to-translate/protocol/openid-connect/auth',
-  tokenEndpoint:
-    'http://localhost:8081/realms/click-to-translate/protocol/openid-connect/token',
+  clientId: environment.auth.clientId,
+  authorizationEndpoint: `${authIssuer}/protocol/openid-connect/auth`,
+  tokenEndpoint: `${authIssuer}/protocol/openid-connect/token`,
   redirectUri: `${window.location.origin}/auth/callback`,
-  scopes: ['openid', 'translate', 'vocabulary']
+  scopes: environment.auth.scopes
 };

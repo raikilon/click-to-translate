@@ -1,94 +1,58 @@
 import { CommonModule } from '@angular/common';
-import { httpResource } from '@angular/common/http';
-import { Component, computed, effect, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HighlightStrategyFactory } from '../../application/highlight/highlight-strategy.factory';
-import { SpanHighlighterService } from '../../application/highlight/span-highlighter.service';
-import { VocabularyFacade } from '../../application/vocabulary.facade';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { HighlightSegmentModel } from '../../domain/highlight-segment.model';
-import { emptyPageModel } from '../../domain/page.model';
+import { HighlightSegmenter } from '../../domain/highlight-segmenter';
 import { UsageModel } from '../../domain/usage.model';
-import { VocabularyEntryModel } from '../../domain/vocabulary-entry.model';
+import { EntryDetailsPageStore } from '../../infrastructure/state/entry-details-page.store';
+import { HighlightStrategyFactory } from '../highlight/highlight-strategy.factory';
 import { PaginationComponent } from '../shared/pagination.component';
 
 @Component({
   selector: 'app-entry-details-page',
   standalone: true,
   imports: [CommonModule, PaginationComponent],
+  providers: [EntryDetailsPageStore],
   templateUrl: './entry-details-page.component.html'
 })
 export class EntryDetailsPageComponent {
-  protected readonly entryId = signal(this.readEntryId());
-  protected readonly usagesPageIndex = signal(0);
-  protected readonly usagesPageSize = 10;
+  private readonly store = inject(EntryDetailsPageStore);
+
+  protected readonly entryResource = this.store.entryResource;
+  protected readonly entry = this.store.entry;
+  protected readonly languages = this.store.languages;
+  protected readonly pagedUsages = this.store.pagedUsages;
+  protected readonly usagesPageIndex = this.store.usagesPageIndex;
+  protected readonly usagesTotalPages = this.store.usagesTotalPages;
+  protected readonly usagesHasNext = this.store.usagesHasNext;
+  protected readonly highlightClassName = computed(() =>
+    this.highlightStrategyFactory.currentClassName()
+  );
 
   protected readonly termCustomizationDraft = signal('');
   protected readonly translationDrafts = signal<Record<string, string>>({});
   protected readonly selectedLanguage = signal('');
   protected readonly selectedLanguageText = signal('');
 
-  protected readonly entryResource = httpResource(() => {
-    const entryId = this.entryId();
-    if (entryId <= 0) {
-      return undefined;
-    }
-
-    return this.vocabularyFacade.buildEntryRequest(entryId);
-  }, {
-    parse: (payload: unknown) => this.vocabularyFacade.parseEntry(payload)
-  });
-
-  protected readonly usagesResource = httpResource(
-    () => {
-      if (this.entryId() <= 0) {
-        return undefined;
-      }
-
-      return this.vocabularyFacade.buildUsagesRequest(
-        this.entryId(),
-        this.usagesPageIndex(),
-        this.usagesPageSize
-      );
-    },
-    {
-      defaultValue: emptyPageModel<UsageModel>(),
-      parse: (payload: unknown) => this.vocabularyFacade.parseUsagesPage(payload)
-    }
-  );
-
-  protected readonly languageResource = httpResource(
-    () => this.vocabularyFacade.buildLanguagesRequest(),
-    {
-      defaultValue: [] as string[],
-      parse: (payload: unknown) => this.vocabularyFacade.parseLanguages(payload)
-    }
-  );
-
-  protected readonly highlightClassName = computed(() =>
-    this.highlightStrategyFactory.currentClassName()
-  );
-
   constructor(
-    private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly vocabularyFacade: VocabularyFacade,
-    private readonly spanHighlighterService: SpanHighlighterService,
-    private readonly highlightStrategyFactory: HighlightStrategyFactory
+    private readonly highlightStrategyFactory: HighlightStrategyFactory,
+    private readonly highlightSegmenter: HighlightSegmenter
   ) {
     effect(() => {
-      const entry = this.entryResource.value();
+      const entry = this.entry();
       if (!entry) {
         return;
       }
 
       this.termCustomizationDraft.set(entry.termCustomization ?? entry.term);
 
-      const drafts: Record<string, string> = {};
+      const nextDrafts: Record<string, string> = {};
       for (const translation of entry.translations) {
-        drafts[translation.language] = translation.term;
+        nextDrafts[translation.language] = translation.term;
       }
 
-      this.translationDrafts.set(drafts);
+      this.translationDrafts.set(nextDrafts);
     });
   }
 
@@ -115,9 +79,9 @@ export class EntryDetailsPageComponent {
       return;
     }
 
-    const current = { ...this.translationDrafts() };
-    current[language] = target.value;
-    this.translationDrafts.set(current);
+    const nextDrafts = { ...this.translationDrafts() };
+    nextDrafts[language] = target.value;
+    this.translationDrafts.set(nextDrafts);
   }
 
   setSelectedLanguage(event: Event): void {
@@ -139,13 +103,12 @@ export class EntryDetailsPageComponent {
   }
 
   async saveTermCustomization(): Promise<void> {
-    const value = this.termCustomizationDraft().trim();
-    if (!value) {
+    const term = this.termCustomizationDraft().trim();
+    if (!term) {
       return;
     }
 
-    await this.vocabularyFacade.updateTerm(this.entryId(), value);
-    this.entryResource.reload();
+    await this.store.saveTerm(term);
   }
 
   async saveTranslation(language: string): Promise<void> {
@@ -154,20 +117,18 @@ export class EntryDetailsPageComponent {
       return;
     }
 
-    await this.vocabularyFacade.updateTranslation(this.entryId(), language, translation);
-    this.entryResource.reload();
+    await this.store.saveTranslation(language, translation);
   }
 
   async saveSelectedTranslation(): Promise<void> {
-    const language = this.selectedLanguage();
+    const language = this.selectedLanguage().trim();
     const translation = this.selectedLanguageText().trim();
     if (!language || !translation) {
       return;
     }
 
-    await this.vocabularyFacade.updateTranslation(this.entryId(), language, translation);
+    await this.store.saveTranslation(language, translation);
     this.selectedLanguageText.set('');
-    this.entryResource.reload();
   }
 
   async deleteEntry(): Promise<void> {
@@ -176,7 +137,7 @@ export class EntryDetailsPageComponent {
       return;
     }
 
-    await this.vocabularyFacade.deleteEntry(this.entryId());
+    await this.store.deleteEntry();
     await this.router.navigate(['/']);
   }
 
@@ -186,21 +147,19 @@ export class EntryDetailsPageComponent {
       return;
     }
 
-    await this.vocabularyFacade.deleteUsage(this.entryId(), usageId);
-    this.usagesResource.reload();
+    await this.store.deleteUsage(usageId);
   }
 
   async starUsage(usageId: number): Promise<void> {
-    await this.vocabularyFacade.starUsage(this.entryId(), usageId);
-    this.usagesResource.reload();
+    await this.store.starUsage(usageId);
   }
 
   changeUsagesPage(page: number): void {
-    this.usagesPageIndex.set(page);
+    this.store.updatePage(page);
   }
 
   sentenceSegments(usage: UsageModel): HighlightSegmentModel[] {
-    return this.spanHighlighterService.buildBySpan(
+    return this.highlightSegmenter.splitBySpan(
       usage.sentence,
       usage.sentenceStart,
       usage.sentenceEnd
@@ -208,7 +167,7 @@ export class EntryDetailsPageComponent {
   }
 
   translationSegments(usage: UsageModel): HighlightSegmentModel[] {
-    return this.spanHighlighterService.buildBySpan(
+    return this.highlightSegmenter.splitBySpan(
       usage.translation,
       usage.translationStart,
       usage.translationEnd
@@ -217,14 +176,5 @@ export class EntryDetailsPageComponent {
 
   translationValue(language: string): string {
     return this.translationDrafts()[language] ?? '';
-  }
-
-  private readEntryId(): number {
-    const value = Number(this.route.snapshot.paramMap.get('entryId'));
-    if (Number.isFinite(value) && value > 0) {
-      return value;
-    }
-
-    return 0;
   }
 }

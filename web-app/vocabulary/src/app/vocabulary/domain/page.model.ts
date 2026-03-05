@@ -6,14 +6,3 @@ export interface PageModel<T> {
   totalPages: number;
   hasNext: boolean;
 }
-
-export function emptyPageModel<T>(): PageModel<T> {
-  return {
-    items: [],
-    page: 0,
-    size: 0,
-    totalItems: 0,
-    totalPages: 0,
-    hasNext: false
-  };
-}

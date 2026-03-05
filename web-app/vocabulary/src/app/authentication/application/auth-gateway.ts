@@ -16,4 +16,6 @@ export interface AuthGateway {
   exchangeAuthorizationCode(
     request: AuthorizationCodeExchangeRequest
   ): Promise<AuthSession>;
+
+  refreshAccessToken(refreshToken: string): Promise<AuthSession>;
 }

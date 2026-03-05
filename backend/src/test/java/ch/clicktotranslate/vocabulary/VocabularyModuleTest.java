@@ -233,8 +233,7 @@ class VocabularyModuleTest {
 		}
 
 		private List<JpaUsageEntity> usages() {
-			return usageRepository.findByEntryIdAndEntryUserId(findEntry().getId(), userId, PageRequest.of(0, 1_000))
-				.getContent();
+			return findEntry().getUsages().stream().toList();
 		}
 
 		private void seedEntryWithStarredUsages(int count) {

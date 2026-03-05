@@ -1,14 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { httpResource } from '@angular/common/http';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { HighlightStrategyFactory } from '../../application/highlight/highlight-strategy.factory';
-import { emptyPageModel } from '../../domain/page.model';
-import { VocabularyEntryModel } from '../../domain/vocabulary-entry.model';
-import { VocabularyFacade } from '../../application/vocabulary.facade';
+import { VocabularyHomePageStore } from '../../infrastructure/state/vocabulary-home-page.store';
 import { EntryListComponent } from './entry-list.component';
 import { SearchBarComponent } from './search-bar.component';
+import { HighlightStrategyFactory } from '../highlight/highlight-strategy.factory';
 import { PaginationComponent } from '../shared/pagination.component';
+import { SearchQueryParser } from './search-query-parser';
 
 @Component({
   selector: 'app-vocabulary-home-page',
@@ -19,65 +17,46 @@ import { PaginationComponent } from '../shared/pagination.component';
     EntryListComponent,
     PaginationComponent
   ],
+  providers: [VocabularyHomePageStore],
   templateUrl: './vocabulary-home-page.component.html'
 })
 export class VocabularyHomePageComponent {
-  protected readonly searchQuery = signal('');
-  protected readonly page = signal(0);
-  protected readonly pageSize = 12;
+  private readonly store = inject(VocabularyHomePageStore);
 
-  protected readonly languageResource = httpResource(
-    () => this.vocabularyFacade.buildLanguagesRequest(),
-    {
-      defaultValue: [] as string[],
-      parse: (payload: unknown) => this.vocabularyFacade.parseLanguages(payload)
-    }
-  );
-
-  protected readonly entriesResource = httpResource(
-    () =>
-      this.vocabularyFacade.buildEntriesRequest(
-        this.searchQuery(),
-        this.page(),
-        this.pageSize
-      ),
-    {
-      defaultValue: emptyPageModel<VocabularyEntryModel>(),
-      parse: (payload: unknown) => this.vocabularyFacade.parseEntriesPage(payload)
-    }
-  );
-
-  protected readonly entriesPage = computed(() => this.entriesResource.value());
+  protected readonly searchQuery = this.store.searchQuery;
+  protected readonly languageResource = this.store.languageResource;
+  protected readonly entriesResource = this.store.entriesResource;
+  protected readonly entriesPage = this.store.entriesPage;
+  protected readonly languageSuggestions = this.store.languageSuggestions;
   protected readonly highlightClassName = computed(() =>
     this.highlightStrategyFactory.currentClassName()
   );
-  protected readonly languageSuggestions = computed(() =>
-    this.vocabularyFacade.languageSuggestions(
-      this.languageResource.value(),
-      this.searchQuery()
-    )
-  );
 
   constructor(
-    private readonly vocabularyFacade: VocabularyFacade,
+    private readonly router: Router,
     private readonly highlightStrategyFactory: HighlightStrategyFactory,
-    private readonly router: Router
+    private readonly searchQueryParser: SearchQueryParser
   ) {}
 
   updateQuery(value: string): void {
-    this.searchQuery.set(value);
-    this.page.set(0);
+    this.store.updateSearch(
+      value,
+      this.searchQueryParser.parse(value),
+      this.searchQueryParser.extractLanguageToken(value)
+    );
   }
 
   applyLanguageSuggestion(language: string): void {
-    this.searchQuery.set(
-      this.vocabularyFacade.applyLanguageSuggestion(this.searchQuery(), language)
+    const query = this.searchQueryParser.applyLanguageToken(this.searchQuery(), language);
+    this.store.updateSearch(
+      query,
+      this.searchQueryParser.parse(query),
+      this.searchQueryParser.extractLanguageToken(query)
     );
-    this.page.set(0);
   }
 
   changePage(page: number): void {
-    this.page.set(page);
+    this.store.updatePage(page);
   }
 
   async deleteEntry(entryId: number): Promise<void> {
@@ -86,8 +65,7 @@ export class VocabularyHomePageComponent {
       return;
     }
 
-    await this.vocabularyFacade.deleteEntry(entryId);
-    this.entriesResource.reload();
+    await this.store.deleteEntry(entryId);
   }
 
   openSettings(): void {

@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { ParsedSearchQuery } from '../domain/search-query.model';
+import { ParsedSearchQuery } from '../../domain/search-query.model';
 
 @Injectable({ providedIn: 'root' })
-export class SearchQueryParserService {
+export class SearchQueryParser {
+  private static readonly MIN_QUERY_LENGTH = 3;
+
   parse(query: string): ParsedSearchQuery {
     const trimmed = query.trim();
     if (!trimmed) {
@@ -40,11 +42,8 @@ export class SearchQueryParserService {
       };
     }
 
-    if (normalizedQuery) {
-      return {
-        mode: 'query',
-        query: normalizedQuery
-      };
+    if (normalizedQuery.length >= SearchQueryParser.MIN_QUERY_LENGTH) {
+      return { mode: 'query', query: normalizedQuery };
     }
 
     return { mode: 'all', query: '' };
@@ -60,7 +59,7 @@ export class SearchQueryParserService {
     return lastWord.slice(1).toUpperCase();
   }
 
-  applyLanguage(query: string, language: string): string {
+  applyLanguageToken(query: string, language: string): string {
     const trimmed = query.trim();
     const words = trimmed.split(/\s+/).filter((word) => word.length > 0);
     const normalizedLanguage = `@${language.toUpperCase()}`;

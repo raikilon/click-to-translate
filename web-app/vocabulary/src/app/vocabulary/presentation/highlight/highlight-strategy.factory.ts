@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HighlightPreferenceService } from '../../../authentication/application/highlight-preference.service';
+import { HighlightPreferenceService } from '../../../settings/preferences/highlight-preference.service';
 import { BoxHighlightStrategy } from './box-highlight.strategy';
 import { ColorHighlightStrategy } from './color-highlight.strategy';
 import { HighlightStrategy } from './highlight-strategy';

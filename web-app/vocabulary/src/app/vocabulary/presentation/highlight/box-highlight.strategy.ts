@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HighlightMode } from '../../../authentication/domain/highlight-mode';
+import { HighlightMode } from '../../../settings/preferences/highlight-mode';
 import { HighlightStrategy } from './highlight-strategy';
 
 @Injectable({ providedIn: 'root' })

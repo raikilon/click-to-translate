@@ -1,4 +1,4 @@
-import { HighlightMode } from '../../../authentication/domain/highlight-mode';
+import { HighlightMode } from '../../../settings/preferences/highlight-mode';
 
 export interface HighlightStrategy {
   readonly mode: HighlightMode;

@@ -21,17 +21,6 @@ export class VocabularyMapper {
     };
   }
 
-  toUsagePageModel(dto: PageEnvelopeDto<UsageDto>): PageModel<UsageModel> {
-    return {
-      items: dto.items.map((item) => this.toUsageModel(item)),
-      page: dto.page,
-      size: dto.size,
-      totalItems: dto.totalItems,
-      totalPages: dto.totalPages,
-      hasNext: dto.hasNext
-    };
-  }
-
   toEntryModel(dto: EntryDto): VocabularyEntryModel {
     return {
       entryId: dto.entryId,

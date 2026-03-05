@@ -10,6 +10,9 @@ interface TokenEndpointResponse {
   access_token: string;
   token_type: string;
   expires_in?: number;
+  refresh_token?: string;
+  refresh_expires_in?: number;
+  id_token?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -33,19 +36,35 @@ export class KeycloakAuthGateway implements AuthGateway {
   async exchangeAuthorizationCode(
     request: AuthorizationCodeExchangeRequest
   ): Promise<AuthSession> {
+    const payload = await this.tokenRequest({
+      grant_type: 'authorization_code',
+      client_id: authRuntimeConfig.clientId,
+      code: request.code,
+      redirect_uri: request.redirectUri,
+      code_verifier: request.codeVerifier
+    });
+
+    return this.asAuthSession(payload, Date.now());
+  }
+
+  async refreshAccessToken(refreshToken: string): Promise<AuthSession> {
+    const payload = await this.tokenRequest({
+      grant_type: 'refresh_token',
+      client_id: authRuntimeConfig.clientId,
+      refresh_token: refreshToken
+    });
+
+    return this.asAuthSession(payload, Date.now());
+  }
+
+  private async tokenRequest(input: Record<string, string>): Promise<TokenEndpointResponse> {
     const response = await fetch(authRuntimeConfig.tokenEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json'
       },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: authRuntimeConfig.clientId,
-        code: request.code,
-        redirect_uri: request.redirectUri,
-        code_verifier: request.codeVerifier
-      }).toString()
+      body: new URLSearchParams(input).toString()
     });
 
     const payload = await this.parseJson(await response.text());
@@ -58,13 +77,7 @@ export class KeycloakAuthGateway implements AuthGateway {
       throw new Error('Invalid token response from authentication provider.');
     }
 
-    const expiresIn =
-      typeof payload.expires_in === 'number' ? payload.expires_in : 3600;
-
-    return {
-      accessToken: payload.access_token,
-      expiresAtMs: Date.now() + expiresIn * 1000
-    };
+    return payload;
   }
 
   private async parseJson(raw: string): Promise<unknown> {
@@ -108,5 +121,22 @@ export class KeycloakAuthGateway implements AuthGateway {
       typeof (payload as { access_token?: unknown }).access_token === 'string' &&
       typeof (payload as { token_type?: unknown }).token_type === 'string'
     );
+  }
+
+  private asAuthSession(payload: TokenEndpointResponse, nowMs: number): AuthSession {
+    const accessTokenExpiresIn =
+      typeof payload.expires_in === 'number' ? payload.expires_in : 3600;
+    const refreshTokenExpiresIn =
+      typeof payload.refresh_expires_in === 'number'
+        ? payload.refresh_expires_in
+        : accessTokenExpiresIn;
+
+    return {
+      accessToken: payload.access_token,
+      accessTokenExpiresAtMs: nowMs + accessTokenExpiresIn * 1000,
+      refreshToken: payload.refresh_token ?? '',
+      refreshTokenExpiresAtMs: nowMs + refreshTokenExpiresIn * 1000,
+      idToken: payload.id_token
+    };
   }
 }

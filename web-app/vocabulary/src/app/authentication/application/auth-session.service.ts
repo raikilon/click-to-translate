@@ -11,26 +11,38 @@ import { KeycloakAuthGateway } from '../infrastructure/keycloak-auth.gateway';
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
+  private static readonly EXPIRY_SKEW_MS = 30_000;
+
   private readonly session = signal<AuthSession | null>(null);
+  private refreshInFlight: Promise<AuthSession | null> | null = null;
 
   constructor(
     private readonly storage: AuthStorageService,
     private readonly authGateway: KeycloakAuthGateway
-  ) {
-    this.session.set(this.storage.readSession());
-    this.clearIfExpired();
-  }
+  ) {}
 
   getAuthState(): AuthState {
-    return { isAuthenticated: this.isAuthenticated() };
+    return {
+      isAuthenticated: this.isAuthenticated()
+    };
   }
 
   isAuthenticated(): boolean {
-    return this.getValidSession() !== null;
+    const current = this.session();
+    if (!current) {
+      return false;
+    }
+
+    return this.isSessionUsable(current) || this.isRefreshUsable(current);
   }
 
-  accessToken(): string | null {
-    return this.getValidSession()?.accessToken ?? null;
+  async getAccessToken(): Promise<string | null> {
+    const session = await this.ensureSession();
+    if (!session) {
+      return null;
+    }
+
+    return session.accessToken;
   }
 
   async beginLogin(redirectUrl?: string): Promise<void> {
@@ -78,7 +90,6 @@ export class AuthSessionService {
     });
 
     this.session.set(session);
-    this.storage.writeSession(session);
     this.storage.clearPkceState();
   }
 
@@ -88,19 +99,62 @@ export class AuthSessionService {
 
   logout(): void {
     this.session.set(null);
-    this.storage.clearSession();
     this.storage.clearPkceState();
+    this.refreshInFlight = null;
   }
 
-  private clearIfExpired(): void {
+  private async ensureSession(): Promise<AuthSession | null> {
     const current = this.session();
-    if (current && current.expiresAtMs <= Date.now()) {
-      this.logout();
+    if (!current) {
+      return null;
     }
+
+    if (this.isSessionUsable(current)) {
+      return current;
+    }
+
+    if (!this.isRefreshUsable(current)) {
+      this.logout();
+      return null;
+    }
+
+    return this.refreshSession(current.refreshToken);
   }
 
-  private getValidSession(): AuthSession | null {
-    this.clearIfExpired();
-    return this.session();
+  private isSessionUsable(session: AuthSession): boolean {
+    return (
+      session.accessTokenExpiresAtMs - AuthSessionService.EXPIRY_SKEW_MS >
+      Date.now()
+    );
+  }
+
+  private isRefreshUsable(session: AuthSession): boolean {
+    return (
+      session.refreshToken.trim().length > 0 &&
+      session.refreshTokenExpiresAtMs - AuthSessionService.EXPIRY_SKEW_MS >
+        Date.now()
+    );
+  }
+
+  private refreshSession(refreshToken: string): Promise<AuthSession | null> {
+    if (this.refreshInFlight) {
+      return this.refreshInFlight;
+    }
+
+    this.refreshInFlight = this.authGateway
+      .refreshAccessToken(refreshToken)
+      .then((session) => {
+        this.session.set(session);
+        return session;
+      })
+      .catch(() => {
+        this.logout();
+        return null;
+      })
+      .finally(() => {
+        this.refreshInFlight = null;
+      });
+
+    return this.refreshInFlight;
   }
 }

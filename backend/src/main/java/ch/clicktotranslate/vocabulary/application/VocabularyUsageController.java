@@ -1,23 +1,14 @@
 package ch.clicktotranslate.vocabulary.application;
 
-import ch.clicktotranslate.vocabulary.domain.Usage;
-
 public class VocabularyUsageController {
-
-	private final ListEntryUsages listEntryUsages;
 
 	private final DeleteUsage deleteUsage;
 
 	private final StarUsage starUsage;
 
-	public VocabularyUsageController(ListEntryUsages listEntryUsages, DeleteUsage deleteUsage, StarUsage starUsage) {
-		this.listEntryUsages = listEntryUsages;
+	public VocabularyUsageController(DeleteUsage deleteUsage, StarUsage starUsage) {
 		this.deleteUsage = deleteUsage;
 		this.starUsage = starUsage;
-	}
-
-	public PageResult<Usage> listByEntry(Long entryId, PageRequest pageRequest) {
-		return listEntryUsages.execute(entryId, pageRequest);
 	}
 
 	public void delete(Long entryId, Long usageId) {

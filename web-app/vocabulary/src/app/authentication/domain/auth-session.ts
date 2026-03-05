@@ -1,4 +1,7 @@
 export interface AuthSession {
   accessToken: string;
-  expiresAtMs: number;
+  accessTokenExpiresAtMs: number;
+  refreshToken: string;
+  refreshTokenExpiresAtMs: number;
+  idToken?: string;
 }
