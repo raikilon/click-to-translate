@@ -27,5 +27,12 @@ services:
     volumes:
       - ./keycloak/realm-import:/opt/keycloak/data/import:ro
 
+  redis:
+    image: redis:8
+    container_name: click-to-translate-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
 volumes:
   click_to_translate_pgdata:

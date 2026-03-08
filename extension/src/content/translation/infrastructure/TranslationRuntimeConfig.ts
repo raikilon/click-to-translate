@@ -1,6 +1,6 @@
 interface TranslationRuntimeConfig {
   apiBaseUrl: string;
-  translatePath: string;
+  segmentPath: string;
   translateLanguagesPath: string;
 }
 
@@ -8,9 +8,10 @@ export class TranslationRuntimeConfigFactory {
   static create(): TranslationRuntimeConfig {
     return {
       apiBaseUrl: this.readRequiredEnvString("WXT_API_BASE_URL"),
-      translatePath: this.readRequiredEnvString("WXT_TRANSLATE_PATH"),
-      translateLanguagesPath:
-        this.readEnvString("WXT_TRANSLATE_LANGUAGES_PATH") ?? "/api/translate/languages",
+      segmentPath: this.readRequiredEnvString("WXT_SEGMENT_PATH"),
+      translateLanguagesPath: this.readRequiredEnvString(
+        "WXT_TRANSLATE_LANGUAGES_PATH",
+      ),
     };
   }
 

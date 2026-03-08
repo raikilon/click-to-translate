@@ -92,7 +92,7 @@ export class PopupPage {
     const state = await this.authController.login();
     if (!state.isLoggedIn) {
       this.renderLoggedOutUi();
-      this.view.setStatus("Login failed.", true);
+      this.view.setStatus("Login started. Complete it in the opened tab, then retry.");
       return;
     }
 

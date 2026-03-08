@@ -1,4 +1,3 @@
-import { GetAccessTokenUseCase } from "@/content/authentication/application/GetAccessTokenUseCase";
 import { GetAuthStateUseCase } from "@/content/authentication/application/GetAuthStateUseCase";
 import { LoginUseCase } from "@/content/authentication/application/LoginUseCase";
 import { LogoutUseCase } from "@/content/authentication/application/LogoutUseCase";
@@ -13,19 +12,15 @@ import { BackgroundMessageRouter } from "./BackgroundMessageRouter";
 
 export default defineBackground(() => {
   const authSessionManager = new AuthSessionManager();
-  const getAccessTokenUseCase = new GetAccessTokenUseCase(authSessionManager);
   const getAuthStateUseCase = new GetAuthStateUseCase(authSessionManager);
   const loginUseCase = new LoginUseCase(authSessionManager);
   const logoutUseCase = new LogoutUseCase(authSessionManager);
 
   const translationApi = new TranslationApi();
-  const translationGateway = new TranslationGateway(translationApi, authSessionManager);
+  const translationGateway = new TranslationGateway(translationApi);
   const languagePrefsRepository = new LanguagePrefsRepository();
   const getLanguagePrefsUseCase = new GetLanguagePrefsUseCase(languagePrefsRepository);
-  const listTranslationLanguagesUseCase = new ListTranslationLanguagesUseCase(
-    getAccessTokenUseCase,
-    translationApi,
-  );
+  const listTranslationLanguagesUseCase = new ListTranslationLanguagesUseCase(translationApi);
   const translateSelectionUseCase = new TranslateSelectionUseCase(translationGateway);
 
   new BackgroundMessageRouter({

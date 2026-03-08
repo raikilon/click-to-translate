@@ -1,0 +1,33 @@
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${GATEWAY_KEYCLOAK_ISSUER_URI}
+        registration:
+          keycloak:
+            client-id: ${GATEWAY_OAUTH_CLIENT_ID}
+            client-secret: ${GATEWAY_OAUTH_CLIENT_SECRET}
+  data:
+    redis:
+      host: ${GATEWAY_REDIS_HOST:localhost}
+      port: ${GATEWAY_REDIS_PORT:6379}
+      password: ${GATEWAY_REDIS_PASSWORD:}
+      ssl:
+        enabled: ${GATEWAY_REDIS_SSL_ENABLED:false}
+
+server:
+  port: ${GATEWAY_SERVER_PORT}
+
+gateway:
+  backend:
+    segment-base-url: ${GATEWAY_BACKEND_SEGMENT_BASE_URL}
+    translate-base-url: ${GATEWAY_BACKEND_TRANSLATE_BASE_URL}
+    vocabulary-base-url: ${GATEWAY_BACKEND_VOCABULARY_BASE_URL}
+  cors:
+    allowed-origins:
+      - ${GATEWAY_ALLOWED_ORIGIN_1}
+      - ${GATEWAY_ALLOWED_ORIGIN_2}
+      - ${GATEWAY_ALLOWED_ORIGIN_3}
+      - ${GATEWAY_ALLOWED_ORIGIN_4}

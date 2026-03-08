@@ -1,17 +1,17 @@
 interface AuthRuntimeConfig {
-  authAuthorizeUrl: string;
-  authTokenUrl: string;
-  oauthClientId: string;
-  scopes: string[];
+  apiBaseUrl: string;
+  loginPath: string;
+  mePath: string;
+  logoutPath: string;
 }
 
 export class AuthRuntimeConfigFactory {
   static create(): AuthRuntimeConfig {
     return {
-      authAuthorizeUrl: this.readRequiredEnvString("WXT_AUTH_AUTHORIZE_URL"),
-      authTokenUrl: this.readRequiredEnvString("WXT_AUTH_TOKEN_URL"),
-      oauthClientId: this.readRequiredEnvString("WXT_OAUTH_CLIENT_ID"),
-      scopes: this.readRequiredEnvList("WXT_AUTH_SCOPES"),
+      apiBaseUrl: this.readRequiredEnvString("WXT_API_BASE_URL"),
+      loginPath: this.readRequiredEnvString("WXT_AUTH_LOGIN_PATH"),
+      mePath: this.readRequiredEnvString("WXT_AUTH_ME_PATH"),
+      logoutPath: this.readRequiredEnvString("WXT_AUTH_LOGOUT_PATH"),
     };
   }
 
@@ -29,22 +29,6 @@ export class AuthRuntimeConfigFactory {
     return value;
   }
 
-  private static readRequiredEnvList(name: string): string[] {
-    const value = this.readRequiredEnvString(name);
-    const parsed = this.parseList(value);
-    if (parsed.length === 0) {
-      throw new Error(`Missing required runtime config list env var: ${name}`);
-    }
-
-    return parsed;
-  }
-
-  private static parseList(value: string): string[] {
-    return value
-      .split(/[\s,]+/)
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }
 }
 
 export const authRuntimeConfig: AuthRuntimeConfig = AuthRuntimeConfigFactory.create();

@@ -2,6 +2,7 @@ import type {
   TranslationRequest,
   TranslationResponse,
 } from "@/content/translation/domain/Translation";
+import { AuthRequiredError } from "@/content/authentication/application/AuthErrors";
 import { translationRuntimeConfig } from "./TranslationRuntimeConfig";
 
 interface TranslateApiResponse {
@@ -10,7 +11,7 @@ interface TranslateApiResponse {
 }
 
 export class TranslationApi {
-  async listLanguages(accessToken: string): Promise<string[]> {
+  async listLanguages(): Promise<string[]> {
     const languagesUrl = this.buildUrl(
       translationRuntimeConfig.apiBaseUrl,
       translationRuntimeConfig.translateLanguagesPath,
@@ -18,13 +19,17 @@ export class TranslationApi {
 
     const response = await fetch(languagesUrl, {
       method: "GET",
+      credentials: "include",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const payload = this.parseJsonSafely(await response.text());
+    if (response.status === 401) {
+      throw new AuthRequiredError();
+    }
+
     if (!response.ok) {
       throw new Error(
         this.parseErrorMessage(payload, "Translation languages request failed."),
@@ -42,25 +47,28 @@ export class TranslationApi {
   }
 
   async translate(
-    accessToken: string,
     request: TranslationRequest,
   ): Promise<TranslationResponse> {
     const translateUrl = this.buildUrl(
       translationRuntimeConfig.apiBaseUrl,
-      translationRuntimeConfig.translatePath,
+      translationRuntimeConfig.segmentPath,
     );
 
     const response = await fetch(translateUrl, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(this.toBackendPayload(request)),
     });
 
     const payload = this.parseJsonSafely(await response.text());
+    if (response.status === 401) {
+      throw new AuthRequiredError();
+    }
+
     if (!response.ok) {
       throw new Error(
         this.parseErrorMessage(payload, "Translation API request failed."),

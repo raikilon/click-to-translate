@@ -5,38 +5,39 @@
   "registrationAllowed": false,
   "clients": [
     {
-      "clientId": "click-to-translate-extension",
-      "name": "Click to Translate Extension",
+      "clientId": "click-to-translate-gateway",
+      "name": "Click to Translate Gateway",
       "protocol": "openid-connect",
-      "publicClient": true,
+      "publicClient": false,
       "bearerOnly": false,
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
       "fullScopeAllowed": false,
+      "secret": "click-to-translate-gateway-secret",
       "redirectUris": [
-        "https://ahampkhmocphbkchaheolahhcfcbeabn.chromiumapp.org/oauth2",
-        "https://click-to-translate@local.extensions.allizom.org/oauth2"
+        "http://localhost:8082/login/oauth2/code/keycloak"
       ],
       "webOrigins": [
-        "https://ahampkhmocphbkchaheolahhcfcbeabn.chromiumapp.org",
-        "https://click-to-translate@local.extensions.allizom.org"
+        "http://localhost:8082",
+        "http://localhost:5173",
+        "http://localhost:4200"
       ],
-      "attributes": {
-        "pkce.code.challenge.method": "S256"
-      },
       "defaultClientScopes": [
         "basic",
         "web-origins",
         "segment",
-        "roles",
-        "translate"
+        "translate",
+        "vocabulary"
       ],
       "optionalClientScopes": [
         "profile",
         "email"
       ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:5173/* http://localhost:4200/* http://localhost:8082/*"
+      },
       "protocolMappers": [
         {
           "name": "subject (sub)",
@@ -79,11 +80,16 @@
       "name": "translate",
       "description": "Access to translation endpoints",
       "protocol": "openid-connect"
+    },
+    {
+      "name": "vocabulary",
+      "description": "Access to vocabulary endpoints",
+      "protocol": "openid-connect"
     }
   ],
   "roles": {
     "client": {
-      "click-to-translate-extension": [
+      "click-to-translate-gateway": [
         {
           "name": "normal",
           "description": "Basic tier user"
@@ -94,7 +100,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "click-to-translate-extension": [
+              "click-to-translate-gateway": [
                 "normal"
               ]
             }
@@ -121,7 +127,7 @@
         }
       ],
       "clientRoles": {
-        "click-to-translate-extension": [
+        "click-to-translate-gateway": [
           "normal"
         ]
       }
@@ -143,7 +149,7 @@
         }
       ],
       "clientRoles": {
-        "click-to-translate-extension": [
+        "click-to-translate-gateway": [
           "premium"
         ]
       }
