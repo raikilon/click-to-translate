@@ -1,6 +1,5 @@
 interface PendingLoginTab {
   gatewayOrigin: string;
-  leftGatewayOrigin: boolean;
 }
 
 export class LoginTabAuthFlow {
@@ -30,12 +29,14 @@ export class LoginTabAuthFlow {
     this.registerLoginTabListeners();
 
     let createdTabId: number | undefined;
+    let createdTabUrl: string | undefined;
     try {
       const createdTab = await browser.tabs.create({
         url: loginUrl,
         active: true,
       });
       createdTabId = createdTab.id;
+      createdTabUrl = createdTab.url;
     } catch (error) {
       this.unregisterLoginTabListenersIfIdle();
       throw error;
@@ -48,8 +49,9 @@ export class LoginTabAuthFlow {
 
     this.pendingLoginTabsById.set(createdTabId, {
       gatewayOrigin,
-      leftGatewayOrigin: false,
     });
+
+    this.handleLoginTabUpdated(createdTabId, createdTabUrl);
   }
 
   private registerLoginTabListeners(): void {
@@ -84,11 +86,10 @@ export class LoginTabAuthFlow {
     }
 
     if (parsedUrl.origin !== pendingLoginTab.gatewayOrigin) {
-      pendingLoginTab.leftGatewayOrigin = true;
       return;
     }
 
-    if (!pendingLoginTab.leftGatewayOrigin || !this.isGatewayLoginCompletionPath(parsedUrl.pathname)) {
+    if (!this.isGatewayLoginCompletionPath(parsedUrl.pathname)) {
       return;
     }
 
