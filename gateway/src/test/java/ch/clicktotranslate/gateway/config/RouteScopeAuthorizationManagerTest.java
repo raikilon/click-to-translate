@@ -25,9 +25,8 @@ class RouteScopeAuthorizationManagerTest {
 	void given_authenticated_user_with_scope_when_authorize_then_access_is_granted() {
 		underTest = testContext.managerWithRoute("translate-api", "/translate/**", "translate");
 
-		boolean granted = Objects.requireNonNull(underTest
-                        .authorize(() -> testContext.authenticatedUserWithScope(),
-                                testContext.authorizationContext("/translate/languages")))
+		boolean granted = Objects.requireNonNull(underTest.authorize(() -> testContext.authenticatedUserWithScope(),
+				testContext.authorizationContext("/translate/languages")))
 			.isGranted();
 
 		assertTrue(granted);
@@ -37,9 +36,8 @@ class RouteScopeAuthorizationManagerTest {
 	void given_authenticated_user_without_scope_when_authorize_then_access_is_denied() {
 		underTest = testContext.managerWithRoute("vocabulary-api", "/vocabulary/**", "vocabulary");
 
-		boolean granted = Objects.requireNonNull(underTest
-                        .authorize(() -> testContext.authenticatedUserWithScope(),
-                                testContext.authorizationContext("/vocabulary/entries")))
+		boolean granted = Objects.requireNonNull(underTest.authorize(() -> testContext.authenticatedUserWithScope(),
+				testContext.authorizationContext("/vocabulary/entries")))
 			.isGranted();
 
 		assertFalse(granted);
@@ -70,7 +68,8 @@ class RouteScopeAuthorizationManagerTest {
 		}
 
 		private TestingAuthenticationToken authenticatedUserWithScope() {
-			TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "n/a", "SCOPE_translate");
+			TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "n/a",
+					"SCOPE_translate");
 			authentication.setAuthenticated(true);
 			return authentication;
 		}
