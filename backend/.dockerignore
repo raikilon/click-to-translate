@@ -4,6 +4,6 @@ target
 .github
 .http
 
-docker
+../docker
 
 .mvn/wrapper/maven-wrapper.jar

@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: gateway
+  profiles:
+    default: dev
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - segment
+              - translate
+              - vocabulary
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: segment-api
+              uri: ${gateway.backend.segment-base-url}
+              predicates:
+                - Path=/segment,/segment/**
+              metadata:
+                required-scope: segment
+              filters:
+                - TokenRelay=
+                - RewritePath=/segment(?<remaining>/?.*), /api/segment$\{remaining}
+            - id: translate-api
+              uri: ${gateway.backend.translate-base-url}
+              predicates:
+                - Path=/translate/**
+              metadata:
+                required-scope: translate
+              filters:
+                - TokenRelay=
+                - RewritePath=/translate(?<remaining>/?.*), /api/translate$\{remaining}
+            - id: vocabulary-api
+              uri: ${gateway.backend.vocabulary-base-url}
+              predicates:
+                - Path=/vocabulary/**
+              metadata:
+                required-scope: vocabulary
+              filters:
+                - TokenRelay=
+                - RewritePath=/vocabulary(?<remaining>/?.*), /api/vocabulary$\{remaining}
+
+server:
+  servlet:
+    session:
+      timeout: ${GATEWAY_SESSION_TIMEOUT:8h}
+      cookie:
+        name: ${GATEWAY_SESSION_COOKIE_NAME:CTTSESSIONID}
+        http-only: true
+        secure: ${GATEWAY_SESSION_COOKIE_SECURE:false}
+        same-site: ${GATEWAY_SESSION_COOKIE_SAME_SITE:Lax}

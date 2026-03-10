@@ -15,4 +15,5 @@ logging:
   level:
     org.springframework.modulith: DEBUG
 deepl:
-  auth-key: TEST_KEY
+  auth-key: ${DEEPL_AUTH_KEY}
+

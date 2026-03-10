@@ -10,7 +10,7 @@ import ch.clicktotranslate.segment.application.SegmentBundleTranslationControlle
 import ch.clicktotranslate.segment.application.SegmentBundle;
 
 @RestController
-@RequestMapping("/api/translate")
+@RequestMapping("/api/segment")
 public class SegmentBundleTranslationRestController {
 
 	private final SegmentBundleTranslationController segmentBundleTranslationController;

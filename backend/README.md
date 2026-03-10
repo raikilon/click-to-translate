@@ -1,8 +1,5 @@
 # Backend Local Run Guide
 
-This service is a Spring Boot application (Java 25).
-
-
 ## Exact `.env` Content for Docker run
 
 Create `backend/.env` with:

@@ -1,0 +1,30 @@
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8081/realms/click-to-translate
+        registration:
+          keycloak:
+            client-id: click-to-translate-gateway
+            client-secret: click-to-translate-gateway-secret
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  port: 8082
+
+gateway:
+  backend:
+    segment-base-url: http://localhost:8080
+    translate-base-url: http://localhost:8080
+    vocabulary-base-url: http://localhost:8080
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - http://localhost:4200
+      - chrome-extension://*
+      - moz-extension://*
