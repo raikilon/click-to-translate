@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthSessionService } from '../authentication/application/auth-session.service';
+import { appRouteCommands } from '../routing/route.constants';
 import { HighlightPreferenceService } from './preferences/highlight-preference.service';
 import { HighlightMode } from './preferences/highlight-mode';
 
@@ -19,7 +20,7 @@ export class SettingsPageComponent {
   ) {}
 
   backToHome(): void {
-    void this.router.navigate(['/']);
+    void this.router.navigate(appRouteCommands.home());
   }
 
   updateMode(mode: HighlightMode): void {
@@ -27,7 +28,11 @@ export class SettingsPageComponent {
   }
 
   logout(): void {
-    this.authSessionService.logout();
-    void this.router.navigate(['/login']);
+    void this.performLogout();
+  }
+
+  private async performLogout(): Promise<void> {
+    await this.authSessionService.logout();
+    await this.router.navigate(appRouteCommands.login());
   }
 }

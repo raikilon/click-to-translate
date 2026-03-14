@@ -32,6 +32,50 @@ class DeepLTextTranslationClientTest {
 	}
 
 	@Test
+	void givenUppercaseTargetLanguage_whenTranslate_thenCallsClientWithOriginalTargetLanguage() throws Exception {
+		TestContext context = new TestContext();
+		context.givenTranslationSucceedsForLanguages(context.sourceLanguage, context.uppercaseEnglishTargetLanguage);
+
+		String result = context.underTest.translate(context.text, context.sourceLanguage,
+				context.uppercaseEnglishTargetLanguage, null);
+
+		assertThat(result).isEqualTo(context.translatedText);
+		context.verifyTranslationCalledWithLanguages(context.sourceLanguage, context.uppercaseEnglishTargetLanguage);
+		context.verifyTranslationResultRead();
+		verifyNoMoreInteractions(context.client, context.textResult);
+	}
+
+	@Test
+	void givenUppercaseSourceLanguage_whenTranslate_thenCallsClientWithOriginalSourceLanguage() throws Exception {
+		TestContext context = new TestContext();
+		context.givenTranslationSucceedsForLanguages(context.uppercaseEnglishSourceLanguage,
+				context.nonEnglishTargetLanguage);
+
+		String result = context.underTest.translate(context.text, context.uppercaseEnglishSourceLanguage,
+				context.nonEnglishTargetLanguage, null);
+
+		assertThat(result).isEqualTo(context.translatedText);
+		context.verifyTranslationCalledWithLanguages(context.uppercaseEnglishSourceLanguage,
+				context.nonEnglishTargetLanguage);
+		context.verifyTranslationResultRead();
+		verifyNoMoreInteractions(context.client, context.textResult);
+	}
+
+	@Test
+	void givenTargetLanguageIsNotEnglish_whenTranslate_thenUsesOriginalTargetLanguage() throws Exception {
+		TestContext context = new TestContext();
+		context.givenTranslationSucceedsForLanguages(context.sourceLanguage, context.nonEnglishTargetLanguage);
+
+		String result = context.underTest.translate(context.text, context.sourceLanguage,
+				context.nonEnglishTargetLanguage, null);
+
+		assertThat(result).isEqualTo(context.translatedText);
+		context.verifyTranslationCalledWithLanguages(context.sourceLanguage, context.nonEnglishTargetLanguage);
+		context.verifyTranslationResultRead();
+		verifyNoMoreInteractions(context.client, context.textResult);
+	}
+
+	@Test
 	void givenContextAndTranslationSucceeds_whenTranslate_thenCallsClientWithContextOptions() throws Exception {
 		TestContext context = new TestContext();
 		context.givenTranslationWithContextSucceeds();
@@ -92,6 +136,12 @@ class DeepLTextTranslationClientTest {
 
 		private final String targetLanguage = "en";
 
+		private final String uppercaseEnglishTargetLanguage = "EN";
+
+		private final String uppercaseEnglishSourceLanguage = "EN";
+
+		private final String nonEnglishTargetLanguage = "de";
+
 		private final String translationContext = "Das Haus ist alt.";
 
 		private final String translatedText = "Hello";
@@ -99,9 +149,14 @@ class DeepLTextTranslationClientTest {
 		private TextResult textResult;
 
 		private void givenTranslationSucceeds() throws DeepLException, InterruptedException {
+			givenTranslationSucceedsForLanguages(sourceLanguage, targetLanguage);
+		}
+
+		private void givenTranslationSucceedsForLanguages(String expectedSourceLanguage, String expectedTargetLanguage)
+				throws DeepLException, InterruptedException {
 			textResult = mock(TextResult.class);
 			given(textResult.getText()).willReturn(translatedText);
-			given(client.translateText(text, sourceLanguage, targetLanguage)).willReturn(textResult);
+			given(client.translateText(text, expectedSourceLanguage, expectedTargetLanguage)).willReturn(textResult);
 		}
 
 		private void givenTranslationWithContextSucceeds() throws DeepLException, InterruptedException {
@@ -123,7 +178,12 @@ class DeepLTextTranslationClientTest {
 		}
 
 		private void verifyTranslationCalled() throws DeepLException, InterruptedException {
-			verify(client).translateText(text, sourceLanguage, targetLanguage);
+			verifyTranslationCalledWithLanguages(sourceLanguage, targetLanguage);
+		}
+
+		private void verifyTranslationCalledWithLanguages(String expectedSourceLanguage, String expectedTargetLanguage)
+				throws DeepLException, InterruptedException {
+			verify(client).translateText(text, expectedSourceLanguage, expectedTargetLanguage);
 		}
 
 		private void verifyTranslationCalledWithContext() throws DeepLException, InterruptedException {

@@ -1,160 +1,97 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { GatewayAuthSessionClient } from '../infrastructure/gateway-auth-session.client';
 import { AuthState } from '../domain/auth-state';
-import { AuthSession } from '../domain/auth-session';
-import { authRuntimeConfig } from '../infrastructure/auth.config';
-import { AuthStorageService } from '../infrastructure/auth-storage.service';
-import {
-  createCodeChallenge,
-  generateRandomBase64Url
-} from '../infrastructure/pkce.util';
-import { KeycloakAuthGateway } from '../infrastructure/keycloak-auth.gateway';
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
-  private static readonly EXPIRY_SKEW_MS = 30_000;
+  private static readonly LOGIN_POLL_INTERVAL_MS = 500;
+  private static readonly LOGIN_TIMEOUT_MS = 180_000;
 
-  private readonly session = signal<AuthSession | null>(null);
-  private refreshInFlight: Promise<AuthSession | null> | null = null;
+  private authStateCache: AuthState | null = null;
+  private authStateInFlight: Promise<AuthState> | null = null;
 
-  constructor(
-    private readonly storage: AuthStorageService,
-    private readonly authGateway: KeycloakAuthGateway
-  ) {}
+  constructor(private readonly authSessionClient: GatewayAuthSessionClient) {}
 
-  getAuthState(): AuthState {
-    return {
-      isAuthenticated: this.isAuthenticated()
-    };
-  }
-
-  isAuthenticated(): boolean {
-    const current = this.session();
-    if (!current) {
-      return false;
+  async getAuthState(): Promise<AuthState> {
+    if (this.authStateCache) {
+      return this.authStateCache;
     }
 
-    return this.isSessionUsable(current) || this.isRefreshUsable(current);
-  }
-
-  async getAccessToken(): Promise<string | null> {
-    const session = await this.ensureSession();
-    if (!session) {
-      return null;
+    if (this.authStateInFlight) {
+      return this.authStateInFlight;
     }
 
-    return session.accessToken;
-  }
-
-  async beginLogin(redirectUrl?: string): Promise<void> {
-    if (redirectUrl && redirectUrl.trim().length > 0) {
-      this.storage.writePostLoginRedirect(redirectUrl);
-    }
-
-    const state = generateRandomBase64Url(24);
-    const codeVerifier = generateRandomBase64Url(48);
-    const codeChallenge = await createCodeChallenge(codeVerifier);
-
-    this.storage.writePkceState({ state, codeVerifier });
-
-    const authorizationUrl = this.authGateway.createAuthorizationUrl({
-      state,
-      codeChallenge,
-      redirectUri: authRuntimeConfig.redirectUri
-    });
-
-    window.location.assign(authorizationUrl);
-  }
-
-  async completeLogin(callbackUrl: string): Promise<void> {
-    const callback = new URL(callbackUrl);
-    const oauthError = callback.searchParams.get('error');
-    if (oauthError) {
-      throw new Error(oauthError);
-    }
-
-    const code = callback.searchParams.get('code');
-    const state = callback.searchParams.get('state');
-    if (!code || !state) {
-      throw new Error('Missing login callback parameters.');
-    }
-
-    const pkceState = this.storage.readPkceState();
-    if (!pkceState || pkceState.state !== state) {
-      throw new Error('Invalid login state.');
-    }
-
-    const session = await this.authGateway.exchangeAuthorizationCode({
-      code,
-      codeVerifier: pkceState.codeVerifier,
-      redirectUri: authRuntimeConfig.redirectUri
-    });
-
-    this.session.set(session);
-    this.storage.clearPkceState();
-  }
-
-  consumePostLoginRedirect(): string | null {
-    return this.storage.consumePostLoginRedirect();
-  }
-
-  logout(): void {
-    this.session.set(null);
-    this.storage.clearPkceState();
-    this.refreshInFlight = null;
-  }
-
-  private async ensureSession(): Promise<AuthSession | null> {
-    const current = this.session();
-    if (!current) {
-      return null;
-    }
-
-    if (this.isSessionUsable(current)) {
-      return current;
-    }
-
-    if (!this.isRefreshUsable(current)) {
-      this.logout();
-      return null;
-    }
-
-    return this.refreshSession(current.refreshToken);
-  }
-
-  private isSessionUsable(session: AuthSession): boolean {
-    return (
-      session.accessTokenExpiresAtMs - AuthSessionService.EXPIRY_SKEW_MS >
-      Date.now()
-    );
-  }
-
-  private isRefreshUsable(session: AuthSession): boolean {
-    return (
-      session.refreshToken.trim().length > 0 &&
-      session.refreshTokenExpiresAtMs - AuthSessionService.EXPIRY_SKEW_MS >
-        Date.now()
-    );
-  }
-
-  private refreshSession(refreshToken: string): Promise<AuthSession | null> {
-    if (this.refreshInFlight) {
-      return this.refreshInFlight;
-    }
-
-    this.refreshInFlight = this.authGateway
-      .refreshAccessToken(refreshToken)
-      .then((session) => {
-        this.session.set(session);
-        return session;
-      })
-      .catch(() => {
-        this.logout();
-        return null;
+    this.authStateInFlight = this.authSessionClient
+      .getAuthState()
+      .then((authState) => {
+        this.authStateCache = authState;
+        return authState;
       })
       .finally(() => {
-        this.refreshInFlight = null;
+        this.authStateInFlight = null;
       });
 
-    return this.refreshInFlight;
+    return this.authStateInFlight;
+  }
+
+  async isAuthenticated(): Promise<boolean> {
+    const authState = await this.getAuthState();
+    return authState.isAuthenticated;
+  }
+
+  async beginLogin(): Promise<void> {
+    const loginPopup = window.open('/auth/login', '_blank', 'popup=yes,width=540,height=760');
+    if (!loginPopup) {
+      throw new Error('Login popup was blocked. Please allow popups and try again.');
+    }
+
+    try {
+      await this.waitUntilAuthenticated(loginPopup);
+    } finally {
+      if (!loginPopup.closed) {
+        loginPopup.close();
+      }
+    }
+  }
+
+  async logout(): Promise<void> {
+    await this.authSessionClient.logout();
+
+    this.authStateCache = { isAuthenticated: false };
+  }
+
+  private async waitUntilAuthenticated(loginPopup: Window): Promise<void> {
+    const timeoutAt = Date.now() + AuthSessionService.LOGIN_TIMEOUT_MS;
+    while (Date.now() < timeoutAt) {
+      if (loginPopup.closed) {
+        this.authStateCache = null;
+        throw new Error('Login was cancelled before completion.');
+      }
+
+      const authState = await this.fetchAuthStateForLoginPolling();
+      if (authState.isAuthenticated) {
+        this.authStateCache = authState;
+        return;
+      }
+
+      await this.delay(AuthSessionService.LOGIN_POLL_INTERVAL_MS);
+    }
+
+    this.authStateCache = null;
+    throw new Error('Login timed out. Please try again.');
+  }
+
+  private async fetchAuthStateForLoginPolling(): Promise<AuthState> {
+    try {
+      return await this.authSessionClient.getAuthState();
+    } catch {
+      return { isAuthenticated: false };
+    }
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+      window.setTimeout(resolve, ms);
+    });
   }
 }

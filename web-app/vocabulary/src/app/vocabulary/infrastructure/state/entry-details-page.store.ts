@@ -8,7 +8,7 @@ import { VocabularyMapper } from '../mappers/vocabulary.mapper';
 
 @Injectable()
 export class EntryDetailsPageStore {
-  private readonly vocabularyBasePath = '/api/vocabulary';
+  private readonly vocabularyBasePath = '/vocabulary';
 
   readonly entryId = signal(this.readEntryId());
   readonly usagesPageIndex = signal(0);
@@ -24,7 +24,7 @@ export class EntryDetailsPageStore {
   });
 
   readonly languageResource = httpResource<string[]>(
-    () => ({ url: '/api/translate/languages' }),
+    () => ({ url: '/translate/languages' }),
     { defaultValue: [] }
   );
 

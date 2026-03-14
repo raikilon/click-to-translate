@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { appRouteCommands } from '../../../routing/route.constants';
 import { HighlightSegmentModel } from '../../domain/highlight-segment.model';
 import { HighlightSegmenter } from '../../domain/highlight-segmenter';
 import { UsageModel } from '../../domain/usage.model';
@@ -57,11 +58,11 @@ export class EntryDetailsPageComponent {
   }
 
   backToList(): void {
-    void this.router.navigate(['/']);
+    void this.router.navigate(appRouteCommands.home());
   }
 
   goToSettings(): void {
-    void this.router.navigate(['/settings']);
+    void this.router.navigate(appRouteCommands.settings());
   }
 
   updateTermCustomizationDraft(event: Event): void {
@@ -138,7 +139,7 @@ export class EntryDetailsPageComponent {
     }
 
     await this.store.deleteEntry();
-    await this.router.navigate(['/']);
+    await this.router.navigate(appRouteCommands.home());
   }
 
   async deleteUsage(usageId: number): Promise<void> {

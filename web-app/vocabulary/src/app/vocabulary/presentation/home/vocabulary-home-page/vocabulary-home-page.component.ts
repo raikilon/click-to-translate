@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { VocabularyHomePageStore } from '../../infrastructure/state/vocabulary-home-page.store';
-import { EntryListComponent } from './entry-list.component';
-import { SearchBarComponent } from './search-bar.component';
-import { HighlightStrategyFactory } from '../highlight/highlight-strategy.factory';
-import { PaginationComponent } from '../shared/pagination.component';
-import { SearchQueryParser } from './search-query-parser';
+import { appRouteCommands } from '../../../../routing/route.constants';
+import { VocabularyHomePageStore } from '../../../infrastructure/state/vocabulary-home-page.store';
+import { EntryListComponent } from '../entry-list/entry-list.component';
+import { SearchBarComponent } from '../search-bar/search-bar.component';
+import { HighlightStrategyFactory } from '../../highlight/highlight-strategy.factory';
+import { PaginationComponent } from '../../shared/pagination.component';
+import { SearchQueryParser } from '../search-query-parser';
 
 @Component({
   selector: 'app-vocabulary-home-page',
@@ -69,6 +70,6 @@ export class VocabularyHomePageComponent {
   }
 
   openSettings(): void {
-    void this.router.navigate(['/settings']);
+    void this.router.navigate(appRouteCommands.settings());
   }
 }

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AuthSessionService } from '../application/auth-session.service';
+import { Router } from '@angular/router';
+import { appRouteUrls } from '../../../routing/route.constants';
+import { AuthSessionService } from '../../application/auth-session.service';
 
 @Component({
   selector: 'app-login-page',
@@ -15,12 +16,9 @@ export class LoginPageComponent {
 
   constructor(
     private readonly authSessionService: AuthSessionService,
-    private readonly route: ActivatedRoute,
     private readonly router: Router
   ) {
-    if (this.authSessionService.isAuthenticated()) {
-      void this.router.navigateByUrl(this.readRedirectUrl());
-    }
+    void this.redirectToHomeWhenAuthenticated();
   }
 
   async login(): Promise<void> {
@@ -28,15 +26,22 @@ export class LoginPageComponent {
     this.errorMessage.set(null);
 
     try {
-      await this.authSessionService.beginLogin(this.readRedirectUrl());
+      await this.authSessionService.beginLogin();
+      await this.router.navigateByUrl(appRouteUrls.home);
     } catch (error) {
       this.errorMessage.set(this.asErrorMessage(error));
+    } finally {
       this.loading.set(false);
     }
   }
 
-  private readRedirectUrl(): string {
-    return this.route.snapshot.queryParamMap.get('redirect') ?? '/';
+  private async redirectToHomeWhenAuthenticated(): Promise<void> {
+    const isAuthenticated = await this.authSessionService
+      .isAuthenticated()
+      .catch(() => false);
+    if (isAuthenticated) {
+      await this.router.navigateByUrl(appRouteUrls.home);
+    }
   }
 
   private asErrorMessage(error: unknown): string {

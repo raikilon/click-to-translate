@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, output } from '@angular/core';
-import { VocabularyEntryModel } from '../../domain/vocabulary-entry.model';
-import { EntryRowComponent } from './entry-row.component';
+import { VocabularyEntryModel } from '../../../domain/vocabulary-entry.model';
+import { EntryRowComponent } from '../entry-row/entry-row.component';
 
 @Component({
   selector: 'app-entry-list',

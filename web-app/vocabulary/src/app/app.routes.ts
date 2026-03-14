@@ -1,40 +1,36 @@
 import { Routes } from '@angular/router';
-import { AuthCallbackPageComponent } from './authentication/presentation/auth-callback-page.component';
 import { authGuard } from './authentication/presentation/auth.guard';
-import { LoginPageComponent } from './authentication/presentation/login-page.component';
+import { LoginPageComponent } from './authentication/presentation/login-page/login-page.component';
+import { appRoutePaths } from './routing/route.constants';
 import { SettingsPageComponent } from './settings/settings-page.component';
 import { EntryDetailsPageComponent } from './vocabulary/presentation/details/entry-details-page.component';
-import { VocabularyHomePageComponent } from './vocabulary/presentation/home/vocabulary-home-page.component';
+import { VocabularyHomePageComponent } from './vocabulary/presentation/home/vocabulary-home-page/vocabulary-home-page.component';
 
 export const routes: Routes = [
   {
-    path: 'login',
+    path: appRoutePaths.login,
     component: LoginPageComponent
   },
   {
-    path: 'auth/callback',
-    component: AuthCallbackPageComponent
-  },
-  {
-    path: '',
+    path: appRoutePaths.home,
     canActivate: [authGuard],
     children: [
       {
-        path: '',
+        path: appRoutePaths.home,
         component: VocabularyHomePageComponent
       },
       {
-        path: 'entries/:entryId',
+        path: appRoutePaths.entryDetails,
         component: EntryDetailsPageComponent
       },
       {
-        path: 'settings',
+        path: appRoutePaths.settings,
         component: SettingsPageComponent
       }
     ]
   },
   {
-    path: '**',
-    redirectTo: ''
+    path: appRoutePaths.wildcard,
+    redirectTo: appRoutePaths.home
   }
 ];
