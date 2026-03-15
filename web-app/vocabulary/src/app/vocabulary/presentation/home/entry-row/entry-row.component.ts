@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input, output, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { appRouteCommands } from '../../../../routing/route.constants';
 import { HighlightSegmentModel } from '../../../domain/highlight-segment.model';
 import { HighlightSegmenter } from '../../../domain/highlight-segmenter';
@@ -11,7 +11,7 @@ import { VocabularyEntryModel } from '../../../domain/vocabulary-entry.model';
 @Component({
   selector: 'app-entry-row',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './entry-row.component.html'
 })
 export class EntryRowComponent {
@@ -29,9 +29,11 @@ export class EntryRowComponent {
   protected readonly previewUsages = computed(() =>
     this.usageOrdering.sortByPriority(this.entry().usages).slice(0, 3)
   );
+  protected readonly entryDetailsCommands = computed(() =>
+    appRouteCommands.entryDetails(this.entry().entryId)
+  );
 
   constructor(
-    private readonly router: Router,
     private readonly highlightSegmenter: HighlightSegmenter,
     private readonly usageOrdering: UsageOrdering
   ) {}
@@ -40,13 +42,7 @@ export class EntryRowComponent {
     this.expanded.update((value) => !value);
   }
 
-  openDetails(event: Event): void {
-    event.stopPropagation();
-    void this.router.navigate(appRouteCommands.entryDetails(this.entry().entryId));
-  }
-
-  requestDelete(event: Event): void {
-    event.stopPropagation();
+  requestDelete(): void {
     this.deleteRequested.emit(this.entry().entryId);
   }
 

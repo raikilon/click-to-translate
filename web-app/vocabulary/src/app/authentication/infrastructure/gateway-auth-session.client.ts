@@ -20,11 +20,6 @@ export class GatewayAuthSessionClient {
       throw new Error('Current user request failed.');
     }
 
-    const payload = (await response.json()) as { name?: unknown };
-    if (typeof payload.name !== 'string' || !payload.name.trim()) {
-      throw new Error('Current user response is invalid.');
-    }
-
     return { isAuthenticated: true };
   }
 

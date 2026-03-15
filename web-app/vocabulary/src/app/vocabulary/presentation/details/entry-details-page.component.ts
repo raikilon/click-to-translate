@@ -21,6 +21,18 @@ export class EntryDetailsPageComponent {
 
   protected readonly entryResource = this.store.entryResource;
   protected readonly entry = this.store.entry;
+  protected readonly entryErrorMessage = computed(() => {
+    const error = this.entryResource.error();
+    if (!error) {
+      return null;
+    }
+
+    if (error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+
+    return 'Failed to load entry.';
+  });
   protected readonly languages = this.store.languages;
   protected readonly pagedUsages = this.store.pagedUsages;
   protected readonly usagesPageIndex = this.store.usagesPageIndex;

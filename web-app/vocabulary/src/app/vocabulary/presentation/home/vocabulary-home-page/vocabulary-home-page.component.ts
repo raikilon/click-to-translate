@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { appRouteCommands } from '../../../../routing/route.constants';
 import { VocabularyHomePageStore } from '../../../infrastructure/state/vocabulary-home-page.store';
@@ -29,6 +29,7 @@ export class VocabularyHomePageComponent {
   protected readonly entriesResource = this.store.entriesResource;
   protected readonly entriesPage = this.store.entriesPage;
   protected readonly languageSuggestions = this.store.languageSuggestions;
+  protected readonly deletionErrorMessage = signal<string | null>(null);
   protected readonly highlightClassName = computed(() =>
     this.highlightStrategyFactory.currentClassName()
   );
@@ -66,10 +67,24 @@ export class VocabularyHomePageComponent {
       return;
     }
 
-    await this.store.deleteEntry(entryId);
+    this.deletionErrorMessage.set(null);
+
+    try {
+      await this.store.deleteEntry(entryId);
+    } catch (error) {
+      this.deletionErrorMessage.set(this.asErrorMessage(error));
+    }
   }
 
   openSettings(): void {
     void this.router.navigate(appRouteCommands.settings());
+  }
+
+  private asErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+
+    return 'Delete failed. Please try again.';
   }
 }

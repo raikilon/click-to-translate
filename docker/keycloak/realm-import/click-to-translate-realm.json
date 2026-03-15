@@ -3,6 +3,11 @@
   "enabled": true,
   "sslRequired": "none",
   "registrationAllowed": false,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 86400,
+  "ssoSessionMaxLifespan": 86400,
+  "clientSessionIdleTimeout": 86400,
+  "clientSessionMaxLifespan": 86400,
   "clients": [
     {
       "clientId": "click-to-translate-gateway",
@@ -33,7 +38,9 @@
       ],
       "optionalClientScopes": [],
       "attributes": {
-        "post.logout.redirect.uris": "http://localhost:5173/* http://localhost:4200/* http://localhost:8082/*"
+        "post.logout.redirect.uris": "http://localhost:5173/* http://localhost:4200/* http://localhost:8082/*",
+        "client.session.idle.timeout": "86400",
+        "client.session.max.lifespan": "86400"
       },
       "protocolMappers": [
         {

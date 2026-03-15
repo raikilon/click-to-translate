@@ -27,8 +27,8 @@ public class AuthRestController {
 
 	@GetMapping("/me")
 	public ResponseEntity<CurrentUserResponse> me(Authentication authentication) {
-		return currentUserQuery.resolveName(authentication)
-			.map(name -> ResponseEntity.ok(new CurrentUserResponse(name)))
+		return currentUserQuery.resolveUsername(authentication)
+			.map(username -> ResponseEntity.ok(new CurrentUserResponse(username)))
 			.orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
 	}
 

@@ -30,24 +30,24 @@ class AuthRestControllerTest {
 
 	@Test
 	void given_unauthenticated_user_when_me_then_returns_unauthorized() {
-		when(testContext.currentUserQuery.resolveName(any())).thenReturn(Optional.empty());
+		when(testContext.currentUserQuery.resolveUsername(any())).thenReturn(Optional.empty());
 
-		var response = underTest.me(null);
+		var result = underTest.me(null);
 
-		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+		assertEquals(HttpStatus.UNAUTHORIZED, result.getStatusCode());
 	}
 
 	@Test
 	void given_authenticated_user_when_me_then_returns_current_user_name() {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("dev-user", "n/a");
-		when(testContext.currentUserQuery.resolveName(authentication)).thenReturn(Optional.of("Dev User"));
+		when(testContext.currentUserQuery.resolveUsername(authentication)).thenReturn(Optional.of("dev-user"));
 
-		var response = underTest.me(authentication);
+		var result = underTest.me(authentication);
 
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertNotNull(response.getBody());
-		assertEquals("Dev User", response.getBody().name());
-		verify(testContext.currentUserQuery).resolveName(authentication);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertNotNull(result.getBody());
+		assertEquals("dev-user", result.getBody().username());
+		verify(testContext.currentUserQuery).resolveUsername(authentication);
 	}
 
 	private static final class TestContext {

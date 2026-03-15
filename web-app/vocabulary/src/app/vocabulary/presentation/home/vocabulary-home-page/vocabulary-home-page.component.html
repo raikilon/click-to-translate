@@ -31,6 +31,12 @@
       </p>
     }
 
+    @if (deletionErrorMessage()) {
+      <p class="mt-4 rounded-lg bg-rose-100 px-3 py-2 font-['DM_Sans'] text-sm text-rose-700">
+        {{ deletionErrorMessage() }}
+      </p>
+    }
+
     @if (entriesResource.isLoading()) {
       <p class="mt-4 font-['DM_Sans'] text-sm text-slate-500">Loading entries...</p>
     }

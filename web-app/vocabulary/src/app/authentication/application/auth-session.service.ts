@@ -39,7 +39,13 @@ export class AuthSessionService {
     return authState.isAuthenticated;
   }
 
+  clearAuthState(): void {
+    this.authStateCache = null;
+    this.authStateInFlight = null;
+  }
+
   async beginLogin(): Promise<void> {
+    this.clearAuthState();
     const loginPopup = window.open('/auth/login', '_blank', 'popup=yes,width=540,height=760');
     if (!loginPopup) {
       throw new Error('Login popup was blocked. Please allow popups and try again.');
@@ -57,6 +63,7 @@ export class AuthSessionService {
   async logout(): Promise<void> {
     await this.authSessionClient.logout();
 
+    this.clearAuthState();
     this.authStateCache = { isAuthenticated: false };
   }
 
