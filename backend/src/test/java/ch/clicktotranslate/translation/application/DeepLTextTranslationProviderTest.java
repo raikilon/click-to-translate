@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 class DeepLTextTranslationProviderTest {
 
 	@Test
-	void givenTargetLanguageIsEn_whenTranslate_thenCallsClientWithEnGbTarget() {
+	void givenTargetLanguageIsEn_whenTranslate_thenCallsClientWithUppercaseTargetCode() {
 		TestContext context = new TestContext();
 		context.givenTranslationSucceedsForGermanToEnglish();
 
@@ -24,7 +24,7 @@ class DeepLTextTranslationProviderTest {
 	}
 
 	@Test
-	void givenSourceLanguageIsEn_whenTranslate_thenCallsClientWithEnGbSource() {
+	void givenSourceLanguageIsEn_whenTranslate_thenCallsClientWithUppercaseSourceCode() {
 		TestContext context = new TestContext();
 		context.givenTranslationSucceedsForEnglishToGerman();
 
@@ -54,13 +54,13 @@ class DeepLTextTranslationProviderTest {
 
 		private final String germanLanguage = "DE";
 
-		private final String sourceLanguageCode = "de";
+		private final String sourceLanguageCode = "DE";
 
-		private final String targetLanguageCode = "en-GB";
+		private final String targetLanguageCode = "EN";
 
-		private final String englishLanguageCode = "en-GB";
+		private final String englishLanguageCode = "EN";
 
-		private final String germanLanguageCode = "de";
+		private final String germanLanguageCode = "DE";
 
 		private final String context = "Das Haus ist alt.";
 
