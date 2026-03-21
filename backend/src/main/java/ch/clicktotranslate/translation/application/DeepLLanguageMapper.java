@@ -6,8 +6,8 @@ public class DeepLLanguageMapper {
 
 	public String toDeepLCode(Language language) {
 		return switch (language) {
-			case DE -> "de";
-			case EN -> "en-GB";
+			case DE -> "DE";
+			case EN -> "EN";
 			case ES -> "es";
 			case FR -> "fr";
 			case IT -> "it";

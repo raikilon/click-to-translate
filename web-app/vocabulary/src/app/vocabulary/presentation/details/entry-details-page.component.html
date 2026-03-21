@@ -41,80 +41,62 @@
     @if (entry(); as entry) {
       <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <p class="font-['Space_Grotesk'] text-2xl font-semibold text-slate-900">
-          {{ entry.term }} <span class="text-slate-500">[{{ entry.language }}]</span>
+          {{ entry.termCustomization ?? entry.term }}
+          <span class="text-slate-500">[{{ entry.language }}]</span>
         </p>
+
+        @if (entry.termCustomization) {
+          <p class="mt-1 font-['DM_Sans'] text-sm text-slate-500">
+            {{ entry.term }}
+          </p>
+        }
 
         <div class="mt-4 space-y-2">
           <label class="font-['DM_Sans'] text-sm font-semibold text-slate-700">Custom term</label>
-          <div class="flex gap-2">
-            <input
-              type="text"
-              [value]="termCustomizationDraft()"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2 font-['DM_Sans'] text-sm text-slate-800"
-              (input)="updateTermCustomizationDraft($event)"
-            />
-            <button
-              type="button"
-              class="rounded-lg border border-cyan-300 px-3 py-2 font-['DM_Sans'] text-sm font-semibold text-cyan-700 transition hover:bg-cyan-50"
-              (click)="saveTermCustomization()"
-            >
-              Save
-            </button>
-          </div>
+          <app-editable-field
+            [value]="entry.termCustomization ?? entry.term"
+            [saveAction]="saveTermCustomization"
+          >
+            <ng-template editableFieldEditor let-value="value" let-setValue="setValue" let-disabled="disabled">
+              <input
+                type="text"
+                [value]="value"
+                [disabled]="disabled"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 font-['DM_Sans'] text-sm text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                (input)="applyEditorValue($event, setValue)"
+              />
+            </ng-template>
+          </app-editable-field>
         </div>
 
         <div class="mt-6 space-y-3">
           <p class="font-['DM_Sans'] text-sm font-semibold text-slate-700">Translations</p>
 
           @for (translation of entry.translations; track translation.language) {
-            <div class="flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2">
-              <span class="min-w-10 rounded-md border border-slate-300 px-2 py-1 text-center font-['DM_Sans'] text-xs font-semibold text-slate-600">
-                {{ translation.language }}
-              </span>
-              <input
-                type="text"
-                [value]="translationValue(translation.language)"
-                class="flex-1 rounded-lg border border-slate-300 px-3 py-2 font-['DM_Sans'] text-sm text-slate-800"
-                (input)="updateTranslationDraft(translation.language, $event)"
-              />
-              <button
-                type="button"
-                class="rounded-lg border border-cyan-300 px-3 py-2 font-['DM_Sans'] text-xs font-semibold text-cyan-700 transition hover:bg-cyan-50"
-                (click)="saveTranslation(translation.language)"
+            <div class="rounded-lg bg-slate-50 p-3">
+              <div class="mb-2">
+                <span class="inline-block min-w-10 rounded-md border border-slate-300 px-2 py-1 text-center font-['DM_Sans'] text-xs font-semibold text-slate-600">
+                  {{ translation.language }}
+                </span>
+              </div>
+
+              <app-editable-field
+                [value]="translation.term"
+                [saveAction]="saveTranslationAction(translation.language)"
               >
-                Save
-              </button>
+                <ng-template editableFieldEditor let-value="value" let-setValue="setValue" let-disabled="disabled">
+                  <input
+                    type="text"
+                    [value]="value"
+                    [disabled]="disabled"
+                    class="w-full rounded-lg border border-slate-300 px-3 py-2 font-['DM_Sans'] text-sm text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    (input)="applyEditorValue($event, setValue)"
+                  />
+                </ng-template>
+              </app-editable-field>
             </div>
           }
 
-          <div class="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 p-3">
-            <select
-              class="rounded-lg border border-slate-300 px-3 py-2 font-['DM_Sans'] text-sm text-slate-700"
-              [value]="selectedLanguage()"
-              (change)="setSelectedLanguage($event)"
-            >
-              <option value="">Language</option>
-              @for (language of languages(); track language) {
-                <option [value]="language">{{ language }}</option>
-              }
-            </select>
-
-            <input
-              type="text"
-              [value]="selectedLanguageText()"
-              class="min-w-56 flex-1 rounded-lg border border-slate-300 px-3 py-2 font-['DM_Sans'] text-sm text-slate-800"
-              placeholder="Translation"
-              (input)="setSelectedLanguageText($event)"
-            />
-
-            <button
-              type="button"
-              class="rounded-lg border border-cyan-300 px-3 py-2 font-['DM_Sans'] text-xs font-semibold text-cyan-700 transition hover:bg-cyan-50"
-              (click)="saveSelectedTranslation()"
-            >
-              Add or Update
-            </button>
-          </div>
         </div>
       </article>
     }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ParsedSearchQuery } from '../../domain/search-query.model';
+import { ParsedSearchQuery } from './search-query.model';
 
 @Injectable({ providedIn: 'root' })
 export class SearchQueryParser {

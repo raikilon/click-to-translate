@@ -10,7 +10,7 @@ import { VocabularyMapper } from '../mappers/vocabulary.mapper';
 export class EntryDetailsPageStore {
   private readonly vocabularyBasePath = '/vocabulary';
 
-  readonly entryId = signal(this.readEntryId());
+  readonly entryId = signal(0);
   readonly usagesPageIndex = signal(0);
   readonly usagesPageSize = 10;
 
@@ -64,7 +64,9 @@ export class EntryDetailsPageStore {
     private readonly httpClient: HttpClient,
     private readonly mapper: VocabularyMapper,
     private readonly usageOrdering: UsageOrdering
-  ) {}
+  ) {
+    this.entryId.set(this.readEntryId());
+  }
 
   updatePage(page: number): void {
     this.usagesPageIndex.set(page);

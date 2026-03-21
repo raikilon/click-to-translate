@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { appRouteCommands } from '../../../routing/route.constants';
 import { HighlightSegmentModel } from '../../domain/highlight-segment.model';
@@ -7,12 +7,22 @@ import { HighlightSegmenter } from '../../domain/highlight-segmenter';
 import { UsageModel } from '../../domain/usage.model';
 import { EntryDetailsPageStore } from '../../infrastructure/state/entry-details-page.store';
 import { HighlightStrategyFactory } from '../highlight/highlight-strategy.factory';
-import { PaginationComponent } from '../shared/pagination.component';
+import {
+  EditableFieldEditorContext,
+  EditableFieldEditorDirective,
+  EditableFieldComponent
+} from '../shared/editable-field/editable-field.component';
+import { PaginationComponent } from '../shared/pagination/pagination.component';
 
 @Component({
   selector: 'app-entry-details-page',
   standalone: true,
-  imports: [CommonModule, PaginationComponent],
+  imports: [
+    CommonModule,
+    PaginationComponent,
+    EditableFieldComponent,
+    EditableFieldEditorDirective
+  ],
   providers: [EntryDetailsPageStore],
   templateUrl: './entry-details-page.component.html'
 })
@@ -27,13 +37,12 @@ export class EntryDetailsPageComponent {
       return null;
     }
 
-    if (error instanceof Error && error.message.trim()) {
+    if (error.message.trim()) {
       return error.message;
     }
 
     return 'Failed to load entry.';
   });
-  protected readonly languages = this.store.languages;
   protected readonly pagedUsages = this.store.pagedUsages;
   protected readonly usagesPageIndex = this.store.usagesPageIndex;
   protected readonly usagesTotalPages = this.store.usagesTotalPages;
@@ -41,33 +50,19 @@ export class EntryDetailsPageComponent {
   protected readonly highlightClassName = computed(() =>
     this.highlightStrategyFactory.currentClassName()
   );
+  protected readonly saveTermCustomization = async (term: string): Promise<void> =>
+    this.store.saveTerm(term);
 
-  protected readonly termCustomizationDraft = signal('');
-  protected readonly translationDrafts = signal<Record<string, string>>({});
-  protected readonly selectedLanguage = signal('');
-  protected readonly selectedLanguageText = signal('');
+  private readonly translationSaveActions = new Map<
+    string,
+    (value: string) => Promise<void>
+  >();
 
   constructor(
     private readonly router: Router,
     private readonly highlightStrategyFactory: HighlightStrategyFactory,
     private readonly highlightSegmenter: HighlightSegmenter
-  ) {
-    effect(() => {
-      const entry = this.entry();
-      if (!entry) {
-        return;
-      }
-
-      this.termCustomizationDraft.set(entry.termCustomization ?? entry.term);
-
-      const nextDrafts: Record<string, string> = {};
-      for (const translation of entry.translations) {
-        nextDrafts[translation.language] = translation.term;
-      }
-
-      this.translationDrafts.set(nextDrafts);
-    });
-  }
+  ) {}
 
   backToList(): void {
     void this.router.navigate(appRouteCommands.home());
@@ -77,71 +72,29 @@ export class EntryDetailsPageComponent {
     void this.router.navigate(appRouteCommands.settings());
   }
 
-  updateTermCustomizationDraft(event: Event): void {
+  applyEditorValue(
+    event: Event,
+    setValue: EditableFieldEditorContext['setValue']
+  ): void {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) {
       return;
     }
 
-    this.termCustomizationDraft.set(target.value);
+    setValue(target.value);
   }
 
-  updateTranslationDraft(language: string, event: Event): void {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) {
-      return;
+  saveTranslationAction(language: string): (value: string) => Promise<void> {
+    const key = language.toUpperCase();
+    const existingAction = this.translationSaveActions.get(key);
+    if (existingAction) {
+      return existingAction;
     }
 
-    const nextDrafts = { ...this.translationDrafts() };
-    nextDrafts[language] = target.value;
-    this.translationDrafts.set(nextDrafts);
-  }
-
-  setSelectedLanguage(event: Event): void {
-    const target = event.target;
-    if (!(target instanceof HTMLSelectElement)) {
-      return;
-    }
-
-    this.selectedLanguage.set(target.value);
-  }
-
-  setSelectedLanguageText(event: Event): void {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) {
-      return;
-    }
-
-    this.selectedLanguageText.set(target.value);
-  }
-
-  async saveTermCustomization(): Promise<void> {
-    const term = this.termCustomizationDraft().trim();
-    if (!term) {
-      return;
-    }
-
-    await this.store.saveTerm(term);
-  }
-
-  async saveTranslation(language: string): Promise<void> {
-    const translation = this.translationDrafts()[language]?.trim();
-    if (!translation) {
-      return;
-    }
-
-    await this.store.saveTranslation(language, translation);
-  }
-
-  async saveSelectedTranslation(): Promise<void> {
-    const language = this.selectedLanguage().trim();
-    const translation = this.selectedLanguageText().trim();
-    if (!language || !translation) {
-      return;
-    }
-
-    await this.store.saveTranslation(language, translation);
-    this.selectedLanguageText.set('');
+    const action = async (translation: string): Promise<void> =>
+      this.store.saveTranslation(key, translation);
+    this.translationSaveActions.set(key, action);
+    return action;
   }
 
   async deleteEntry(): Promise<void> {
@@ -185,9 +138,5 @@ export class EntryDetailsPageComponent {
       usage.translationStart,
       usage.translationEnd
     );
-  }
-
-  translationValue(language: string): string {
-    return this.translationDrafts()[language] ?? '';
   }
 }

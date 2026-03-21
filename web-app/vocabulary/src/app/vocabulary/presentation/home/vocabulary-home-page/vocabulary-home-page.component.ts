@@ -6,8 +6,7 @@ import { VocabularyHomePageStore } from '../../../infrastructure/state/vocabular
 import { EntryListComponent } from '../entry-list/entry-list.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { HighlightStrategyFactory } from '../../highlight/highlight-strategy.factory';
-import { PaginationComponent } from '../../shared/pagination.component';
-import { SearchQueryParser } from '../search-query-parser';
+import { PaginationComponent } from '../../shared/pagination/pagination.component';
 
 @Component({
   selector: 'app-vocabulary-home-page',
@@ -36,25 +35,15 @@ export class VocabularyHomePageComponent {
 
   constructor(
     private readonly router: Router,
-    private readonly highlightStrategyFactory: HighlightStrategyFactory,
-    private readonly searchQueryParser: SearchQueryParser
+    private readonly highlightStrategyFactory: HighlightStrategyFactory
   ) {}
 
   updateQuery(value: string): void {
-    this.store.updateSearch(
-      value,
-      this.searchQueryParser.parse(value),
-      this.searchQueryParser.extractLanguageToken(value)
-    );
+    this.store.updateSearchTerm(value);
   }
 
   applyLanguageSuggestion(language: string): void {
-    const query = this.searchQueryParser.applyLanguageToken(this.searchQuery(), language);
-    this.store.updateSearch(
-      query,
-      this.searchQueryParser.parse(query),
-      this.searchQueryParser.extractLanguageToken(query)
-    );
+    this.store.selectLanguageSuggestion(language);
   }
 
   changePage(page: number): void {

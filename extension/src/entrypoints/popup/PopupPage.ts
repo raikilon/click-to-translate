@@ -44,7 +44,7 @@ export class PopupPage {
     );
     this.view.bindLanguageSelectionChanged(this.onLanguageSelectionChanged.bind(this));
 
-    void this.refreshInitialState().catch(this.onPopupStateRefreshFailed.bind(this));
+    void this.refreshInitialState().catch(this.onInitialStateRefreshFailed.bind(this));
   }
 
   private async refreshInitialState(): Promise<void> {
@@ -111,6 +111,11 @@ export class PopupPage {
       error instanceof Error ? error.message : "Failed to load popup state.",
       true,
     );
+  }
+
+  private onInitialStateRefreshFailed(error: unknown): void {
+    this.renderLoggedOutUi();
+    this.onPopupStateRefreshFailed(error);
   }
 }
 

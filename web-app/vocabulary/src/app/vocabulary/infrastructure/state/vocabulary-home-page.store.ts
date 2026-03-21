@@ -5,6 +5,7 @@ import {
 } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { SearchQueryParser } from '../../domain/search-query-parser';
 import { ParsedSearchQuery } from '../../domain/search-query.model';
 import { EntryDto } from '../dto/entry.dto';
 import { PageEnvelopeDto } from '../dto/page-envelope.dto';
@@ -67,10 +68,28 @@ export class VocabularyHomePageStore {
 
   constructor(
     private readonly httpClient: HttpClient,
-    private readonly mapper: VocabularyMapper
+    private readonly mapper: VocabularyMapper,
+    private readonly searchQueryParser: SearchQueryParser
   ) {}
 
-  updateSearch(query: string, parsed: ParsedSearchQuery, token: string | null): void {
+  updateSearchTerm(query: string): void {
+    this.applySearchState(
+      query,
+      this.searchQueryParser.parse(query),
+      this.searchQueryParser.extractLanguageToken(query)
+    );
+  }
+
+  selectLanguageSuggestion(language: string): void {
+    const query = this.searchQueryParser.applyLanguageToken(this.searchQuery(), language);
+    this.applySearchState(
+      query,
+      this.searchQueryParser.parse(query),
+      this.searchQueryParser.extractLanguageToken(query)
+    );
+  }
+
+  private applySearchState(query: string, parsed: ParsedSearchQuery, token: string | null): void {
     this.searchQuery.set(query);
     this.search.set(parsed);
     this.languageToken.set(token);
