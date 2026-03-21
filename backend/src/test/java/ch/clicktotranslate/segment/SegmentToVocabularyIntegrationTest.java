@@ -196,7 +196,7 @@ class SegmentToVocabularyIntegrationTest {
 		}
 
 		private List<JpaUsageEntity> usagesByEntry(Long entryId) {
-			return usageRepository.findByEntryIdAndEntryUserId(entryId, userId, PageRequest.of(0, 100)).getContent();
+			return entryRepository.findByIdAndUserId(entryId, userId).orElseThrow().getUsages().stream().toList();
 		}
 
 		private void givenSuccessfulTranslations() {

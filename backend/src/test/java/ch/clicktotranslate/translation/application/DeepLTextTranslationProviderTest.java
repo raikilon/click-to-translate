@@ -12,14 +12,26 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 class DeepLTextTranslationProviderTest {
 
 	@Test
-	void givenDeeplProvider_whenTranslate_thenCallsClientWithMappedLanguages() {
+	void givenTargetLanguageIsEn_whenTranslate_thenCallsClientWithUppercaseTargetCode() {
 		TestContext context = new TestContext();
-		context.givenTranslationSucceeds();
+		context.givenTranslationSucceedsForGermanToEnglish();
 
-		String result = context.underTest.translate(context.request);
+		String result = context.underTest.translate(context.germanToEnglishRequest);
 
 		assertThat(result).isEqualTo(context.expectedTranslation);
-		context.verifyTranslationCalled();
+		context.verifyGermanToEnglishTranslationCalled();
+		verifyNoMoreInteractions(context.deepLTextTranslation);
+	}
+
+	@Test
+	void givenSourceLanguageIsEn_whenTranslate_thenCallsClientWithUppercaseSourceCode() {
+		TestContext context = new TestContext();
+		context.givenTranslationSucceedsForEnglishToGerman();
+
+		String result = context.underTest.translate(context.englishToGermanRequest);
+
+		assertThat(result).isEqualTo(context.expectedTranslation);
+		context.verifyEnglishToGermanTranslationCalled();
 		verifyNoMoreInteractions(context.deepLTextTranslation);
 	}
 
@@ -38,23 +50,44 @@ class DeepLTextTranslationProviderTest {
 
 		private final String targetLanguage = "EN";
 
-		private final String sourceLanguageCode = "de";
+		private final String englishLanguage = "EN";
 
-		private final String targetLanguageCode = "en";
+		private final String germanLanguage = "DE";
+
+		private final String sourceLanguageCode = "DE";
+
+		private final String targetLanguageCode = "EN";
+
+		private final String englishLanguageCode = "EN";
+
+		private final String germanLanguageCode = "DE";
 
 		private final String context = "Das Haus ist alt.";
 
-		private final TextToTranslate request = new TextToTranslate(word, sourceLanguage, targetLanguage, context);
+		private final TextToTranslate germanToEnglishRequest = new TextToTranslate(word, sourceLanguage, targetLanguage,
+				context);
+
+		private final TextToTranslate englishToGermanRequest = new TextToTranslate(word, englishLanguage,
+				germanLanguage, context);
 
 		private final String expectedTranslation = "House";
 
-		private void givenTranslationSucceeds() {
+		private void givenTranslationSucceedsForGermanToEnglish() {
 			given(deepLTextTranslation.translate(word, sourceLanguageCode, targetLanguageCode, context))
 				.willReturn(expectedTranslation);
 		}
 
-		private void verifyTranslationCalled() {
+		private void givenTranslationSucceedsForEnglishToGerman() {
+			given(deepLTextTranslation.translate(word, englishLanguageCode, germanLanguageCode, context))
+				.willReturn(expectedTranslation);
+		}
+
+		private void verifyGermanToEnglishTranslationCalled() {
 			verify(deepLTextTranslation).translate(word, sourceLanguageCode, targetLanguageCode, context);
+		}
+
+		private void verifyEnglishToGermanTranslationCalled() {
+			verify(deepLTextTranslation).translate(word, englishLanguageCode, germanLanguageCode, context);
 		}
 
 	}

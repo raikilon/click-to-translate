@@ -1,0 +1,23 @@
+<div class="mt-4 flex items-center justify-between">
+  <button
+    type="button"
+    class="rounded-lg border border-slate-300 px-3 py-2 font-['DM_Sans'] text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+    [disabled]="page() <= 0"
+    (click)="previousPage()"
+  >
+    Previous
+  </button>
+
+  <p class="font-['DM_Sans'] text-sm text-slate-600">
+    Page {{ page() + 1 }} / {{ totalPages() > 0 ? totalPages() : 1 }}
+  </p>
+
+  <button
+    type="button"
+    class="rounded-lg border border-slate-300 px-3 py-2 font-['DM_Sans'] text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+    [disabled]="!hasNext()"
+    (click)="nextPage()"
+  >
+    Next
+  </button>
+</div>

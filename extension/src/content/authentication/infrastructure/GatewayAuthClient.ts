@@ -1,11 +1,7 @@
 import { authRuntimeConfig } from "./AuthRuntimeConfig";
 
-export interface CurrentUserResponse {
-  name: string;
-}
-
 export class GatewayAuthClient {
-  async fetchCurrentUser(): Promise<CurrentUserResponse | null> {
+  async isAuthenticated(): Promise<boolean> {
     const meUrl = this.buildGatewayUrl(authRuntimeConfig.mePath);
     const response = await fetch(meUrl, {
       method: "GET",
@@ -16,19 +12,14 @@ export class GatewayAuthClient {
     });
 
     if (response.status === 401) {
-      return null;
+      return false;
     }
 
     if (!response.ok) {
       throw new Error("Current user request failed.");
     }
 
-    const payload = (await response.json()) as CurrentUserResponse;
-    if (!payload || typeof payload.name !== "string" || !payload.name.trim()) {
-      throw new Error("Current user response is invalid.");
-    }
-
-    return payload;
+    return true;
   }
 
   async logout(): Promise<void> {

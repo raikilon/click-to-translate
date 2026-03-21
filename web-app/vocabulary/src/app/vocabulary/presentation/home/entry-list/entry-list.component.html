@@ -1,0 +1,9 @@
+<section class="space-y-3">
+  @for (entry of entries(); track entry.entryId) {
+    <app-entry-row
+      [entry]="entry"
+      [highlightClassName]="highlightClassName()"
+      (deleteRequested)="onDelete($event)"
+    />
+  }
+</section>

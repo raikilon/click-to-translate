@@ -52,9 +52,10 @@ spring:
 server:
   servlet:
     session:
-      timeout: ${GATEWAY_SESSION_TIMEOUT:8h}
+      timeout: ${GATEWAY_SESSION_TIMEOUT:24h}
       cookie:
         name: ${GATEWAY_SESSION_COOKIE_NAME:CTTSESSIONID}
+        max-age: ${GATEWAY_SESSION_COOKIE_MAX_AGE:24h}
         http-only: true
         secure: ${GATEWAY_SESSION_COOKIE_SECURE:false}
         same-site: ${GATEWAY_SESSION_COOKIE_SAME_SITE:Lax}

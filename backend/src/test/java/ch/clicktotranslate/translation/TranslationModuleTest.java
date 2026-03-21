@@ -64,9 +64,9 @@ class TranslationModuleTest {
 
 		private final String expectedTranslation = "The house is big.";
 
-		private final String deepLSourceLanguage = "de";
+		private final String deepLSourceLanguage = "DE";
 
-		private final String deepLTargetLanguage = "en";
+		private final String deepLTargetLanguage = "EN";
 
 		private final TextResult deepLResponse = org.mockito.Mockito.mock(TextResult.class);
 

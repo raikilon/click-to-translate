@@ -1,5 +1,6 @@
 package ch.clicktotranslate.vocabulary.domain;
 
+import java.util.Locale;
 import org.jmolecules.ddd.types.ValueObject;
 
 public record TextSpan(int start, int end) implements ValueObject {
@@ -18,6 +19,17 @@ public record TextSpan(int start, int end) implements ValueObject {
 			throw new IllegalArgumentException("Text is null");
 		}
 		int start = text.indexOf(fragment);
+		if (start < 0) {
+			throw new IllegalArgumentException(String.format("%s not found in text", fragment));
+		}
+		return new TextSpan(start, start + fragment.length());
+	}
+
+	public static TextSpan findIgnoreCase(String text, String fragment) {
+		if (isBlank(text) || isBlank(fragment)) {
+			throw new IllegalArgumentException("Text is null");
+		}
+		int start = text.toLowerCase(Locale.ROOT).indexOf(fragment.toLowerCase(Locale.ROOT));
 		if (start < 0) {
 			throw new IllegalArgumentException(String.format("%s not found in text", fragment));
 		}

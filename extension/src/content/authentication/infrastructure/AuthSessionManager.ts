@@ -1,7 +1,7 @@
 import type { AuthState } from "@/content/authentication/domain/AuthState";
 import type { AuthStateProvider } from "@/content/authentication/application/AuthStateProvider";
 import type { IAuthenticationService } from "@/content/authentication/application/IAuthenticationService";
-import { GatewayAuthClient, type CurrentUserResponse } from "./GatewayAuthClient";
+import { GatewayAuthClient } from "./GatewayAuthClient";
 import { LoginTabAuthFlow } from "./LoginTabAuthFlow";
 
 interface AuthSessionManagerDependencies {
@@ -15,12 +15,12 @@ export class AuthSessionManager
   constructor(private readonly dependencies: AuthSessionManagerDependencies) {}
 
   async getAuthState(): Promise<AuthState> {
-    const currentUser = await this.dependencies.gatewayAuthClient.fetchCurrentUser();
-    if (!currentUser) {
+    const isAuthenticated = await this.dependencies.gatewayAuthClient.isAuthenticated();
+    if (!isAuthenticated) {
       return { isLoggedIn: false };
     }
 
-    return this.toAuthState(currentUser);
+    return { isLoggedIn: true };
   }
 
   async login(): Promise<AuthState> {
@@ -33,12 +33,6 @@ export class AuthSessionManager
 
   async logout(): Promise<void> {
     await this.dependencies.gatewayAuthClient.logout();
-  }
-
-  private toAuthState(_currentUser: CurrentUserResponse): AuthState {
-    return {
-      isLoggedIn: true,
-    };
   }
 
 }

@@ -1,0 +1,80 @@
+<article
+  class="cursor-pointer rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-cyan-300 hover:shadow-md"
+  (click)="toggleExpanded()"
+>
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0 flex-1 text-left">
+      <p class="font-['Space_Grotesk'] text-base font-semibold text-slate-900">
+        {{ entry().term }} <span class="text-slate-500">[{{ entry().language }}]</span>
+      </p>
+
+      @if (hasOneTranslation()) {
+        <p class="mt-1 font-['DM_Sans'] text-sm text-slate-700">
+          {{ entry().translations[0].term }}
+          <span class="text-slate-500">[{{ entry().translations[0].language }}]</span>
+        </p>
+      } @else {
+        <div class="mt-2 flex flex-wrap gap-2">
+          @for (language of translationLanguages(); track language) {
+            <span
+              class="rounded-md border border-slate-300 px-2 py-1 font-['DM_Sans'] text-xs font-semibold text-slate-600"
+            >
+              {{ language }}
+            </span>
+          }
+        </div>
+      }
+      <p class="mt-2 font-['DM_Sans'] text-xs font-semibold text-cyan-700">
+        {{ expanded() ? 'Click row to collapse' : 'Click row to expand' }}
+      </p>
+    </div>
+
+    <div
+      class="flex shrink-0 flex-col items-end gap-2"
+      (click)="$event.stopPropagation()"
+    >
+      <span class="rounded-md bg-slate-100 px-2 py-1 font-['DM_Sans'] text-[11px] font-semibold text-slate-600">
+        {{ expanded() ? 'Expanded' : 'Collapsed' }}
+      </span>
+      <button
+        type="button"
+        class="rounded-lg border border-cyan-300 px-3 py-2 font-['DM_Sans'] text-xs font-semibold text-cyan-700 transition hover:bg-cyan-50"
+        [routerLink]="entryDetailsCommands()"
+      >
+        Open
+      </button>
+      <button
+        type="button"
+        class="rounded-lg border border-rose-300 px-3 py-2 font-['DM_Sans'] text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
+        (click)="requestDelete()"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+
+  @if (expanded()) {
+    <div class="mt-4 border-t border-slate-100 pt-3">
+      @if (previewUsages().length === 0) {
+        <p class="font-['DM_Sans'] text-sm text-slate-500">No usage available.</p>
+      }
+
+      <div class="space-y-3">
+        @for (usage of previewUsages(); track usage.usageId) {
+          <div class="rounded-lg bg-slate-50 p-3">
+            <p class="font-['DM_Sans'] text-sm text-slate-700">
+              @for (segment of sentenceSegments(usage); track $index) {
+                <span [class]="segment.highlighted ? highlightClassName() : ''">{{ segment.value }}</span>
+              }
+            </p>
+            <p class="mt-1 font-['DM_Sans'] text-sm text-slate-500">
+              @for (segment of translationSegments(usage); track $index) {
+                <span [class]="segment.highlighted ? highlightClassName() : ''">{{ segment.value }}</span>
+              }
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</article>

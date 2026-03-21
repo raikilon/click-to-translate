@@ -19,6 +19,8 @@ interface BackgroundMessageRouterDependencies {
 }
 
 export class BackgroundMessageRouter {
+  private loginInFlight: Promise<void> | null = null;
+
   constructor(private readonly dependencies: BackgroundMessageRouterDependencies) {}
 
   register(): void {
@@ -36,7 +38,16 @@ export class BackgroundMessageRouter {
     });
 
     onBackgroundMessage(SERVICES.getTranslationLanguages, async () => {
-      return this.dependencies.listTranslationLanguagesUseCase.execute();
+      try {
+        return await this.dependencies.listTranslationLanguagesUseCase.execute();
+      } catch (error) {
+        if (this.isAuthError(error)) {
+          void this.triggerLoginFlow();
+          return [];
+        }
+
+        throw error;
+      }
     });
 
     onBackgroundMessage(SERVICES.translateWord, async (message) => {
@@ -77,7 +88,8 @@ export class BackgroundMessageRouter {
           translation: translatedText,
         };
       } catch (error) {
-        if (error instanceof AuthRequiredError || error instanceof AuthSessionExpiredError) {
+        if (this.isAuthError(error)) {
+          void this.triggerLoginFlow();
           return {
             kind: "unauthenticated" as const,
           };
@@ -89,5 +101,25 @@ export class BackgroundMessageRouter {
         };
       }
     });
+  }
+
+  private isAuthError(error: unknown): boolean {
+    return error instanceof AuthRequiredError || error instanceof AuthSessionExpiredError;
+  }
+
+  private triggerLoginFlow(): Promise<void> {
+    if (this.loginInFlight) {
+      return this.loginInFlight;
+    }
+
+    this.loginInFlight = this.dependencies.loginUseCase
+      .execute()
+      .then(() => undefined)
+      .catch(() => undefined)
+      .finally(() => {
+        this.loginInFlight = null;
+      });
+
+    return this.loginInFlight;
   }
 }

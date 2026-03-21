@@ -19,29 +19,30 @@ class CurrentUserQueryTest {
 	private final CurrentUserQuery underTest = testContext.underTest();
 
 	@Test
-	void given_unauthenticated_user_when_resolve_name_then_returns_empty() {
-		Optional<String> name = underTest.resolveName(null);
+	void given_unauthenticated_user_when_resolve_username_then_returns_empty() {
+		Optional<String> username = underTest.resolveUsername(null);
 
-		assertTrue(name.isEmpty());
+		assertTrue(username.isEmpty());
 	}
 
 	@Test
-	void given_oidc_user_with_name_claim_when_resolve_name_then_returns_name_claim() {
-		TestingAuthenticationToken authentication = testContext.authenticatedWithOidcClaims(Map.of("name", "Dev User"));
+	void given_oidc_user_with_preferred_username_when_resolve_username_then_returns_preferred_username() {
+		TestingAuthenticationToken authentication = testContext
+			.authenticatedWithOidcClaims(Map.of("preferred_username", "dev-user", "name", "Dev User"));
 
-		Optional<String> name = underTest.resolveName(authentication);
+		Optional<String> username = underTest.resolveUsername(authentication);
 
-		assertEquals(Optional.of("Dev User"), name);
+		assertEquals(Optional.of("dev-user"), username);
 	}
 
 	@Test
-	void given_oauth2_user_with_preferred_username_when_resolve_name_then_returns_preferred_username() {
+	void given_oauth2_user_with_preferred_username_when_resolve_username_then_returns_preferred_username() {
 		TestingAuthenticationToken authentication = testContext
 			.authenticatedWithOAuth2Attributes(Map.of("preferred_username", "dev-user"));
 
-		Optional<String> name = underTest.resolveName(authentication);
+		Optional<String> username = underTest.resolveUsername(authentication);
 
-		assertEquals(Optional.of("dev-user"), name);
+		assertEquals(Optional.of("dev-user"), username);
 	}
 
 	private static final class TestContext {

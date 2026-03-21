@@ -1,0 +1,67 @@
+<main class="min-h-screen bg-gradient-to-b from-slate-100 via-cyan-50 to-white px-4 py-6">
+  <section class="mx-auto w-full max-w-5xl">
+    <header class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="font-['Space_Grotesk'] text-2xl font-semibold text-slate-900">My Vocabulary</p>
+        <p class="font-['DM_Sans'] text-sm text-slate-600">
+          Ordered by latest additions. Use @LANG to filter by source language.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="rounded-lg border border-slate-300 bg-white px-4 py-2 font-['DM_Sans'] text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+        (click)="openSettings()"
+      >
+        Settings
+      </button>
+    </header>
+
+    <app-search-bar
+      [query]="searchQuery()"
+      [languageSuggestions]="languageSuggestions()"
+      [suggestionsLoading]="languageResource.isLoading()"
+      (queryChange)="updateQuery($event)"
+      (languageSuggestionSelected)="applyLanguageSuggestion($event)"
+    />
+
+    @if (entriesResource.error()) {
+      <p class="mt-4 rounded-lg bg-rose-100 px-3 py-2 font-['DM_Sans'] text-sm text-rose-700">
+        {{ entriesResource.error()?.message }}
+      </p>
+    }
+
+    @if (deletionErrorMessage()) {
+      <p class="mt-4 rounded-lg bg-rose-100 px-3 py-2 font-['DM_Sans'] text-sm text-rose-700">
+        {{ deletionErrorMessage() }}
+      </p>
+    }
+
+    @if (entriesResource.isLoading()) {
+      <p class="mt-4 font-['DM_Sans'] text-sm text-slate-500">Loading entries...</p>
+    }
+
+    @if (!entriesResource.isLoading() && entriesPage().items.length === 0) {
+      <p class="mt-4 rounded-lg border border-slate-200 bg-white p-4 font-['DM_Sans'] text-sm text-slate-600">
+        No entries found.
+      </p>
+    }
+
+    @if (entriesPage().items.length > 0) {
+      <div class="mt-4 space-y-3">
+        <app-entry-list
+          [entries]="entriesPage().items"
+          [highlightClassName]="highlightClassName()"
+          (deleteRequested)="deleteEntry($event)"
+        />
+
+        <app-pagination
+          [page]="entriesPage().page"
+          [totalPages]="entriesPage().totalPages"
+          [hasNext]="entriesPage().hasNext"
+          (pageChange)="changePage($event)"
+        />
+      </div>
+    }
+  </section>
+</main>

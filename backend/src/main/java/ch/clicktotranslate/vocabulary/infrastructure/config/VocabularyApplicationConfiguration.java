@@ -7,7 +7,6 @@ import ch.clicktotranslate.vocabulary.application.EntryQuery;
 import ch.clicktotranslate.vocabulary.application.GetEntry;
 import ch.clicktotranslate.vocabulary.application.ListEntries;
 import ch.clicktotranslate.vocabulary.application.ListEntriesByLanguage;
-import ch.clicktotranslate.vocabulary.application.ListEntryUsages;
 import ch.clicktotranslate.vocabulary.application.RegisterSegmentBundle;
 import ch.clicktotranslate.vocabulary.application.SearchEntries;
 import ch.clicktotranslate.vocabulary.application.StarUsage;
@@ -64,12 +63,6 @@ public class VocabularyApplicationConfiguration {
 	}
 
 	@Bean
-	public ListEntryUsages listEntryUsages(VocabularyRepository vocabularyRepository, EntryQuery entryQuery,
-			UserProvider userProvider) {
-		return new ListEntryUsages(vocabularyRepository, entryQuery, userProvider);
-	}
-
-	@Bean
 	public DeleteUsage deleteUsage(VocabularyRepository vocabularyRepository, UserProvider userProvider) {
 		return new DeleteUsage(vocabularyRepository, userProvider);
 	}
@@ -88,9 +81,8 @@ public class VocabularyApplicationConfiguration {
 	}
 
 	@Bean
-	public VocabularyUsageController vocabularyUsageController(ListEntryUsages listEntryUsages, DeleteUsage deleteUsage,
-			StarUsage starUsage) {
-		return new VocabularyUsageController(listEntryUsages, deleteUsage, starUsage);
+	public VocabularyUsageController vocabularyUsageController(DeleteUsage deleteUsage, StarUsage starUsage) {
+		return new VocabularyUsageController(deleteUsage, starUsage);
 	}
 
 }

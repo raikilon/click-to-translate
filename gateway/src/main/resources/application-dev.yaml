@@ -9,6 +9,7 @@ spring:
           keycloak:
             client-id: click-to-translate-gateway
             client-secret: click-to-translate-gateway-secret
+            redirect-uri: "http://localhost:8082/login/oauth2/code/{registrationId}"
   data:
     redis:
       host: localhost

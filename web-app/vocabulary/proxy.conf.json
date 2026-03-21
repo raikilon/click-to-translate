@@ -1,0 +1,35 @@
+{
+  "/auth": {
+    "target": "http://localhost:8082",
+    "secure": false,
+    "changeOrigin": false,
+    "autoRewrite": true
+  },
+  "/oauth2": {
+    "target": "http://localhost:8082",
+    "secure": false,
+    "changeOrigin": false,
+    "autoRewrite": true
+  },
+  "/login/oauth2": {
+    "target": "http://localhost:8082",
+    "secure": false,
+    "changeOrigin": false,
+    "autoRewrite": true
+  },
+  "/vocabulary": {
+    "target": "http://localhost:8082",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/translate": {
+    "target": "http://localhost:8082",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/segment": {
+    "target": "http://localhost:8082",
+    "secure": false,
+    "changeOrigin": false
+  }
+}

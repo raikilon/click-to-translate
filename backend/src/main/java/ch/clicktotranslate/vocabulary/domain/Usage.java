@@ -128,7 +128,7 @@ public class Usage implements Entity<Entry, Usage.Id> {
 
 	private static TextSpan findTranslationSpan(String translation, String wordTranslation) {
 		try {
-			return TextSpan.find(translation, wordTranslation);
+			return TextSpan.findIgnoreCase(translation, wordTranslation);
 		}
 		catch (IllegalArgumentException ignored) {
 			return null;
