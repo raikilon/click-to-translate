@@ -4,7 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@infra/*": ["src/infrastructure/*"]
+      "@infra/*": ["src/infrastructure/*"],
+      "@vocabulary/auth": ["../../libs/auth/src/index.ts"],
+      "@vocabulary/language": ["../../libs/language/src/index.ts"]
     }
   }
 }

@@ -2,7 +2,12 @@ import type {
   TranslationRequest,
   TranslationResponse,
 } from "@/content/translation/domain/Translation";
-import { AuthRequiredError } from "@/content/authentication/application/AuthErrors";
+import {
+  normalizeLanguageIds,
+  SEGMENT_TRANSLATION_PATH,
+  TRANSLATE_LANGUAGES_PATH,
+} from '@vocabulary/language';
+import { AuthRequiredError } from '@vocabulary/auth';
 import { translationRuntimeConfig } from "./TranslationRuntimeConfig";
 
 interface TranslateApiResponse {
@@ -14,7 +19,7 @@ export class TranslationApi {
   async listLanguages(): Promise<string[]> {
     const languagesUrl = this.buildUrl(
       translationRuntimeConfig.apiBaseUrl,
-      translationRuntimeConfig.translateLanguagesPath,
+      TRANSLATE_LANGUAGES_PATH,
     );
 
     const response = await fetch(languagesUrl, {
@@ -40,10 +45,8 @@ export class TranslationApi {
       return [];
     }
 
-    return payload
-      .filter((value): value is string => typeof value === "string")
-      .map((value) => value.trim())
-      .filter(Boolean);
+    const languageIds = payload.filter((value): value is string => typeof value === "string");
+    return normalizeLanguageIds(languageIds);
   }
 
   async translate(
@@ -51,7 +54,7 @@ export class TranslationApi {
   ): Promise<TranslationResponse> {
     const translateUrl = this.buildUrl(
       translationRuntimeConfig.apiBaseUrl,
-      translationRuntimeConfig.segmentPath,
+      SEGMENT_TRANSLATION_PATH,
     );
 
     const response = await fetch(translateUrl, {

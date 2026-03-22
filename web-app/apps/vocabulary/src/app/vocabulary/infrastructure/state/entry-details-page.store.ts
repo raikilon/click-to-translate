@@ -1,6 +1,7 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { normalizeLanguageIds, TRANSLATE_LANGUAGES_PATH } from '@vocabulary/language';
 import { firstValueFrom } from 'rxjs';
 import { UsageOrdering } from '../../domain/usage-ordering';
 import { EntryDto } from '../dto/entry.dto';
@@ -23,7 +24,7 @@ export class EntryDetailsPageStore {
     return { url: `${this.vocabularyBasePath}/entries/${entryId}` };
   });
 
-  readonly languageResource = httpResource<string[]>(() => ({ url: '/translate/languages' }), {
+  readonly languageResource = httpResource<string[]>(() => ({ url: TRANSLATE_LANGUAGES_PATH }), {
     defaultValue: [],
   });
 
@@ -32,13 +33,7 @@ export class EntryDetailsPageStore {
     return value ? this.mapper.toEntryModel(value) : undefined;
   });
 
-  readonly languages = computed(() =>
-    this.languageResource
-      .value()
-      .map((value) => value.toUpperCase())
-      .filter((value, index, array) => array.indexOf(value) === index)
-      .sort((a, b) => a.localeCompare(b)),
-  );
+  readonly languages = computed(() => normalizeLanguageIds(this.languageResource.value()));
 
   readonly sortedUsages = computed(() => {
     const value = this.entry();

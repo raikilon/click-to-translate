@@ -1,3 +1,1 @@
-export interface AuthState {
-  isAuthenticated: boolean;
-}
+export type { AuthState } from '@vocabulary/auth';

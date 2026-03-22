@@ -21,6 +21,8 @@ export default defineConfig({
   manifestVersion: 3,
   alias: {
     "@infra": "src/infrastructure",
+    "@vocabulary/auth": "../../libs/auth/src",
+    "@vocabulary/language": "../../libs/language/src",
   },
   manifest: ({ browser }) => {
     const gatewayHostPermissions = resolveGatewayHostPermissions();

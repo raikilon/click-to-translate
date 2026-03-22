@@ -1,33 +1,83 @@
-# Vocabulary
+# Web Apps Workspace
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+Nx workspace containing:
 
-## Development server
+- `apps/vocabulary`: Angular web app
+- `apps/extension`: WXT browser extension
+- `libs/auth`: shared auth contracts/constants
+- `libs/language`: shared language contracts/utils
 
-To start a local development server, run:
+## Prerequisites
 
-```bash
-ng serve
-```
+- Node.js 20+
+- npm
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Install
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Run from `web-app`:
 
 ```bash
-ng test
+npm install
 ```
 
-s
+## Run
+
+From `web-app`:
+
+```bash
+# Angular app (dev)
+npm run serve
+
+# Extension (Chrome)
+npm run serve:extension
+
+# Extension (Firefox)
+npm run serve:extension:firefox
+```
+
+## Build
+
+From `web-app`:
+
+```bash
+# Angular app
+npm run build
+
+# Extension (Chrome)
+npm run build:extension
+
+# Extension (Firefox)
+npm run build:extension:firefox
+```
+
+## Test / Type Check
+
+From `web-app`:
+
+```bash
+# Angular
+npm run test
+
+# Extension type-check target
+npm run test:extension
+```
+
+## Zip Extension
+
+From `web-app`:
+
+```bash
+npm run zip:extension
+npm run zip:extension:firefox
+```
+
+## Project Notes
+
+- Angular proxy config: `apps/vocabulary/proxy.conf.json`
+- Extension runtime env files: `apps/extension/.env.development` and `apps/extension/.env.production`
+- If gateway auth or language endpoints change, update `libs/auth` and `libs/language`
+
+## App Guides
+
+- Vocabulary app details: `apps/vocabulary/README.md`
+- Extension details: `apps/extension/README.md`

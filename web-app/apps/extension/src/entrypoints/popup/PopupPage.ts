@@ -49,7 +49,7 @@ export class PopupPage {
 
   private async refreshInitialState(): Promise<void> {
     const authState = await this.authController.getAuthState();
-    if (!authState.isLoggedIn) {
+    if (!authState.isAuthenticated) {
       this.renderLoggedOutUi();
       return;
     }
@@ -90,7 +90,7 @@ export class PopupPage {
 
   private async loginAndRefresh(): Promise<void> {
     const state = await this.authController.login();
-    if (!state.isLoggedIn) {
+    if (!state.isAuthenticated) {
       this.renderLoggedOutUi();
       this.view.setStatus("Login started. Complete it in the opened tab, then retry.");
       return;

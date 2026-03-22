@@ -1,8 +1,10 @@
-import { GetAuthStateUseCase } from "@/content/authentication/application/GetAuthStateUseCase";
 import { LoginUseCase } from "@/content/authentication/application/LoginUseCase";
-import { LogoutUseCase } from "@/content/authentication/application/LogoutUseCase";
-import { AuthSessionManager } from "@/content/authentication/infrastructure/AuthSessionManager";
-import { GatewayAuthClient } from "@/content/authentication/infrastructure/GatewayAuthClient";
+import {
+  GatewayAuthService,
+  GetAuthStateUseCase,
+  LogoutUseCase,
+} from '@vocabulary/auth';
+import { authRuntimeConfig } from "@/content/authentication/infrastructure/AuthRuntimeConfig";
 import { LoginTabAuthFlow } from "@/content/authentication/infrastructure/LoginTabAuthFlow";
 import { GetLanguagePrefsUseCase } from "@/content/translation/application/GetLanguagePrefsUseCase";
 import { ListTranslationLanguagesUseCase } from "@/content/translation/application/ListTranslationLanguagesUseCase";
@@ -13,15 +15,13 @@ import { TranslationGateway } from "@/content/translation/infrastructure/Transla
 import { BackgroundMessageRouter } from "./BackgroundMessageRouter";
 
 export default defineBackground(() => {
-  const gatewayAuthClient = new GatewayAuthClient();
-  const loginTabAuthFlow = new LoginTabAuthFlow();
-  const authSessionManager = new AuthSessionManager({
-    gatewayAuthClient,
-    loginTabAuthFlow,
+  const gatewayAuthService = new GatewayAuthService({
+    apiBaseUrl: authRuntimeConfig.apiBaseUrl,
   });
-  const getAuthStateUseCase = new GetAuthStateUseCase(authSessionManager);
-  const loginUseCase = new LoginUseCase(authSessionManager);
-  const logoutUseCase = new LogoutUseCase(authSessionManager);
+  const loginTabAuthFlow = new LoginTabAuthFlow();
+  const getAuthStateUseCase = new GetAuthStateUseCase(gatewayAuthService);
+  const loginUseCase = new LoginUseCase(gatewayAuthService, loginTabAuthFlow);
+  const logoutUseCase = new LogoutUseCase(gatewayAuthService);
 
   const translationApi = new TranslationApi();
   const translationGateway = new TranslationGateway(translationApi);

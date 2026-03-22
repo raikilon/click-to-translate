@@ -1,7 +1,5 @@
 import { defineExtensionMessaging } from "@webext-core/messaging";
-import type {
-  AuthState,
-} from "@/content/authentication/domain/AuthState";
+import type { AuthState } from '@vocabulary/auth';
 import type { TranslateRequest } from "./contracts/TranslateRequest";
 import type { TranslateResponse } from "./contracts/TranslateResponse";
 

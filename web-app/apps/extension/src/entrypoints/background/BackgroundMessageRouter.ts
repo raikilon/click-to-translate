@@ -1,9 +1,12 @@
 import { onBackgroundMessage, SERVICES } from "@/entrypoints/shared/messaging/services";
 import type { TranslateRequest } from "@/entrypoints/shared/messaging/contracts/TranslateRequest";
-import { AuthRequiredError, AuthSessionExpiredError } from "@/content/authentication/application/AuthErrors";
-import { GetAuthStateUseCase } from "@/content/authentication/application/GetAuthStateUseCase";
 import { LoginUseCase } from "@/content/authentication/application/LoginUseCase";
-import { LogoutUseCase } from "@/content/authentication/application/LogoutUseCase";
+import {
+  AuthRequiredError,
+  AuthSessionExpiredError,
+  GetAuthStateUseCase,
+  LogoutUseCase,
+} from '@vocabulary/auth';
 import { GetLanguagePrefsUseCase } from "@/content/translation/application/GetLanguagePrefsUseCase";
 import { ListTranslationLanguagesUseCase } from "@/content/translation/application/ListTranslationLanguagesUseCase";
 import { TranslateSelectionUseCase } from "@/content/translation/application/TranslateSelectionUseCase";

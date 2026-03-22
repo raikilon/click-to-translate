@@ -1,5 +1,6 @@
 import { HttpClient, HttpResourceRequest, httpResource } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
+import { normalizeLanguageIds, TRANSLATE_LANGUAGES_PATH } from '@vocabulary/language';
 import { firstValueFrom } from 'rxjs';
 import { SearchQueryParser } from '../../domain/search-query-parser';
 import { ParsedSearchQuery } from '../../domain/search-query.model';
@@ -18,7 +19,7 @@ export class VocabularyHomePageStore {
   private readonly search = signal<ParsedSearchQuery>({ mode: 'all', query: '' });
   private readonly languageToken = signal<string | null>(null);
 
-  readonly languageResource = httpResource<string[]>(() => ({ url: '/translate/languages' }), {
+  readonly languageResource = httpResource<string[]>(() => ({ url: TRANSLATE_LANGUAGES_PATH }), {
     defaultValue: [],
   });
 
@@ -38,13 +39,7 @@ export class VocabularyHomePageStore {
 
   readonly entriesPage = computed(() => this.mapper.toEntryPageModel(this.entriesResource.value()));
 
-  readonly languages = computed(() =>
-    this.languageResource
-      .value()
-      .map((value) => value.toUpperCase())
-      .filter((value, index, array) => array.indexOf(value) === index)
-      .sort((a, b) => a.localeCompare(b)),
-  );
+  readonly languages = computed(() => normalizeLanguageIds(this.languageResource.value()));
 
   readonly languageSuggestions = computed(() => {
     const token = this.languageToken();

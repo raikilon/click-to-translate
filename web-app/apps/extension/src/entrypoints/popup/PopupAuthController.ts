@@ -1,5 +1,5 @@
 import type { BackgroundClient } from "../shared/messaging/client";
-import type { AuthState } from "@/content/authentication/domain/AuthState";
+import type { AuthState } from '@vocabulary/auth';
 
 export class PopupAuthController {
   constructor(private readonly client: BackgroundClient) {}

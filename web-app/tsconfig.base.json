@@ -12,7 +12,10 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve",
-    "paths": {},
+    "paths": {
+      "@vocabulary/auth": ["libs/auth/src/index.ts"],
+      "@vocabulary/language": ["libs/language/src/index.ts"]
+    },
     "baseUrl": ".",
     "rootDir": "."
   },
