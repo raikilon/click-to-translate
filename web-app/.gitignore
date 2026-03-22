@@ -47,3 +47,11 @@ Thumbs.db
 
 .nx/cache
 .nx/workspace-data
+
+# Extension artifacts
+apps/extension/.output
+apps/extension/.wxt
+apps/extension/edge/
+apps/extension/stats.html
+apps/extension/stats-*.json
+apps/extension/web-ext.config.ts

@@ -3,18 +3,26 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "nx serve",
-    "start:dev": "nx serve --configuration development",
-    "start:prod": "nx serve --configuration production",
-    "build": "nx build",
-    "build:dev": "nx build --configuration development",
-    "build:prod": "nx build --configuration production",
-    "watch": "nx build --watch --configuration development",
-    "test": "nx test"
+    "serve": "nx serve vocabulary",
+    "serve:dev": "nx serve vocabulary --configuration development",
+    "serve:prod": "nx serve vocabulary --configuration production",
+    "serve:extension": "nx serve extension",
+    "serve:extension:firefox": "nx run extension:serve:firefox",
+    "build": "nx build vocabulary",
+    "build:dev": "nx build vocabulary --configuration development",
+    "build:prod": "nx build vocabulary --configuration production",
+    "build:extension": "nx build extension",
+    "build:extension:firefox": "nx run extension:build:firefox",
+    "zip:extension": "nx run extension:zip",
+    "zip:extension:firefox": "nx run extension:zip:firefox",
+    "watch": "nx build vocabulary --watch --configuration development",
+    "test": "nx test vocabulary",
+    "test:extension": "nx test extension"
   },
   "private": true,
   "packageManager": "npm@10.8.2",
   "dependencies": {
+    "@webext-core/messaging": "^2.3.0",
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
@@ -44,6 +52,7 @@
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "wxt": "^0.20.18"
   }
 }

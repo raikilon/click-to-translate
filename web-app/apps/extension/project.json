@@ -1,0 +1,62 @@
+{
+  "name": "extension",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/extension/src",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/extension",
+        "command": "npx --no-install wxt"
+      },
+      "cache": false
+    },
+    "serve:firefox": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/extension",
+        "command": "npx --no-install wxt -b firefox"
+      },
+      "cache": false
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/extension",
+        "command": "npx --no-install wxt build"
+      },
+      "outputs": ["{projectRoot}/.output"]
+    },
+    "build:firefox": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/extension",
+        "command": "npx --no-install wxt build -b firefox"
+      },
+      "outputs": ["{projectRoot}/.output"]
+    },
+    "zip": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/extension",
+        "command": "npx --no-install wxt zip"
+      },
+      "outputs": ["{projectRoot}/.output"]
+    },
+    "zip:firefox": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/extension",
+        "command": "npx --no-install wxt zip -b firefox"
+      },
+      "outputs": ["{projectRoot}/.output"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx --no-install tsc --noEmit -p apps/extension/tsconfig.json"
+      }
+    }
+  }
+}
