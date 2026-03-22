@@ -1,0 +1,12 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@infra/*": ["src/infrastructure/*"],
+      "@vocabulary/auth": ["../../libs/auth/src/index.ts"],
+      "@vocabulary/language": ["../../libs/language/src/index.ts"]
+    }
+  }
+}

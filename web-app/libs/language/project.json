@@ -1,0 +1,9 @@
+{
+  "name": "language",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/language/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project language --web",
+  "targets": {}
+}
