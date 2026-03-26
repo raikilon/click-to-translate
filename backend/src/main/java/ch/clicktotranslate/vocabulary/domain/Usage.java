@@ -6,6 +6,9 @@ import org.jmolecules.ddd.types.Identifier;
 
 public class Usage implements Entity<Entry, Usage.Id> {
 
+	private static final TextSpanFinder TRANSLATION_SPAN_FINDER = new TextSpanFinder(
+			FuzzyTextSpanFinder.conservative());
+
 	private final Id id;
 
 	private final String sentence;
@@ -127,12 +130,7 @@ public class Usage implements Entity<Entry, Usage.Id> {
 	}
 
 	private static TextSpan findTranslationSpan(String translation, String wordTranslation) {
-		try {
-			return TextSpan.findIgnoreCase(translation, wordTranslation);
-		}
-		catch (IllegalArgumentException ignored) {
-			return null;
-		}
+		return TRANSLATION_SPAN_FINDER.findIgnoreCaseOrClosest(translation, wordTranslation).orElse(null);
 	}
 
 	public record Id(Long value) implements Identifier {
