@@ -6,13 +6,13 @@ import ch.clicktotranslate.lemmatizer.domain.SegmentBundleLemmatizedEvent;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaEntryEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.JpaUsageEntity;
 import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataEntryRepository;
-import ch.clicktotranslate.vocabulary.infrastructure.persistence.SpringDataUsageRepository;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.modulith.test.Scenario;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -33,7 +33,7 @@ class VocabularyModuleTest {
 	private SpringDataEntryRepository entryRepository;
 
 	@Autowired
-	private SpringDataUsageRepository usageRepository;
+	private JdbcTemplate jdbcTemplate;
 
 	@MockitoBean
 	private JwtDecoder jwtDecoder;
@@ -43,7 +43,9 @@ class VocabularyModuleTest {
 
 	@BeforeEach
 	void cleanDatabase() {
-		entryRepository.deleteAll();
+		jdbcTemplate.update("DELETE FROM jpa_usage_entity");
+		jdbcTemplate.update("DELETE FROM jpa_entry_entity_translations");
+		jdbcTemplate.update("DELETE FROM jpa_entry_entity");
 		given(userProvider.currentUserId()).willReturn(UserId.of("user-1"));
 	}
 
